@@ -1,7 +1,7 @@
 // Copyright 2018 The Flutter team. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
+import 'package:zesty/bottom_nav_bar.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 
@@ -16,9 +16,17 @@ class MyApp extends StatelessWidget {
   // #docregion build
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return
+    MaterialApp(
       title: 'Startup Name Generator',
-      home: RandomWords(),
+      theme: ThemeData(
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.indigo,
+          foregroundColor: Colors.white,
+        ),
+      ),
+      home: const RandomWords(),
+
     );
   }
 // #enddocregion build
@@ -28,6 +36,7 @@ class MyApp extends StatelessWidget {
 // #docregion RWS-var
 class _RandomWordsState extends State<RandomWords> {
   final _suggestions = <WordPair>[];
+  final _saved = <WordPair>{};
   final _biggerFont = const TextStyle(fontSize: 18.0);
   // #enddocregion RWS-var
 
@@ -36,8 +45,14 @@ class _RandomWordsState extends State<RandomWords> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Emily and Mustafa'),
-        backgroundColor: Colors.green,
+        title: const Text('Startup Name Generator'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.list),
+            onPressed: _pushSaved,
+            tooltip: 'Saved Suggestions',
+          ),
+        ],
       ),
       // #docregion itemBuilder
       body: ListView.builder(
@@ -49,12 +64,29 @@ class _RandomWordsState extends State<RandomWords> {
           if (index >= _suggestions.length) {
             _suggestions.addAll(generateWordPairs().take(10)); /*4*/
           }
+
+          final alreadySaved = _saved.contains(_suggestions[index]);
+
           // #docregion listTile
           return ListTile(
             title: Text(
               _suggestions[index].asPascalCase,
               style: _biggerFont,
             ),
+            trailing: Icon(
+              alreadySaved ? Icons.favorite : Icons.favorite_border,
+              color: alreadySaved ? Colors.red : null,
+              semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
+            ),
+            onTap: () {
+              setState(() {
+                if (alreadySaved) {
+                  _saved.remove(_suggestions[index]);
+                } else {
+                  _saved.add(_suggestions[index]);
+                }
+              });
+            },
           );
           // #enddocregion listTile
         },
@@ -62,7 +94,39 @@ class _RandomWordsState extends State<RandomWords> {
       // #enddocregion itemBuilder
     );
   }
-// #enddocregion RWS-build
+  // #enddocregion RWS-build
+
+  void _pushSaved() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) {
+          final tiles = _saved.map(
+                (pair) {
+              return ListTile(
+                title: Text(
+                  pair.asPascalCase,
+                  style: _biggerFont,
+                ),
+              );
+            },
+          );
+          final divided = tiles.isNotEmpty
+              ? ListTile.divideTiles(
+            context: context,
+            tiles: tiles,
+          ).toList()
+              : <Widget>[];
+
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Saved Suggestions'),
+            ),
+            body: ListView(children: divided),
+          );
+        },
+      ),
+    );
+  }
 // #docregion RWS-var
 }
 // #enddocregion RWS-var
@@ -71,5 +135,5 @@ class RandomWords extends StatefulWidget {
   const RandomWords({Key? key}) : super(key: key);
 
   @override
-  _RandomWordsState createState() => _RandomWordsState();
+  State<RandomWords> createState() => _RandomWordsState();
 }
