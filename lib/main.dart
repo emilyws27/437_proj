@@ -17,17 +17,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return
-    MaterialApp(
-      title: 'Startup Name Generator',
-      theme: ThemeData(
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.indigo,
-          foregroundColor: Colors.white,
+      MaterialApp(
+        title: 'Zesty',
+        theme: ThemeData(
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.indigo,
+            foregroundColor: Colors.white,
+          ),
         ),
-      ),
-      home: const RandomWords(),
+        home: const RandomWords(),
 
-    );
+      );
   }
 // #enddocregion build
 }
