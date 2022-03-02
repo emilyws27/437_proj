@@ -5,30 +5,36 @@
 // import 'package:zesty/bottom_nav_bar.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 
-void main() {
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(const MyApp());
 }
 
 // #docregion MyApp
 class MyApp extends StatelessWidget {
+  static final String title = 'Simulator';
   const MyApp({Key? key}) : super(key: key);
 
   // #docregion build
   @override
   Widget build(BuildContext context) {
-    return
-      MaterialApp(
-        title: 'Zesty',
-        theme: ThemeData(
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.indigo,
-            foregroundColor: Colors.white,
-          ),
+    return MaterialApp(
+      title: 'Zesty',
+      theme: ThemeData(
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color.fromARGB(0xFF, 0xFE, 0xD9, 0xD9),
+          foregroundColor: Colors.black,
         ),
-        home: const RandomWords(),
-
-      );
+      ),
+      home: const RandomWords(),
+    );
   }
 // #enddocregion build
 }
@@ -46,12 +52,12 @@ class _RandomWordsState extends State<RandomWords> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Startup Name Generator'),
+        title: const Text('Zesty: Food Recipes for You!'),
         actions: [
           IconButton(
             icon: const Icon(Icons.list),
             onPressed: _pushSaved,
-            tooltip: 'Saved Suggestions',
+            tooltip: 'Saved Recipes',
           ),
         ],
       ),
@@ -63,7 +69,7 @@ class _RandomWordsState extends State<RandomWords> {
 
           final index = i ~/ 2; /*3*/
           if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10)); /*4*/
+            _suggestions.addAll(generateWordPairs().take(1)); /*4*/
           }
 
           final alreadySaved = _saved.contains(_suggestions[index]);
@@ -102,7 +108,7 @@ class _RandomWordsState extends State<RandomWords> {
       MaterialPageRoute<void>(
         builder: (context) {
           final tiles = _saved.map(
-                (pair) {
+            (pair) {
               return ListTile(
                 title: Text(
                   pair.asPascalCase,
@@ -113,14 +119,14 @@ class _RandomWordsState extends State<RandomWords> {
           );
           final divided = tiles.isNotEmpty
               ? ListTile.divideTiles(
-            context: context,
-            tiles: tiles,
-          ).toList()
+                  context: context,
+                  tiles: tiles,
+                ).toList()
               : <Widget>[];
 
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Saved Suggestions'),
+              title: const Text('Saved Recipes'),
             ),
             body: ListView(children: divided),
           );
