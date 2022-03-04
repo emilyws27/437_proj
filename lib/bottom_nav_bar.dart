@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'ingredients.dart';
 //import 'package:zesty/recipes.dart';
 
 class BottomNav extends StatefulWidget {
@@ -17,10 +18,7 @@ class _BottomNav extends State<BottomNav> {
       'My Recipes',
       style: optionStyle,
     ),
-    Text(
-      'Search',
-      style: optionStyle,
-    ),
+    ingredientDropDown(),
     Text(
       'My Profile',
       style: optionStyle,
@@ -60,7 +58,7 @@ class _BottomNav extends State<BottomNav> {
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
-
+        onTap: _onItemTapped,
       ),
     );
   }
