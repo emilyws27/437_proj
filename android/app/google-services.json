@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "179325164971",
+    "project_id": "zesty-437",
+    "storage_bucket": "zesty-437.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:179325164971:android:470b2e6d65a90d27bd46ee",
+        "android_client_info": {
+          "package_name": "com.example.zesty"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "179325164971-1jrvhuf9vjn5jig53cu3s4i426jm99ip.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.zesty",
+            "certificate_hash": "37b0c23bdbd23936dda239a031c916786a95945c"
+          }
+        },
+        {
+          "client_id": "179325164971-55shqpiitt2521mhf92vr7eqfehkipad.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiCwawfPpWdSrktMrmigzfKeMqg_MkuVU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "179325164971-55shqpiitt2521mhf92vr7eqfehkipad.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "179325164971-vm57ln9sqfk47p0tdcefnf8c628i94je.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "cse437.cse437.zesty"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
