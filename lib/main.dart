@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:zesty/bottom_nav_bar.dart';
+import 'package:zesty/ingredients.dart';
+import 'package:zesty/user.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
