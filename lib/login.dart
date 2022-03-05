@@ -52,7 +52,7 @@ class Login extends StatelessWidget {
         ),
         body: Center(
             child: ElevatedButton(
-                child: const Text("go to home"),
+                child: const Text("Log in with google"),
                 onPressed: () {
                   print(signInWithGoogle());
                   // Navigator.push(
