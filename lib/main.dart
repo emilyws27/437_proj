@@ -8,15 +8,29 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:zesty/bottom_nav_bar.dart';
 import 'package:zesty/login.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-Future main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
   runApp(const MyApp());
 }
+
+// Future main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await SystemChrome.setPreferredOrientations([
+//     DeviceOrientation.portraitUp,
+//     DeviceOrientation.portraitDown,
+//   ]);
+//   runApp(const MyApp());
+// }
 
 // #docregion MyApp
 class MyApp2 extends StatelessWidget {

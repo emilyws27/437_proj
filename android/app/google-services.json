@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "179325164971",
+    "project_id": "zesty-437",
+    "storage_bucket": "zesty-437.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:179325164971:android:a9c64b919502ffc7bd46ee",
+        "android_client_info": {
+          "package_name": "cse437.cse437.zesty"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "179325164971-55shqpiitt2521mhf92vr7eqfehkipad.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiCwawfPpWdSrktMrmigzfKeMqg_MkuVU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "179325164971-55shqpiitt2521mhf92vr7eqfehkipad.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

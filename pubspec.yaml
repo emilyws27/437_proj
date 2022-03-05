@@ -37,6 +37,10 @@ dependencies:
   english_words: ^4.0.0
   widgets: ^1.4.5
   animated_theme_switcher: ^2.0.6
+  # google_sign_in: ^5.2.4
+  google_sign_in: '^4.5.1'
+  firebase_core: ^1.13.1
+  firebase_auth: ^3.3.9
 
 dev_dependencies:
   flutter_test:
