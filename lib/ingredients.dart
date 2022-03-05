@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class IngredientChooser extends StatefulWidget {
   const IngredientChooser({Key? key}) : super(key: key);
