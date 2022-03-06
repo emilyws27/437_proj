@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "179325164971-bmsbo4b88a5ju1mv5olm9s2q6rjva44s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.zesty",
+            "certificate_hash": "70522986f881695115480f01b344b50803d0ff9d"
+          }
+        },
+        {
           "client_id": "179325164971-55shqpiitt2521mhf92vr7eqfehkipad.apps.googleusercontent.com",
           "client_type": 3
         }
