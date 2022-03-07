@@ -23,7 +23,7 @@ Future main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(const MyApp2());
+  runApp(const LoginPage());
 }
 
 // #docregion MyApp
@@ -48,9 +48,9 @@ class MyApp extends StatelessWidget {
 // #enddocregion build
 }
 
-class MyApp2 extends StatelessWidget {
+class LoginPage extends StatelessWidget {
   static final String title = 'Simulator';
-  const MyApp2({Key? key}) : super(key: key);
+  const LoginPage({Key? key}) : super(key: key);
 
   // #docregion build
   @override
