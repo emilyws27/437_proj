@@ -14,6 +14,7 @@ final GoogleSignIn _googleSignIn = GoogleSignIn(
       'email'
     ]
 );
+
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
 
@@ -50,7 +51,13 @@ class _HomeState extends State<Login> {
 
     if(user != null){
       CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
-      usersCollection.doc(user.email).set({ 'displayName': user.displayName });
+      usersCollection.doc(user.email).get().
+        then((docSnapshot) => {
+            if (!docSnapshot.exists) {
+              usersCollection.doc(user.email).set({ 'displayName': user.displayName })
+            }
+          }
+      );
       return MyApp();
     }else{
       return Scaffold(
