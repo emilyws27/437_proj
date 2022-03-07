@@ -27,13 +27,18 @@ class _HomeState extends State<Login> {
 
   @override
   void initState() {
+    super.initState();
+    print('reached initState');
+    print(_currentUser);
     _googleSignIn.onCurrentUserChanged.listen((account) {
       setState(() {
+        print('user changed');
         _currentUser = account;
       });
     });
-    _googleSignIn.signInSilently();
-    super.initState();
+    _googleSignIn.signInSilently().then( (value) =>
+        print("signed in silently")
+    );
   }
 
   @override
@@ -47,14 +52,14 @@ class _HomeState extends State<Login> {
   }
 
   Widget _buildWidget(){
-    GoogleSignInAccount? user = _currentUser;
 
-    if(user != null){
+    if(_currentUser != null){
+      GoogleSignInAccount? user = _currentUser;
       CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
-      usersCollection.doc(user.email).get().
+      usersCollection.doc(user?.email).get().
         then((docSnapshot) => {
             if (!docSnapshot.exists) {
-              usersCollection.doc(user.email).set({ 'displayName': user.displayName })
+              usersCollection.doc(user?.email).set({ 'displayName': user?.displayName })
             }
           }
       );

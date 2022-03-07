@@ -1,100 +1,98 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:zesty/user.dart';
 
-List<String> myIngredients = <String>[];
-getIngredients(GoogleSignInAccount? user) async {
-  print("got to getIngredients method");
-  if (user != null) {
-    await FirebaseFirestore.instance.collection('users').doc(user.email)
-        .get()
-        .then((value) {
-          myIngredients = List.from(value.get('ingredients'));
-    });
-  }
-}
+final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
-final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: [
-      'email'
-    ]
-);
-
-class recipeFinder extends StatefulWidget {
-  const recipeFinder({Key? key}) : super(key: key);
+class RecipeFinder extends StatefulWidget {
+  const RecipeFinder({Key? key}) : super(key: key);
 
   @override
-  _recipeFinderState createState() => _recipeFinderState();
+  _RecipeFinderState createState() => _RecipeFinderState();
 }
 
-class _recipeFinderState extends State<recipeFinder> {
-  final _ingredients = <String>[
-    "Apples",
-    "Avocado",
-    "Asparagus",
-    "Bananas",
-    "Bread",
-    "Bacon",
-    "Blueberries",
-    "Chicken",
-    "Cheddar Cheese",
-    "Chips Ahoy",
-    "Carrots",
-  ];
-  var _selected = <String>[];
+class _RecipeFinderState extends State<RecipeFinder> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
   GoogleSignInAccount? _currentUser;
 
   @override
   void initState() {
+    super.initState();
+    print('reached initState');
+    print(_currentUser);
     _googleSignIn.onCurrentUserChanged.listen((account) {
       setState(() {
+        print('user changed');
         _currentUser = account;
       });
     });
-    _googleSignIn.signInSilently();
-    super.initState();
+    _googleSignIn.signInSilently().then((value) => print("signed in silently"));
   }
 
   @override
   Widget build(BuildContext context) {
+    print(_currentUser);
     GoogleSignInAccount? user = _currentUser;
+
     if (user != null) {
-      getIngredients(user);
-      print(myIngredients);
+      List<String> myIngredients = <String>[];
+      bool dataRead = false;
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.email)
+          .get()
+          .then((DocumentSnapshot data) {
+        dataRead = true;
+        myIngredients = List.from(data.get('ingredients'));
+      });
 
-      return Scaffold(
-          body: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: _ingredients.length,
-              itemBuilder: (context, i) {
+      if (myIngredients.isNotEmpty) {
+        List<String> recipes = <String>[];
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.email)
+            .get()
+            .then((DocumentSnapshot data) {
+          recipes = List.from(data.get('title'));
+        });
 
-                return Column(
-                  children: <Widget>[
-                    ListTile(
+        return Scaffold(
+            body: ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: recipes.length,
+                itemBuilder: (context, i) {
+                  return Column(
+                    children: <Widget>[
+                      ListTile(
                         title: Text(
-                          _ingredients[i],
+                          recipes[i],
                           style: _biggerFont,
                         ),
-
-                    )
-                    //Divider(),
-                  ],
-                );
-              }));
-    }
-    else {
+                      )
+                      //Divider(),
+                    ],
+                  );
+                }));
+      } else {
+        return Scaffold(
+            body: Center(
+                child: Text(
+          "Please select some recipes",
+          style: _biggerFont,
+        )));
+      }
+    } else {
       return Scaffold(
-          body: Text(
-            "Loading...",
-          )
-      );
+          body: Center(
+              child: Text(
+        "You're not signed in",
+        style: _biggerFont,
+      )));
     }
   }
 }

@@ -7,11 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:zesty/user.dart';
 
-final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: [
-      'email'
-    ]
-);
+final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
 class IngredientChooser extends StatefulWidget {
   const IngredientChooser({Key? key}) : super(key: key);
@@ -42,19 +38,24 @@ class _IngredientChooserState extends State<IngredientChooser> {
 
   @override
   void initState() {
+    super.initState();
+    print('reached initState');
+    print(_currentUser);
     _googleSignIn.onCurrentUserChanged.listen((account) {
       setState(() {
+        print('user changed');
         _currentUser = account;
       });
     });
-    _googleSignIn.signInSilently();
-    super.initState();
+    _googleSignIn.signInSilently().then((value) => print("signed in silently"));
   }
 
   @override
   Widget build(BuildContext context) {
-    GoogleSignInAccount? user = _currentUser;
-    if (user != null) {
+    print(_currentUser);
+
+    if (_currentUser != null) {
+      GoogleSignInAccount? user = _currentUser;
       return Scaffold(
           body: ListView.builder(
               padding: const EdgeInsets.all(16.0),
@@ -75,43 +76,41 @@ class _IngredientChooserState extends State<IngredientChooser> {
                           semanticLabel: alreadySelected
                               ? "Remove From Inventory"
                               : "Add To Inventory",
-
                         ),
                         onTap: () {
                           setState(() {
                             if (alreadySelected) {
                               _selected.remove(_ingredients[i]);
-                              FirebaseFirestore.instance.collection('users')
-                                  .doc(user.email)
+                              FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(user?.email)
                                   .update({
-                                'ingredients': FieldValue.arrayRemove(
-                                    [_ingredients[i]])
+                                'ingredients':
+                                    FieldValue.arrayRemove([_ingredients[i]])
                               });
-                            }
-                            else {
+                            } else {
                               _selected.add(_ingredients[i]);
-                              FirebaseFirestore.instance.collection('users')
-                                  .doc(user.email)
+                              FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(user?.email)
                                   .update({
-                                'ingredients': FieldValue.arrayUnion(
-                                    [_ingredients[i]])
+                                'ingredients':
+                                    FieldValue.arrayUnion([_ingredients[i]])
                               });
                             }
                           });
-                        }
-                    ),
-
+                        }),
                     Divider(),
                   ],
                 );
               }));
-    }
-    else {
+    } else {
       return Scaffold(
-          body: Text(
-            "Loading...",
-          )
-      );
+          body: Center(
+              child: Text(
+        "Loading...",
+        style: _biggerFont,
+      )));
     }
   }
 }

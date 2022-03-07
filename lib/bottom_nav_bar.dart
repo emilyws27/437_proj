@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zesty/ingredients.dart';
+import 'package:zesty/recipes.dart';
 //import 'package:zesty/recipes.dart';
 
 class BottomNav extends StatefulWidget {
@@ -14,10 +15,7 @@ class _BottomNav extends State<BottomNav> {
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'My Recipes',
-      style: optionStyle,
-    ),
+    RecipeFinder(),
     IngredientChooser(),
     Text(
       'My Profile',
