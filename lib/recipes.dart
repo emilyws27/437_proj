@@ -49,7 +49,6 @@ class _RecipeFinderState extends State<RecipeFinder> {
           .get()
           .then((DocumentSnapshot data) {
         _selected = List.from(data.get('savedRecipes'));
-        print(_selected);
         return List.from(data.get('ingredients'));
       });
       return ingredients;
@@ -145,7 +144,10 @@ class _RecipeFinderState extends State<RecipeFinder> {
                       }));
             } else if (snapshot.hasError) {
               children = Scaffold(
-                  body: Column(children: const <Widget>[
+                  body: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const <Widget>[
                 Icon(
                   Icons.error_outline,
                   color: Colors.red,
@@ -158,7 +160,10 @@ class _RecipeFinderState extends State<RecipeFinder> {
               ]));
             } else {
               children = Scaffold(
-                  body: Column(children: <Widget>[
+                  body: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
                 const SizedBox(
                   width: 60,
                   height: 60,
