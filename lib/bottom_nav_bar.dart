@@ -47,7 +47,7 @@ class _BottomNav extends State<BottomNav> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
-            label: 'Find Recipes',
+            label: 'My Ingredients',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_box),

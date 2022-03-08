@@ -26,16 +26,22 @@ class _RecipeFinderState extends State<RecipeFinder> {
   void initState() {
     super.initState();
     _currentUser = _googleSignIn.currentUser;
-    if (_currentUser == null) {
-      _googleSignIn.signInSilently().then((value) {
-        _currentUser = _googleSignIn.currentUser;
-      });
-    }
+    // if (_currentUser == null) {
+    //   _googleSignIn.signInSilently().then((value) {
+    //     _currentUser = _googleSignIn.currentUser;
+    //   });
+    // }
     _googleSignIn.onCurrentUserChanged.listen((account) {
       setState(() {
         _currentUser = account;
       });
     });
+    _googleSignIn.signInSilently().then((value) {
+      _currentUser = _googleSignIn.currentUser;
+    });
+
+    print("recipe user is ");
+    print(_currentUser);
   }
 
   var _selected = <String>[];
@@ -61,7 +67,6 @@ class _RecipeFinderState extends State<RecipeFinder> {
           .get()
           .then((DocumentSnapshot data) {
         _selected = List.from(data.get('savedRecipes'));
-        print(_selected);
       });
       Future<List<String>> recipes = FirebaseFirestore.instance
           .collection('Recipes')
@@ -69,7 +74,6 @@ class _RecipeFinderState extends State<RecipeFinder> {
           .then((QuerySnapshot querySnapShot) {
         List<String> toRet = [];
         querySnapShot.docs.forEach((doc) {
-          print(doc['title']);
           toRet.add(doc['title']);
         });
         return toRet;

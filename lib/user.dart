@@ -4,10 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:zesty/main.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:english_words/english_words.dart';
-import 'package:zesty/main.dart';
 
 final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
@@ -24,16 +21,19 @@ class _LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
-    _currentUser = _googleSignIn.currentUser;
-    if (_currentUser == null) {
-      _googleSignIn.signInSilently().then((value) {
-        _currentUser = _googleSignIn.currentUser;
-      });
-    }
+    //_currentUser = _googleSignIn.currentUser;
+    // if (_currentUser == null) {
+    //   _googleSignIn.signInSilently().then((value) {
+    //     _currentUser = _googleSignIn.currentUser;
+    //   });
+    // }
     _googleSignIn.onCurrentUserChanged.listen((account) {
       setState(() {
         _currentUser = account;
       });
+    });
+    _googleSignIn.signInSilently().then((value) {
+      _currentUser = _googleSignIn.currentUser;
     });
   }
 

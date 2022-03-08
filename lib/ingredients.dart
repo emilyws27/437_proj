@@ -40,15 +40,18 @@ class _IngredientChooserState extends State<IngredientChooser> {
   void initState() {
     super.initState();
     _currentUser = _googleSignIn.currentUser;
-    if (_currentUser == null) {
-      _googleSignIn.signInSilently().then((value) {
-        _currentUser = _googleSignIn.currentUser;
-      });
-    }
+    // if (_currentUser == null) {
+    //   _googleSignIn.signInSilently().then((value) {
+    //     _currentUser = _googleSignIn.currentUser;
+    //   });
+    // }
     _googleSignIn.onCurrentUserChanged.listen((account) {
       setState(() {
         _currentUser = account;
       });
+    });
+    _googleSignIn.signInSilently().then((value) {
+      _currentUser = _googleSignIn.currentUser;
     });
   }
 
