@@ -48,8 +48,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
           .doc(user?.email)
           .get()
           .then((DocumentSnapshot data) {
-            _selected = List.from(data.get('savedRecipes'));
-            print(_selected);
+        _selected = List.from(data.get('savedRecipes'));
+        print(_selected);
         return List.from(data.get('ingredients'));
       });
       return ingredients;
@@ -80,7 +80,6 @@ class _RecipeFinderState extends State<RecipeFinder> {
 
     GoogleSignInAccount? user = _currentUser;
     if (user != null) {
-
       return DefaultTextStyle(
         style: Theme.of(context).textTheme.headline2!,
         textAlign: TextAlign.center,
@@ -89,82 +88,77 @@ class _RecipeFinderState extends State<RecipeFinder> {
           // a previously-obtained Future<String> or null
           builder:
               (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-            List<Widget> children;
+            Widget children;
             if (snapshot.hasData) {
-              children = <Widget>[
-                Scaffold(
-                    body: ListView.builder(
-                        padding: const EdgeInsets.all(16.0),
-                        itemCount: snapshot.data?.length,
-                        itemBuilder: (context, i) {
-                          final String recipeName =
-                              snapshot.data?[i] ?? "Could not load recipe";
-                          final alreadySelected =
-                              _selected.contains(recipeName);
+              children = Scaffold(
+                  body: ListView.builder(
+                      padding: const EdgeInsets.all(16.0),
+                      itemCount: snapshot.data?.length,
+                      itemBuilder: (context, i) {
+                        final String recipeName =
+                            snapshot.data?[i] ?? "Could not load recipe";
+                        final alreadySelected = _selected.contains(recipeName);
 
-                          return SizedBox(
-                              child: Column(
-                                children: <Widget>[
-                                  ListTile(
-                                      title: Text(
-                                        recipeName,
-                                        style: _biggerFont,
-                                      ),
-                                      trailing: Icon(
-                                        alreadySelected
-                                            ? Icons.favorite
-                                            : Icons.favorite_border,
-                                        color: alreadySelected
-                                            ? Colors.red
-                                            : null,
-                                        semanticLabel: alreadySelected
-                                            ? "Remove From Favorites"
-                                            : "Add To Favorites",
-                                      ),
-                                      onTap: () {
-                                        setState(() {
-                                          if (alreadySelected) {
-                                            _selected.remove(recipeName);
-                                            FirebaseFirestore.instance
-                                                .collection('users')
-                                                .doc(user.email)
-                                                .update({
-                                              'savedRecipes':
-                                                  FieldValue.arrayRemove(
-                                                      [recipeName])
-                                            });
-                                          } else {
-                                            _selected.add(recipeName);
-                                            FirebaseFirestore.instance
-                                                .collection('users')
-                                                .doc(user.email)
-                                                .update({
-                                              'savedRecipes':
-                                                  FieldValue.arrayUnion(
-                                                      [recipeName])
-                                            });
-                                          }
-                                        });
-                                      }),
-                                  const Divider(),
-                                ],
-                              ));
-                        }))
-              ];
+                        return SizedBox(
+                            child: Column(
+                          children: <Widget>[
+                            ListTile(
+                                title: Text(
+                                  recipeName,
+                                  style: _biggerFont,
+                                ),
+                                trailing: Icon(
+                                  alreadySelected
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: alreadySelected ? Colors.red : null,
+                                  semanticLabel: alreadySelected
+                                      ? "Remove From Favorites"
+                                      : "Add To Favorites",
+                                ),
+                                onTap: () {
+                                  setState(() {
+                                    if (alreadySelected) {
+                                      _selected.remove(recipeName);
+                                      FirebaseFirestore.instance
+                                          .collection('users')
+                                          .doc(user.email)
+                                          .update({
+                                        'savedRecipes':
+                                            FieldValue.arrayRemove([recipeName])
+                                      });
+                                    } else {
+                                      _selected.add(recipeName);
+                                      FirebaseFirestore.instance
+                                          .collection('users')
+                                          .doc(user.email)
+                                          .update({
+                                        'savedRecipes':
+                                            FieldValue.arrayUnion([recipeName])
+                                      });
+                                    }
+                                  });
+                                }),
+                            const Divider(),
+                          ],
+                        ));
+                      }));
             } else if (snapshot.hasError) {
-              children = <Widget>[
-                const Icon(
+              children = Scaffold(
+                  body: Column(children: const <Widget>[
+                Icon(
                   Icons.error_outline,
                   color: Colors.red,
                   size: 60,
                 ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(top: 16),
                   child: Text('Error: Please Reload Page'),
                 )
-              ];
+              ]));
             } else {
-              children = <Widget>[
+              children = Scaffold(
+                  body: Column(children: <Widget>[
                 const SizedBox(
                   width: 60,
                   height: 60,
@@ -173,9 +167,9 @@ class _RecipeFinderState extends State<RecipeFinder> {
                 Center(
                   child: Text('Loading...', style: _biggerFont),
                 )
-              ];
+              ]));
             }
-            return children[0];
+            return children;
           },
         ),
       );
