@@ -9,36 +9,32 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:english_words/english_words.dart';
 import 'package:zesty/main.dart';
 
-final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: [
-      'email'
-    ]
-);
+final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
 
   @override
-  _HomeState createState() => _HomeState();
+  _LoginState createState() => _LoginState();
 }
-class _HomeState extends State<Login> {
 
+class _LoginState extends State<Login> {
   GoogleSignInAccount? _currentUser;
 
   @override
   void initState() {
     super.initState();
-    print('reached initState');
-    print(_currentUser);
+    _currentUser = _googleSignIn.currentUser;
+    if (_currentUser == null) {
+      _googleSignIn.signInSilently().then((value) {
+        _currentUser = _googleSignIn.currentUser;
+      });
+    }
     _googleSignIn.onCurrentUserChanged.listen((account) {
       setState(() {
-        print('user changed');
         _currentUser = account;
       });
     });
-    _googleSignIn.signInSilently().then( (value) =>
-        print("signed in silently")
-    );
   }
 
   @override
@@ -51,20 +47,21 @@ class _HomeState extends State<Login> {
     );
   }
 
-  Widget _buildWidget(){
-
-    if(_currentUser != null){
+  Widget _buildWidget() {
+    if (_currentUser != null) {
       GoogleSignInAccount? user = _currentUser;
-      CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
-      usersCollection.doc(user?.email).get().
-        then((docSnapshot) => {
-            if (!docSnapshot.exists) {
-              usersCollection.doc(user?.email).set({ 'displayName': user?.displayName })
-            }
-          }
-      );
-      return MyApp();
-    }else{
+      CollectionReference usersCollection =
+          FirebaseFirestore.instance.collection('users');
+      usersCollection.doc(user?.email).get().then((docSnapshot) => {
+            if (!docSnapshot.exists)
+              {
+                usersCollection
+                    .doc(user?.email)
+                    .set({'displayName': user?.displayName})
+              }
+          });
+      return HomePage();
+    } else {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Flutter Google Sign in'),
@@ -75,19 +72,22 @@ class _HomeState extends State<Login> {
             padding: const EdgeInsets.all(12.0),
             child: Column(
               children: [
-                const SizedBox(height: 20,),
+                const SizedBox(
+                  height: 20,
+                ),
                 const Text(
-                  'You are not signed in',
+                  'Welcome to Zesty, Please Sign In',
                   style: TextStyle(fontSize: 30),
                 ),
-                const SizedBox(height: 10,),
+                const SizedBox(
+                  height: 10,
+                ),
                 ElevatedButton(
                     onPressed: signIn,
                     child: const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text('Sign in', style: TextStyle(fontSize: 30)),
-                    )
-                ),
+                    )),
               ],
             ),
           ),
@@ -96,17 +96,15 @@ class _HomeState extends State<Login> {
     }
   }
 
-  void signOut(){
+  void signOut() {
     _googleSignIn.disconnect();
   }
 
   Future<void> signIn() async {
-    try{
-      print("Hello");
+    try {
       await _googleSignIn.signIn();
-    }catch (e){
+    } catch (e) {
       print('Error signing in $e');
     }
   }
-
 }

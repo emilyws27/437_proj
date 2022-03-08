@@ -27,9 +27,9 @@ Future main() async {
 }
 
 // #docregion MyApp
-class MyApp extends StatelessWidget {
+class HomePage extends StatelessWidget {
   static final String title = 'Simulator';
-  const MyApp({Key? key}) : super(key: key);
+  const HomePage({Key? key}) : super(key: key);
 
   // #docregion build
   @override

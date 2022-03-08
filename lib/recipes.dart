@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:zesty/main.dart';
+import 'package:zesty/user.dart';
 
 final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
@@ -23,76 +25,191 @@ class _RecipeFinderState extends State<RecipeFinder> {
   @override
   void initState() {
     super.initState();
-    print('reached initState');
-    print(_currentUser);
+    _currentUser = _googleSignIn.currentUser;
+    if (_currentUser == null) {
+      _googleSignIn.signInSilently().then((value) {
+        _currentUser = _googleSignIn.currentUser;
+      });
+    }
     _googleSignIn.onCurrentUserChanged.listen((account) {
       setState(() {
-        print('user changed');
         _currentUser = account;
       });
     });
-    _googleSignIn.signInSilently().then((value) => print("signed in silently"));
   }
+
+  var _selected = <String>[];
 
   @override
   Widget build(BuildContext context) {
-    print(_currentUser);
-    GoogleSignInAccount? user = _currentUser;
-
-    if (user != null) {
-      List<String> myIngredients = <String>[];
-      bool dataRead = false;
-      FirebaseFirestore.instance
+    Future<List<String>> myIngredients(GoogleSignInAccount? user) {
+      Future<List<String>> ingredients = FirebaseFirestore.instance
           .collection('users')
-          .doc(user.email)
+          .doc(user?.email)
           .get()
           .then((DocumentSnapshot data) {
-        dataRead = true;
-        myIngredients = List.from(data.get('ingredients'));
+            _selected = List.from(data.get('savedRecipes'));
+            print(_selected);
+        return List.from(data.get('ingredients'));
       });
+      return ingredients;
+    }
 
-      if (myIngredients.isNotEmpty) {
-        List<String> recipes = <String>[];
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.email)
-            .get()
-            .then((DocumentSnapshot data) {
-          recipes = List.from(data.get('title'));
+    Future<List<String>> FindRecipes(GoogleSignInAccount? user) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(user?.email)
+          .get()
+          .then((DocumentSnapshot data) {
+        _selected = List.from(data.get('savedRecipes'));
+        print(_selected);
+      });
+      Future<List<String>> recipes = FirebaseFirestore.instance
+          .collection('Recipes')
+          .get()
+          .then((QuerySnapshot querySnapShot) {
+        List<String> toRet = [];
+        querySnapShot.docs.forEach((doc) {
+          print(doc['title']);
+          toRet.add(doc['title']);
         });
+        return toRet;
+      });
+      return recipes;
+    }
 
-        return Scaffold(
-            body: ListView.builder(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: recipes.length,
-                itemBuilder: (context, i) {
-                  return Column(
-                    children: <Widget>[
-                      ListTile(
-                        title: Text(
-                          recipes[i],
-                          style: _biggerFont,
-                        ),
-                      )
-                      //Divider(),
-                    ],
-                  );
-                }));
-      } else {
-        return Scaffold(
-            body: Center(
-                child: Text(
-          "Please select some recipes",
-          style: _biggerFont,
-        )));
-      }
+    GoogleSignInAccount? user = _currentUser;
+    if (user != null) {
+
+      return DefaultTextStyle(
+        style: Theme.of(context).textTheme.headline2!,
+        textAlign: TextAlign.center,
+        child: FutureBuilder<List<String>>(
+          future: FindRecipes(user),
+          // a previously-obtained Future<String> or null
+          builder:
+              (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+            List<Widget> children;
+            if (snapshot.hasData) {
+              children = <Widget>[
+                Scaffold(
+                    body: ListView.builder(
+                        padding: const EdgeInsets.all(16.0),
+                        itemCount: snapshot.data?.length,
+                        itemBuilder: (context, i) {
+                          final String recipeName =
+                              snapshot.data?[i] ?? "Could not load recipe";
+                          final alreadySelected =
+                              _selected.contains(recipeName);
+
+                          return SizedBox(
+                              child: Column(
+                                children: <Widget>[
+                                  ListTile(
+                                      title: Text(
+                                        recipeName,
+                                        style: _biggerFont,
+                                      ),
+                                      trailing: Icon(
+                                        alreadySelected
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        color: alreadySelected
+                                            ? Colors.red
+                                            : null,
+                                        semanticLabel: alreadySelected
+                                            ? "Remove From Favorites"
+                                            : "Add To Favorites",
+                                      ),
+                                      onTap: () {
+                                        setState(() {
+                                          if (alreadySelected) {
+                                            _selected.remove(recipeName);
+                                            FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(user.email)
+                                                .update({
+                                              'savedRecipes':
+                                                  FieldValue.arrayRemove(
+                                                      [recipeName])
+                                            });
+                                          } else {
+                                            _selected.add(recipeName);
+                                            FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(user.email)
+                                                .update({
+                                              'savedRecipes':
+                                                  FieldValue.arrayUnion(
+                                                      [recipeName])
+                                            });
+                                          }
+                                        });
+                                      }),
+                                  const Divider(),
+                                ],
+                              ));
+                        }))
+              ];
+            } else if (snapshot.hasError) {
+              children = <Widget>[
+                const Icon(
+                  Icons.error_outline,
+                  color: Colors.red,
+                  size: 60,
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(top: 16),
+                  child: Text('Error: Please Reload Page'),
+                )
+              ];
+            } else {
+              children = <Widget>[
+                const SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: CircularProgressIndicator(),
+                ),
+                Center(
+                  child: Text('Loading...', style: _biggerFont),
+                )
+              ];
+            }
+            return children[0];
+          },
+        ),
+      );
     } else {
       return Scaffold(
           body: Center(
-              child: Text(
-        "You're not signed in",
-        style: _biggerFont,
-      )));
+              child: Column(children: [
+        Text(
+          "You're not signed in",
+          style: _biggerFont,
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        const ElevatedButton(
+            onPressed: goToLogin,
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('Sign in', style: TextStyle(fontSize: 30)),
+            )),
+      ])));
     }
   }
+}
+
+Future<void> signIn() async {
+  try {
+    await _googleSignIn.signIn();
+  } catch (e) {
+    print('Error signing in $e');
+  }
+}
+
+goToLogin() async {
+  print("go to login");
+  runApp(const LoginPage());
 }

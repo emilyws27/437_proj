@@ -33,21 +33,22 @@ class _IngredientChooserState extends State<IngredientChooser> {
   var _selected = <String>[];
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
-  //GoogleSignInAccount user = (FirebaseAuth.instance.currentUser) as GoogleSignInAccount;
   GoogleSignInAccount? _currentUser;
 
   @override
   void initState() {
     super.initState();
-    print('reached initState');
-    print(_currentUser);
+    _currentUser = _googleSignIn.currentUser;
+    if (_currentUser == null) {
+      _googleSignIn.signInSilently().then((value) {
+        _currentUser = _googleSignIn.currentUser;
+      });
+    }
     _googleSignIn.onCurrentUserChanged.listen((account) {
       setState(() {
-        print('user changed');
         _currentUser = account;
       });
     });
-    _googleSignIn.signInSilently().then((value) => print("signed in silently"));
   }
 
   @override
