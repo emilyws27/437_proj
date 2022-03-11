@@ -8,10 +8,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:zesty/bottom_nav_bar.dart';
 import 'package:zesty/ingredients.dart';
-import 'package:zesty/user.dart';
+import 'package:zesty/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,53 +24,51 @@ Future main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(const LoginPage());
+  runApp(const Home());
 }
 
-// #docregion MyApp
-class HomePage extends StatelessWidget {
-  static final String title = 'Simulator';
-  const HomePage({Key? key}) : super(key: key);
+final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
-  // #docregion build
+class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+
+  GoogleSignInAccount? _currentUser;
+  void updateCurrentUser(GoogleSignInAccount? newUser){
+    setState((){
+      _currentUser = newUser;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Zesty',
-      theme: ThemeData(
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color.fromARGB(0xFF, 0xFE, 0xD9, 0xD9),
-          foregroundColor: Colors.black,
+    if (_currentUser == null) {
+      return MaterialApp(
+        title: 'Zesty',
+        theme: ThemeData(
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color.fromARGB(0xFF, 0xFE, 0xD9, 0xD9),
+            foregroundColor: Colors.black,
+          ),
         ),
-      ),
-      home: const BottomNav(),
-    );
-  }
-// #enddocregion build
-}
-
-class LoginPage extends StatelessWidget {
-  static final String title = 'Simulator';
-  const LoginPage({Key? key}) : super(key: key);
-
-  // #docregion build
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Zesty',
-      theme: ThemeData(
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color.fromARGB(0xFF, 0xFE, 0xD9, 0xD9),
-          foregroundColor: Colors.black,
+        home: Login(currentUser: _currentUser, updateCurrentUser: updateCurrentUser),
+      );
+    } else {
+      return MaterialApp(
+        title: 'Zesty',
+        theme: ThemeData(
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color.fromARGB(0xFF, 0xFE, 0xD9, 0xD9),
+            foregroundColor: Colors.black,
+          ),
         ),
-      ),
-      home: const Login(),
-    );
+        home: BottomNav(currentUser: _currentUser!, updateCurrentUser: updateCurrentUser),
+      );
+    }
   }
-// #enddocregion build
 }
-// #enddocregion MyApp
-
-// #docregion RWS-var
-
-

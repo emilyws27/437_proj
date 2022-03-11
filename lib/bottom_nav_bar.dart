@@ -1,27 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:zesty/ingredients.dart';
 import 'package:zesty/recipes.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:zesty/main.dart';
 //import 'package:zesty/recipes.dart';
 
+final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
+
 class BottomNav extends StatefulWidget {
-  const BottomNav({Key? key}) : super(key: key);
+  final GoogleSignInAccount currentUser;
+  final Function updateCurrentUser;
+
+  const BottomNav({
+    Key? key,
+    required this.currentUser,
+    required this.updateCurrentUser,
+  }) : super(key: key);
 
   @override
   State<BottomNav> createState() => _BottomNav();
 }
 
+
+
 class _BottomNav extends State<BottomNav> {
   int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-  TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOptions = <Widget>[
-    RecipeFinder(),
-    IngredientChooser(),
-    Text(
-      'My Profile',
-      style: optionStyle,
-    ),
-  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -31,6 +34,18 @@ class _BottomNav extends State<BottomNav> {
 
   @override
   Widget build(BuildContext context) {
+    const TextStyle optionStyle =
+    TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+    List<Widget> _widgetOptions = <Widget>[
+      RecipeFinder(currentUser: widget.currentUser, updateCurrentUser: widget.updateCurrentUser),
+      IngredientChooser(currentUser: widget.currentUser, updateCurrentUser: widget.updateCurrentUser),
+      Text(
+        'My Profile',
+        style: optionStyle,
+      ),
+    ];
+
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Zesty'),
