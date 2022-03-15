@@ -7,9 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:zesty/bottom_nav_bar.dart';
-import 'package:zesty/ingredients.dart';
 import 'package:zesty/login.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -27,7 +25,7 @@ Future main() async {
   runApp(const Home());
 }
 
-final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
+final GoogleSignIn googleSignIn = GoogleSignIn(scopes: ['email']);
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -37,17 +35,16 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
-  GoogleSignInAccount? _currentUser;
-  void updateCurrentUser(GoogleSignInAccount? newUser){
-    setState((){
-      _currentUser = newUser;
+  GoogleSignInAccount? currentUser;
+  void updateCurrentUser(GoogleSignInAccount? newUser) {
+    setState(() {
+      currentUser = newUser;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_currentUser == null) {
+    if (currentUser == null) {
       return MaterialApp(
         title: 'Zesty',
         theme: ThemeData(
@@ -56,7 +53,10 @@ class _HomeState extends State<Home> {
             foregroundColor: Colors.black,
           ),
         ),
-        home: Login(currentUser: _currentUser, updateCurrentUser: updateCurrentUser),
+        home: Login(
+            googleSignIn: googleSignIn,
+            currentUser: currentUser,
+            updateCurrentUser: updateCurrentUser),
       );
     } else {
       return MaterialApp(
@@ -67,7 +67,10 @@ class _HomeState extends State<Home> {
             foregroundColor: Colors.black,
           ),
         ),
-        home: BottomNav(currentUser: _currentUser!, updateCurrentUser: updateCurrentUser),
+        home: BottomNav(
+            googleSignIn: googleSignIn,
+            currentUser: currentUser!,
+            updateCurrentUser: updateCurrentUser),
       );
     }
   }

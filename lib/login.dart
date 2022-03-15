@@ -1,28 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
-import 'package:zesty/main.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
-final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
-
 class Login extends StatelessWidget {
+  final GoogleSignIn googleSignIn;
   final GoogleSignInAccount? currentUser;
   final Function updateCurrentUser;
 
   const Login({
     Key? key,
+    required this.googleSignIn,
     required this.currentUser,
-    required this.updateCurrentUser
+    required this.updateCurrentUser,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flutter Google Sign in'),
+        title: const Text('Zesty'),
       ),
       body: Container(
         alignment: Alignment.center,
@@ -55,20 +52,24 @@ class Login extends StatelessWidget {
 
   Future<void> signIn() async {
     try {
-      await _googleSignIn.signIn();
-      FirebaseFirestore.instance.collection('users').doc(_googleSignIn.currentUser!.email).get().then( (user) {
+      await googleSignIn.signIn();
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(googleSignIn.currentUser!.email)
+          .get()
+          .then((user) {
         if (!user.exists) {
           FirebaseFirestore.instance
               .collection('users')
-              .doc(_googleSignIn.currentUser!.email)
+              .doc(googleSignIn.currentUser!.email)
               .set({
-            'displayName': _googleSignIn.currentUser!.displayName,
+            'displayName': googleSignIn.currentUser!.displayName,
             'ingredients': [],
             'savedRecipes': [],
           });
         }
       });
-      updateCurrentUser(_googleSignIn.currentUser);
+      updateCurrentUser(googleSignIn.currentUser);
     } catch (e) {
       print('Error signing in $e');
     }
