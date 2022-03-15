@@ -40,6 +40,6 @@ class profilePage extends StatelessWidget {
   }
 
   Future<void> signOut() async {
-    updateCurrentUser(await googleSignIn.disconnect());
+    updateCurrentUser(await googleSignIn.signOut());
   }
 }

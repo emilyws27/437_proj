@@ -4,8 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
-
 class RecipeFinder extends StatefulWidget {
   final GoogleSignInAccount currentUser;
   final Function updateCurrentUser;

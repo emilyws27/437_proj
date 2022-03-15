@@ -42,6 +42,19 @@ class _HomeState extends State<Home> {
     });
   }
 
+  Future<void> checkIfSignedIn() async {
+    await googleSignIn.signInSilently();
+    if (googleSignIn.currentUser != null) {
+      updateCurrentUser(googleSignIn.currentUser);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkIfSignedIn();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (currentUser == null) {
