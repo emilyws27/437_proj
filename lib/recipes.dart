@@ -38,7 +38,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
     //   return ingredients;
     // }
 
-    Future<List<String>> FindRecipes(GoogleSignInAccount? user) {
+    Future<List<DocumentSnapshot>> FindRecipes(GoogleSignInAccount? user) {
       FirebaseFirestore.instance
           .collection('users')
           .doc(user?.email)
@@ -47,13 +47,13 @@ class _RecipeFinderState extends State<RecipeFinder> {
         _savedRecipes = List.from(data.get('savedRecipes'));
         _myIngredients = List.from(data.get('ingredients'));
       });
-      Future<List<String>> recipes = FirebaseFirestore.instance
+      Future<List<DocumentSnapshot>> recipes = FirebaseFirestore.instance
           .collection('Recipes')
           .get()
           .then((QuerySnapshot querySnapShot) {
-        List<String> toRet = [];
+        List<DocumentSnapshot> toRet = [];
         querySnapShot.docs.forEach((doc) {
-          toRet.add(doc['title']);
+          toRet.add(doc);
         });
         return toRet;
       });
@@ -63,10 +63,11 @@ class _RecipeFinderState extends State<RecipeFinder> {
     return DefaultTextStyle(
       style: Theme.of(context).textTheme.headline2!,
       textAlign: TextAlign.center,
-      child: FutureBuilder<List<String>>(
+      child: FutureBuilder<List<DocumentSnapshot>>(
         future: FindRecipes(widget.currentUser),
         // a previously-obtained Future<String> or null
-        builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+        builder: (BuildContext context,
+            AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
           Widget children;
           if (snapshot.hasData) {
             if (_myIngredients.isNotEmpty) {
@@ -75,54 +76,30 @@ class _RecipeFinderState extends State<RecipeFinder> {
                       padding: const EdgeInsets.all(16.0),
                       itemCount: snapshot.data?.length,
                       itemBuilder: (context, i) {
-                        final String recipeName =
-                            snapshot.data?[i] ?? "Could not load recipe";
+                        final String imageUrl = snapshot.data?[i]['imageUrl'] ??
+                            "Could not load image";
+                        final String recipeName = snapshot.data?[i]['title'] ??
+                            "Could not load recipe";
                         final alreadySelected =
                             _savedRecipes.contains(recipeName);
 
-                        return SizedBox(
+                        return Container(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 20,
+                            ),
                             child: Column(
-                          children: <Widget>[
-                            ListTile(
-                                title: Text(
-                                  recipeName,
-                                  style: _biggerFont,
+                              children: <Widget>[
+                                Image.network(imageUrl,
+                                fit: BoxFit.scaleDown),
+                                ListTile(
+                                  title: Text(
+                                    recipeName,
+                                    style: _biggerFont,
+                                  ),
                                 ),
-                                trailing: Icon(
-                                  alreadySelected
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: alreadySelected ? Colors.red : null,
-                                  semanticLabel: alreadySelected
-                                      ? "Remove From Favorites"
-                                      : "Add To Favorites",
-                                ),
-                                onTap: () {
-                                  setState(() {
-                                    if (alreadySelected) {
-                                      _savedRecipes.remove(recipeName);
-                                      FirebaseFirestore.instance
-                                          .collection('users')
-                                          .doc(widget.currentUser.email)
-                                          .update({
-                                        'savedRecipes':
-                                            FieldValue.arrayRemove([recipeName])
-                                      });
-                                    } else {
-                                      _savedRecipes.add(recipeName);
-                                      FirebaseFirestore.instance
-                                          .collection('users')
-                                          .doc(widget.currentUser.email)
-                                          .update({
-                                        'savedRecipes':
-                                            FieldValue.arrayUnion([recipeName])
-                                      });
-                                    }
-                                  });
-                                }),
-                            const Divider(),
-                          ],
-                        ));
+                              ],
+                            ));
                       }));
             } else {
               return Center(
