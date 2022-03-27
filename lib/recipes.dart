@@ -48,7 +48,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
         _myIngredients = List.from(data.get('ingredients'));
       });
       Future<List<DocumentSnapshot>> recipes = FirebaseFirestore.instance
-          .collection('Recipes')
+          .collection('recipes')
           .get()
           .then((QuerySnapshot querySnapShot) {
         List<DocumentSnapshot> toRet = [];
@@ -87,6 +87,9 @@ class _RecipeFinderState extends State<RecipeFinder> {
                             margin: const EdgeInsets.symmetric(
                               horizontal: 10,
                               vertical: 20,
+                            ),
+                            decoration: const BoxDecoration(
+                              color: Colors.orangeAccent,
                             ),
                             child: Column(
                               children: <Widget>[

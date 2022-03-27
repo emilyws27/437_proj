@@ -32,6 +32,7 @@ class _IngredientChooserState extends State<IngredientChooser> {
     "Carrots",
   ];
   var _selected = <String>[];
+  var allIngredients = <String>[];
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
   @override
@@ -48,11 +49,35 @@ class _IngredientChooserState extends State<IngredientChooser> {
       return ingredients;
     }
 
+    // Future<DocumentSnapshot<Map<String, dynamic>>> allIngredients(GoogleSignInAccount user) {
+    //   return FirebaseFirestore.instance
+    //       .collection('ingredients')
+    //       .doc('all_ingredients')
+    //       .get();
+    // }
+
+    Future<List<String>> getAllIngredients(GoogleSignInAccount user) {
+      Future<List<String>> ingredients = FirebaseFirestore.instance
+          .collection('ingredients')
+          .doc('all_ingredients')
+          .get()
+          .then((DocumentSnapshot snapshot) {
+        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+
+        for (String key in data.keys) {
+          allIngredients += List.from(data[key]);
+        }
+        return allIngredients;
+      });
+
+      return ingredients;
+    }
+
     return DefaultTextStyle(
       style: Theme.of(context).textTheme.headline2!,
       textAlign: TextAlign.center,
       child: FutureBuilder<List<String>>(
-        future: myIngredients(widget.currentUser),
+        future: getAllIngredients(widget.currentUser),
         // a previously-obtained Future<String> or null
         builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
           Widget children;
@@ -60,17 +85,17 @@ class _IngredientChooserState extends State<IngredientChooser> {
             children = Scaffold(
                 body: ListView.builder(
                     padding: const EdgeInsets.all(16.0),
-                    itemCount: _ingredients.length,
+                    itemCount: allIngredients.length,
                     itemBuilder: (context, i) {
                       final alreadySelected =
-                          _selected.contains(_ingredients[i]);
+                          _selected.contains(allIngredients[i]);
 
                       return SizedBox(
                           child: Column(
                         children: <Widget>[
                           ListTile(
                               title: Text(
-                                _ingredients[i],
+                                allIngredients[i],
                                 style: _biggerFont,
                               ),
                               trailing: Icon(
@@ -86,22 +111,22 @@ class _IngredientChooserState extends State<IngredientChooser> {
                               onTap: () {
                                 setState(() {
                                   if (alreadySelected) {
-                                    _selected.remove(_ingredients[i]);
+                                    _selected.remove(allIngredients[i]);
                                     FirebaseFirestore.instance
                                         .collection('users')
                                         .doc(widget.currentUser.email)
                                         .update({
                                       'ingredients': FieldValue.arrayRemove(
-                                          [_ingredients[i]])
+                                          [allIngredients[i]])
                                     });
                                   } else {
-                                    _selected.add(_ingredients[i]);
+                                    _selected.add(allIngredients[i]);
                                     FirebaseFirestore.instance
                                         .collection('users')
                                         .doc(widget.currentUser.email)
                                         .update({
                                       'ingredients': FieldValue.arrayUnion(
-                                          [_ingredients[i]])
+                                          [allIngredients[i]])
                                     });
                                   }
                                 });
