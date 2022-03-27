@@ -16,24 +16,31 @@ class profilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(2, 12, 2, 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+      ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          GoogleUserCircleAvatar(identity: currentUser),
           ListTile(
-            leading: GoogleUserCircleAvatar(identity: currentUser),
             title: Text(
               currentUser.displayName ?? '',
               style: TextStyle(fontSize: 22),
+              textAlign: TextAlign.center,
             ),
-            subtitle: Text(currentUser.email, style: TextStyle(fontSize: 22)),
+            subtitle: Text(currentUser.email,
+                style: TextStyle(fontSize: 22), textAlign: TextAlign.center),
           ),
           const SizedBox(
             height: 20,
           ),
-          const SizedBox(
-            height: 10,
-          ),
-          ElevatedButton(onPressed: signOut, child: const Text('Sign out'))
+          ElevatedButton(
+              onPressed: signOut,
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('Sign Out', style: TextStyle(fontSize: 30)),
+              ))
         ],
       ),
     );

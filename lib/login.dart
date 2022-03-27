@@ -19,32 +19,34 @@ class Login extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Zesty'),
+        title: const Text('Zesty',
+            style: TextStyle(fontFamily: 'Cookie', fontSize: 35)),
+        centerTitle: true,
+        backgroundColor: Colors.amber[900],
       ),
-      body: Container(
-        alignment: Alignment.center,
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 20,
-              ),
-              const Text(
-                'Welcome to Zesty, Please Sign In',
-                style: TextStyle(fontSize: 30),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              ElevatedButton(
-                  onPressed: signIn,
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('Sign in', style: TextStyle(fontSize: 30)),
-                  )),
-            ],
-          ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 50,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Welcome to Zesty, Please Sign In',
+              style: TextStyle(fontSize: 30),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+                onPressed: signIn,
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text('Sign in', style: TextStyle(fontSize: 30)),
+                )
+            ),
+          ],
         ),
       ),
     );

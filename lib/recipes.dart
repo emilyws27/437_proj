@@ -86,19 +86,38 @@ class _RecipeFinderState extends State<RecipeFinder> {
                         return Container(
                             margin: const EdgeInsets.symmetric(
                               horizontal: 10,
-                              vertical: 20,
+                              vertical: 15,
                             ),
                             decoration: const BoxDecoration(
                               color: Colors.orangeAccent,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black38,
+                                  blurRadius: 5.0, // soften the shadow
+                                  //spreadRadius: 5.0, //extend the shadow
+                                  offset: Offset(
+                                    10.0, // Move to right 10  horizontally
+                                    10.0, // Move to bottom 10 Vertically
+                                  ),
+                                )
+                              ],
                             ),
                             child: Column(
                               children: <Widget>[
-                                Image.network(imageUrl,
-                                fit: BoxFit.scaleDown),
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(20),
+                                      topLeft: Radius.circular(20)),
+                                  child:
+                                      Image.network(imageUrl, fit: BoxFit.contain),
+                                ),
                                 ListTile(
                                   title: Text(
                                     recipeName,
                                     style: _biggerFont,
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],

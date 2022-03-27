@@ -18,19 +18,7 @@ class IngredientChooser extends StatefulWidget {
 }
 
 class _IngredientChooserState extends State<IngredientChooser> {
-  final _ingredients = <String>[
-    "Apples",
-    "Avocado",
-    "Asparagus",
-    "Bananas",
-    "Bread",
-    "Bacon",
-    "Blueberries",
-    "Chicken",
-    "Cheddar Cheese",
-    "Chips Ahoy",
-    "Carrots",
-  ];
+
   var _selected = <String>[];
   var allIngredients = <String>[];
   final _biggerFont = const TextStyle(fontSize: 18.0);
@@ -57,6 +45,8 @@ class _IngredientChooserState extends State<IngredientChooser> {
     // }
 
     Future<List<String>> getAllIngredients(GoogleSignInAccount user) {
+      myIngredients(user);
+
       Future<List<String>> ingredients = FirebaseFirestore.instance
           .collection('ingredients')
           .doc('all_ingredients')

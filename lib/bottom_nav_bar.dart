@@ -48,7 +48,8 @@ class _BottomNav extends State<BottomNav> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Zesty'),
+        title: const Text('Zesty', style: TextStyle(fontFamily: 'Cookie', fontSize: 35)),
+        centerTitle: true,
         backgroundColor: Colors.amber[900],
       ),
       body: Center(
