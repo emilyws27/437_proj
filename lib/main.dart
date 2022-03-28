@@ -59,13 +59,6 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     if (currentUser == null) {
       return MaterialApp(
-        title: 'Zesty',
-        theme: ThemeData(
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Color.fromARGB(0xFF, 0xFE, 0xD9, 0xD9),
-            foregroundColor: Colors.black,
-          ),
-        ),
         home: Login(
             googleSignIn: googleSignIn,
             currentUser: currentUser,
@@ -73,13 +66,6 @@ class _HomeState extends State<Home> {
       );
     } else {
       return MaterialApp(
-        title: 'Zesty',
-        theme: ThemeData(
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Color.fromARGB(0xFF, 0xFE, 0xD9, 0xD9),
-            foregroundColor: Colors.black,
-          ),
-        ),
         home: BottomNav(
             googleSignIn: googleSignIn,
             currentUser: currentUser!,

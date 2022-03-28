@@ -20,7 +20,7 @@ class Login extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Zesty',
-            style: TextStyle(fontFamily: 'Cookie', fontSize: 35)),
+            style: TextStyle(fontFamily: 'Cookie', fontSize: 35, color: Colors.black)),
         centerTitle: true,
         backgroundColor: Colors.amber[900],
       ),
