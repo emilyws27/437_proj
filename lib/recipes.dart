@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:zesty/recipe_details.dart';
 
 class RecipeFinder extends StatefulWidget {
   final GoogleSignInAccount currentUser;
@@ -83,7 +84,15 @@ class _RecipeFinderState extends State<RecipeFinder> {
                         final alreadySelected =
                             _savedRecipes.contains(recipeName);
 
-                        return Container(
+                        return GestureDetector(
+                            onTap: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => viewRecipe(snapshot : snapshot.data![i])),
+                            );},
+
+                            child : Container(
+
                             margin: const EdgeInsets.symmetric(
                               horizontal: 10,
                               vertical: 15,
@@ -121,7 +130,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                   ),
                                 ),
                               ],
-                            ));
+                            )));
                       }));
             } else {
               return Center(
