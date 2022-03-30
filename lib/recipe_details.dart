@@ -4,7 +4,8 @@ import 'package:flutter/widgets.dart';
 
 class viewRecipe extends StatelessWidget {
   final DocumentSnapshot<Object?> recipe;
-  const viewRecipe({Key? key, required this.recipe}) : super(key: key);
+  final int number;
+  const viewRecipe({Key? key, required this.recipe, required this.number}) : super(key: key);
 
   Widget header(String title) {
     return Align(
@@ -69,14 +70,16 @@ class viewRecipe extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
           ),
-          Container(
+          Hero(
+            tag: 'recipe' + number.toString(),
+            child: Container(
             margin: const EdgeInsets.only(
               left: 30,
               right: 30,
               bottom: 10,
             ),
             child: Image.network(recipe['imageUrl'], fit: BoxFit.contain),
-          ),
+          ),),
           servingsAndTime("Servings: ", recipe['servings'], 10, 5),
           servingsAndTime("Time: ", recipe['time'], 5, 10),
           header("Ingredients"),

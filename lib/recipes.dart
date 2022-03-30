@@ -85,7 +85,9 @@ class _RecipeFinderState extends State<RecipeFinder> {
                             onTap: (){
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => viewRecipe(recipe : snapshot.data![i])),
+                              PageRouteBuilder(
+                                  transitionDuration: const Duration(seconds: 1),
+                                  pageBuilder: (_, __, ___) => viewRecipe(recipe : snapshot.data![i], number : i)),
                             );},
 
                             child : Container(
@@ -112,13 +114,15 @@ class _RecipeFinderState extends State<RecipeFinder> {
                             ),
                             child: Column(
                               children: <Widget>[
-                                ClipRRect(
+                                Hero(
+                                tag: 'recipe' + i.toString(),
+                                child: ClipRRect(
                                   borderRadius: const BorderRadius.only(
                                       topRight: Radius.circular(20),
                                       topLeft: Radius.circular(20)),
                                   child:
                                       Image.network(imageUrl, fit: BoxFit.contain),
-                                ),
+                                ),),
                                 ListTile(
                                   title: Text(
                                     recipeName.toLowerCase(),
