@@ -15,6 +15,7 @@ class profilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 20,
@@ -22,7 +23,10 @@ class profilePage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          GoogleUserCircleAvatar(identity: currentUser),
+          CircleAvatar(
+          foregroundImage: NetworkImage(currentUser.photoUrl!),
+          radius: 50,
+          ),
           ListTile(
             title: Text(
               currentUser.displayName ?? '',
