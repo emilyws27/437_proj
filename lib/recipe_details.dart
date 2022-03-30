@@ -17,7 +17,7 @@ class viewRecipe extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.amber[900],
       ),
-      body: Column(
+      body: ListView(
         children: <Widget>[
           Text(snapshot['title'], style: _biggerFont, textAlign: TextAlign.center,),
           const Text('Ingredients', style: TextStyle(fontSize: 16.0), textAlign: TextAlign.left),
