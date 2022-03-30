@@ -124,7 +124,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                 ),
                                 ListTile(
                                   title: Text(
-                                    recipeName,
+                                    recipeName.toLowerCase(),
                                     style: _biggerFont,
                                     textAlign: TextAlign.center,
                                   ),
