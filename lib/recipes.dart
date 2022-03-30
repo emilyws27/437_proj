@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:zesty/recipe_details.dart';
@@ -81,14 +80,12 @@ class _RecipeFinderState extends State<RecipeFinder> {
                             "Could not load image";
                         final String recipeName = snapshot.data?[i]['title'] ??
                             "Could not load recipe";
-                        final alreadySelected =
-                            _savedRecipes.contains(recipeName);
 
                         return GestureDetector(
                             onTap: (){
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => viewRecipe(snapshot : snapshot.data![i])),
+                              MaterialPageRoute(builder: (context) => viewRecipe(recipe : snapshot.data![i])),
                             );},
 
                             child : Container(
