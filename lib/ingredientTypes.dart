@@ -54,10 +54,11 @@ class _IngredientTypeChooserState extends State<IngredientTypeChooser> {
     //   return ingredients;
     // }
 
-    Future<DocumentSnapshot> getIngredientTypes(GoogleSignInAccount user) {
+    Future<DocumentSnapshot> getIngredientTypes(GoogleSignInAccount user) async {
       getMyIngredients(user);
 
-      FirebaseFirestore.instance
+      ingredientTypesNames.clear();
+      await FirebaseFirestore.instance
           .collection('ingredients')
           .doc('all_ingredients')
           .get()
