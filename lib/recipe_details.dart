@@ -7,6 +7,8 @@ class viewRecipe extends StatelessWidget {
   final int number;
   const viewRecipe({Key? key, required this.recipe, required this.number}) : super(key: key);
 
+  get icon => null;
+
   Widget header(String title) {
     return Align(
         alignment: Alignment.centerLeft,
@@ -26,7 +28,7 @@ class viewRecipe extends StatelessWidget {
   }
 
   Widget servingsAndTime(
-      String bold, String normal, double topPad, double botPad) {
+      Icon ic, String normal, double topPad, double botPad) {
     return Align(
         alignment: Alignment.centerLeft,
         child: Padding(
@@ -38,9 +40,9 @@ class viewRecipe extends StatelessWidget {
             ),
             child: Row(
               children: <Widget>[
-                Text(bold,
-                    style: const TextStyle(
-                        fontSize: 20.0, fontWeight: FontWeight.bold)),
+                ic,//Text(bold,
+                  //  style: const TextStyle(
+                       // fontSize: 20.0, fontWeight: FontWeight.bold)),
                 Text(normal, style: const TextStyle(fontSize: 20.0))
               ],
             )));
@@ -54,7 +56,7 @@ class viewRecipe extends StatelessWidget {
             style: TextStyle(
                 fontFamily: 'Cookie', fontSize: 35, color: Colors.black)),
         centerTitle: true,
-        backgroundColor: Colors.amber[900],
+        backgroundColor: Colors.lime,
       ),
       body: SingleChildScrollView(
           child: Column(
@@ -82,8 +84,12 @@ class viewRecipe extends StatelessWidget {
             ),
             child: Image.network(recipe['imageUrl'], fit: BoxFit.contain),
           ),),
-          servingsAndTime("Servings: ", recipe['servings'], 10, 5),
-          servingsAndTime("Time: ", recipe['time'], 5, 10),
+          servingsAndTime(
+              (Icon(Icons.person)),
+              ": " + recipe['servings'],
+              10,
+              5),
+          servingsAndTime(Icon(Icons.timer), ": " + recipe['time'], 5, 10),
           header("Ingredients"),
           ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
@@ -129,6 +135,30 @@ class viewRecipe extends StatelessWidget {
                         ]));
               }),
           header("Nutrition Facts"),
+          ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: recipe['nutritionInformation'].length,
+              itemBuilder: (BuildContext context, int index) {
+                return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                    ),
+                    child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          //const Text("• ", style: TextStyle(fontSize: 30.0)),
+                          Expanded(
+                              child: Text(
+                                  recipe['nutritionInformation'][index]['nutritionItem'] +
+                                  ": " +
+                                  recipe['nutritionInformation'][index]['amount'] ,
+                              //Text("Daily Value:" + recipe['nutritionInformation'][index]['dailyValue'],
+                          //recipe['nutritionInformation'][index]['']
+                          style: const TextStyle(fontSize: 20.0)))
+    ]));
+    }),
+
         ],
       )),
     );

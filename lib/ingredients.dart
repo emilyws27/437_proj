@@ -24,7 +24,33 @@ class IngredientChooser extends StatefulWidget {
 class _IngredientChooserState extends State<IngredientChooser> {
   var ingredients = <String>[];
   final _biggerFont = const TextStyle(fontSize: 18.0);
+  var searchedIngredients = <String>[];
 
+  //List<Map<String, dynamic>> _foundUsers = [];
+  @override
+  initState() {
+    // at the beginning, all users are shown
+    searchedIngredients = ingredients;
+    super.initState();
+  }
+  void _runFilter(String enteredKeyword) {
+    var results = <String>[];
+    if (enteredKeyword.isEmpty) {
+      // if the search field is empty or only contains white-space, we'll display all users
+      results = ingredients;
+    } else {
+      results = ingredients
+          .where((ingredient) =>
+          ingredients[0].toLowerCase().contains(enteredKeyword.toLowerCase()))
+          .toList();
+      // we use the toLowerCase() method to make it case-insensitive
+    }
+
+    // Refresh the UI
+    setState(() {
+      searchedIngredients = results;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     Future<DocumentSnapshot> getIngredients(GoogleSignInAccount user) {
@@ -48,14 +74,31 @@ class _IngredientChooserState extends State<IngredientChooser> {
     return Scaffold(
         appBar: AppBar(
           title: Hero(
-        tag: widget.ingredientType,
-        child: Text(widget.ingredientType,
-              style: const TextStyle(
-                   fontSize: 25, color: Colors.black, fontWeight: FontWeight.normal, decoration: TextDecoration.none, fontFamily: 'Roboto')),),
+            tag: widget.ingredientType,
+            child: Text(widget.ingredientType,
+                style: const TextStyle(
+                    fontSize: 25, color: Colors.black, fontWeight: FontWeight.normal, decoration: TextDecoration.none, fontFamily: 'Roboto')),),
           centerTitle: true,
           backgroundColor: Colors.amber[900],
         ),
-        body: DefaultTextStyle(
+
+
+    body: Padding(
+    padding: const EdgeInsets.all(10),
+    child: Column(
+    children: [
+    const SizedBox(
+    height: 20,
+    ),
+    TextField(
+    onChanged: (value) => _runFilter(value),
+    decoration: const InputDecoration(
+    labelText: 'Search', suffixIcon: Icon(Icons.search)),
+    ),
+    const SizedBox(
+    height: 20,
+    ),
+    DefaultTextStyle(
           style: Theme.of(context).textTheme.headline2!,
           textAlign: TextAlign.center,
           child: FutureBuilder<DocumentSnapshot>(
@@ -71,55 +114,55 @@ class _IngredientChooserState extends State<IngredientChooser> {
                         itemCount: ingredients.length,
                         itemBuilder: (context, i) {
                           final alreadySelected =
-                              widget.myIngredients.contains(ingredients[i]);
+                          widget.myIngredients.contains(ingredients[i]);
 
                           return SizedBox(
                               child: Column(
-                            children: <Widget>[
-                              ListTile(
-                                  title: Text(
-                                    ingredients[i],
-                                    style: _biggerFont,
-                                  ),
-                                  trailing: Icon(
-                                    alreadySelected
-                                        ? Icons.shopping_cart
-                                        : Icons.add,
-                                    color: alreadySelected
-                                        ? Colors.lightGreen
-                                        : null,
-                                    semanticLabel: alreadySelected
-                                        ? "Remove From Inventory"
-                                        : "Add To Inventory",
-                                  ),
-                                  onTap: () {
-                                    setState(() {
-                                      if (alreadySelected) {
-                                        widget.myIngredients
-                                            .remove(ingredients[i]);
-                                        FirebaseFirestore.instance
-                                            .collection('users')
-                                            .doc(widget.currentUser.email)
-                                            .update({
-                                          'ingredients': FieldValue.arrayRemove(
-                                              [ingredients[i]])
+                                children: <Widget>[
+                                  ListTile(
+                                      title: Text(
+                                        ingredients[i],
+                                        style: _biggerFont,
+                                      ),
+                                      trailing: Icon(
+                                        alreadySelected
+                                            ? Icons.shopping_cart
+                                            : Icons.add,
+                                        color: alreadySelected
+                                            ? Colors.lightGreen
+                                            : null,
+                                        semanticLabel: alreadySelected
+                                            ? "Remove From Inventory"
+                                            : "Add To Inventory",
+                                      ),
+                                      onTap: () {
+                                        setState(() {
+                                          if (alreadySelected) {
+                                            widget.myIngredients
+                                                .remove(ingredients[i]);
+                                            FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(widget.currentUser.email)
+                                                .update({
+                                              'ingredients': FieldValue.arrayRemove(
+                                                  [ingredients[i]])
+                                            });
+                                          } else {
+                                            widget.myIngredients
+                                                .add(ingredients[i]);
+                                            FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(widget.currentUser.email)
+                                                .update({
+                                              'ingredients': FieldValue.arrayUnion(
+                                                  [ingredients[i]])
+                                            });
+                                          }
                                         });
-                                      } else {
-                                        widget.myIngredients
-                                            .add(ingredients[i]);
-                                        FirebaseFirestore.instance
-                                            .collection('users')
-                                            .doc(widget.currentUser.email)
-                                            .update({
-                                          'ingredients': FieldValue.arrayUnion(
-                                              [ingredients[i]])
-                                        });
-                                      }
-                                    });
-                                  }),
-                              const Divider(),
-                            ],
-                          ));
+                                      }),
+                                  const Divider(),
+                                ],
+                              ));
                         }));
               } else if (snapshot.hasError) {
                 children = Scaffold(
@@ -127,34 +170,36 @@ class _IngredientChooserState extends State<IngredientChooser> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: const <Widget>[
-                      Icon(
-                        Icons.error_outline,
-                        color: Colors.red,
-                        size: 60,
-                      ),
-                      Center(
-                        child: Text('Error: Please Reload Page'),
-                      )
-                    ]));
+                          Icon(
+                            Icons.error_outline,
+                            color: Colors.red,
+                            size: 60,
+                          ),
+                          Center(
+                            child: Text('Error: Please Reload Page'),
+                          )
+                        ]));
               } else {
                 children = Scaffold(
                     body: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                      const SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: CircularProgressIndicator(),
-                      ),
-                      Center(
-                        child: Text('Loading...', style: _biggerFont),
-                      )
-                    ]));
+                          const SizedBox(
+                            width: 60,
+                            height: 60,
+                            child: CircularProgressIndicator(),
+                          ),
+                          Center(
+                            child: Text('Loading...', style: _biggerFont),
+                          )
+                        ]));
               }
               return children;
             },
           ),
-        ));
+        ),
+    ])));
+
   }
 }

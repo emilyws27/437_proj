@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+
 class profilePage extends StatelessWidget {
   final GoogleSignIn googleSignIn;
   final GoogleSignInAccount currentUser;
@@ -32,8 +33,8 @@ class profilePage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
-          foregroundImage: NetworkImage(imageurl),
-          radius: 50,
+            foregroundImage: NetworkImage(imageurl),
+            radius: 50,
           ),
           ListTile(
             title: Text(
@@ -62,3 +63,4 @@ class profilePage extends StatelessWidget {
     updateCurrentUser(await googleSignIn.signOut());
   }
 }
+

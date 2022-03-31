@@ -70,7 +70,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
             if (_myIngredients.isNotEmpty) {
               children = Scaffold(
                   body: ListView.builder(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(6.0),
                       itemCount: snapshot.data?.length,
                       itemBuilder: (context, i) {
                         final String imageUrl = snapshot.data?[i]['imageUrl'] ??
@@ -95,7 +95,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                   vertical: 15,
                                 ),
                                 decoration: const BoxDecoration(
-                                  color: Colors.orangeAccent,
+                                  color: Colors.limeAccent,
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(20)),
                                   boxShadow: [
@@ -104,8 +104,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                       blurRadius: 5.0, // soften the shadow
                                       //spreadRadius: 5.0, //extend the shadow
                                       offset: Offset(
-                                        10.0, // Move to right 10  horizontally
-                                        10.0, // Move to bottom 10 Vertically
+                                        2.0, // Move to right 10  horizontally
+                                        2.0, // Move to bottom 10 Vertically
                                       ),
                                     )
                                   ],

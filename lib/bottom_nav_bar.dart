@@ -54,7 +54,7 @@ class _BottomNav extends State<BottomNav> {
             style: TextStyle(
                 fontFamily: 'Cookie', fontSize: 35, color: Colors.black)),
         centerTitle: true,
-        backgroundColor: Colors.amber[900],
+        backgroundColor: Colors.lime,
       ),
       body: PageView(
           controller: _controller,
