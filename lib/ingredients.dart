@@ -34,7 +34,7 @@ class _IngredientChooserState extends State<IngredientChooser> {
           .get()
           .then((DocumentSnapshot snapshot) {
         Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-
+        ingredients.clear();
         ingredients += List.from(data[widget.ingredientType]);
         ingredients.sort();
       });
