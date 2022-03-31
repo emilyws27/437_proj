@@ -19,22 +19,21 @@ class IngredientChooser extends StatefulWidget {
 
 class _IngredientChooserState extends State<IngredientChooser> {
 
+  TextEditingController editingController = TextEditingController();
   var _selected = <String>[];
   var allIngredients = <String>[];
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
   @override
   Widget build(BuildContext context) {
-    Future<List<String>> myIngredients(GoogleSignInAccount user) {
-      Future<List<String>> ingredients = FirebaseFirestore.instance
+    myIngredients(GoogleSignInAccount user) async {
+     await FirebaseFirestore.instance
           .collection('users')
           .doc(user.email)
           .get()
           .then((DocumentSnapshot data) {
         _selected = List.from(data.get('ingredients'));
-        return List.from(data.get('ingredients'));
       });
-      return ingredients;
     }
 
     // Future<DocumentSnapshot<Map<String, dynamic>>> allIngredients(GoogleSignInAccount user) {

@@ -22,9 +22,9 @@ class BottomNav extends StatefulWidget {
 
 class _BottomNav extends State<BottomNav> {
 
-  PageController _controller = PageController(
+  final PageController _controller = PageController(
     initialPage: 1,
-    //keepPage: true,
+    keepPage: true,
   );
 
   int _selectedIndex = 1;
