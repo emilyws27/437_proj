@@ -82,56 +82,58 @@ class _RecipeFinderState extends State<RecipeFinder> {
                             "Could not load recipe";
 
                         return GestureDetector(
-                            onTap: (){
-                            Navigator.push(
-                              context,
-                              PageRouteBuilder(
-                                  transitionDuration: const Duration(seconds: 1),
-                                  pageBuilder: (_, __, ___) => viewRecipe(recipe : snapshot.data![i], number : i)),
-                            );},
-
-                            child : Container(
-
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 15,
-                            ),
-                            decoration: const BoxDecoration(
-                              color: Colors.orangeAccent,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black38,
-                                  blurRadius: 5.0, // soften the shadow
-                                  //spreadRadius: 5.0, //extend the shadow
-                                  offset: Offset(
-                                    10.0, // Move to right 10  horizontally
-                                    10.0, // Move to bottom 10 Vertically
-                                  ),
-                                )
-                              ],
-                            ),
-                            child: Column(
-                              children: <Widget>[
-                                Hero(
-                                tag: 'recipe' + i.toString(),
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                      topRight: Radius.circular(20),
-                                      topLeft: Radius.circular(20)),
-                                  child:
-                                      Image.network(imageUrl, fit: BoxFit.contain),
-                                ),),
-                                ListTile(
-                                  title: Text(
-                                    recipeName.toLowerCase(),
-                                    style: _biggerFont,
-                                    textAlign: TextAlign.center,
-                                  ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                    transitionDuration:
+                                        const Duration(seconds: 1),
+                                    pageBuilder: (_, __, ___) => viewRecipe(
+                                        recipe: snapshot.data![i], number: i)),
+                              );
+                            },
+                            child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 15,
                                 ),
-                              ],
-                            )));
+                                decoration: const BoxDecoration(
+                                  color: Colors.orangeAccent,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black38,
+                                      blurRadius: 5.0, // soften the shadow
+                                      //spreadRadius: 5.0, //extend the shadow
+                                      offset: Offset(
+                                        10.0, // Move to right 10  horizontally
+                                        10.0, // Move to bottom 10 Vertically
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                child: Column(
+                                  children: <Widget>[
+                                    Hero(
+                                      tag: 'recipe' + i.toString(),
+                                      child: ClipRRect(
+                                        borderRadius: const BorderRadius.only(
+                                            topRight: Radius.circular(20),
+                                            topLeft: Radius.circular(20)),
+                                        child: Image.network(imageUrl,
+                                            fit: BoxFit.contain),
+                                      ),
+                                    ),
+                                    ListTile(
+                                      title: Text(
+                                        recipeName.toLowerCase(),
+                                        style: _biggerFont,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                )));
                       }));
             } else {
               return Center(
@@ -149,8 +151,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                     color: Colors.red,
                     size: 60,
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 16),
+                  Center(
                     child: Text('Error: Please Reload Page'),
                   )
                 ]));

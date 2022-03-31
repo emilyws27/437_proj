@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -54,24 +55,33 @@ class Login extends StatelessWidget {
 
   Future<void> signIn() async {
     try {
-      await googleSignIn.signIn();
+      GoogleSignInAccount? newUser = await googleSignIn.signIn();
+      GoogleSignInAuthentication? userAuth = await newUser?.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: userAuth?.accessToken,
+        idToken: userAuth?.idToken,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
       FirebaseFirestore.instance
           .collection('users')
-          .doc(googleSignIn.currentUser!.email)
+          .doc(newUser!.email)
           .get()
           .then((user) {
         if (!user.exists) {
           FirebaseFirestore.instance
               .collection('users')
-              .doc(googleSignIn.currentUser!.email)
+              .doc(newUser.email)
               .set({
-            'displayName': googleSignIn.currentUser!.displayName,
+            'displayName': newUser.displayName,
             'ingredients': [],
             'savedRecipes': [],
           });
         }
       });
-      updateCurrentUser(googleSignIn.currentUser);
+      updateCurrentUser(newUser);
     } catch (e) {
       print('Error signing in $e');
     }
