@@ -69,7 +69,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
           if (snapshot.hasData) {
             if (_myIngredients.isNotEmpty) {
               children = Scaffold(
-                  body: ListView.builder(
+                  body: Scrollbar(
+                      child: ListView.builder(
                       padding: const EdgeInsets.all(16.0),
                       itemCount: snapshot.data?.length,
                       itemBuilder: (context, i) {
@@ -133,7 +134,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                     ),)
                                   ],
                                 )));
-                      }));
+                      })));
             } else {
               return Center(
                   child:

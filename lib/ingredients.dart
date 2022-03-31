@@ -66,7 +66,8 @@ class _IngredientChooserState extends State<IngredientChooser> {
               Widget children;
               if (snapshot.hasData) {
                 children = Scaffold(
-                    body: ListView.builder(
+                    body: Scrollbar(
+                        child: ListView.builder(
                         padding: const EdgeInsets.all(16.0),
                         itemCount: ingredients.length,
                         itemBuilder: (context, i) {
@@ -120,7 +121,7 @@ class _IngredientChooserState extends State<IngredientChooser> {
                               const Divider(),
                             ],
                           ));
-                        }));
+                        })));
               } else if (snapshot.hasError) {
                 children = Scaffold(
                     body: Column(
