@@ -16,6 +16,14 @@ class profilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    String imageurl;
+    if (currentUser.photoUrl == null) {
+      imageurl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSf8xdLG78TMYzKtF09m3yqmzo8-NmjgdxR3g&usqp=CAU";
+    }
+    else {
+      imageurl = currentUser.photoUrl!;
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 20,
@@ -24,7 +32,7 @@ class profilePage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
-          foregroundImage: NetworkImage(currentUser.photoUrl!),
+          foregroundImage: NetworkImage(imageurl),
           radius: 50,
           ),
           ListTile(
