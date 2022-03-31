@@ -57,7 +57,6 @@ class _IngredientTypeChooserState extends State<IngredientTypeChooser> {
     Future<DocumentSnapshot> getIngredientTypes(GoogleSignInAccount user) async {
       getMyIngredients(user);
 
-      ingredientTypesNames.clear();
       await FirebaseFirestore.instance
           .collection('ingredients')
           .doc('all_ingredients')
@@ -65,6 +64,7 @@ class _IngredientTypeChooserState extends State<IngredientTypeChooser> {
           .then((DocumentSnapshot snapshot) {
         Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
 
+        ingredientTypesNames.clear();
         for (String key in data.keys) {
           ingredientTypesNames.add(key);
         }
