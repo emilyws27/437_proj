@@ -6,11 +6,15 @@ import 'package:google_sign_in/google_sign_in.dart';
 class IngredientChooser extends StatefulWidget {
   final GoogleSignInAccount currentUser;
   final Function updateCurrentUser;
+  final String ingredientType;
+  final List<String> myIngredients;
 
   const IngredientChooser({
     Key? key,
     required this.currentUser,
     required this.updateCurrentUser,
+    required this.ingredientType,
+    required this.myIngredients,
   }) : super(key: key);
 
   @override
@@ -18,146 +22,139 @@ class IngredientChooser extends StatefulWidget {
 }
 
 class _IngredientChooserState extends State<IngredientChooser> {
-
-  TextEditingController editingController = TextEditingController();
-  var _selected = <String>[];
-  var allIngredients = <String>[];
+  var ingredients = <String>[];
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
   @override
   Widget build(BuildContext context) {
-    myIngredients(GoogleSignInAccount user) async {
-     await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.email)
-          .get()
-          .then((DocumentSnapshot data) {
-        _selected = List.from(data.get('ingredients'));
-      });
-    }
-
-    // Future<DocumentSnapshot<Map<String, dynamic>>> allIngredients(GoogleSignInAccount user) {
-    //   return FirebaseFirestore.instance
-    //       .collection('ingredients')
-    //       .doc('all_ingredients')
-    //       .get();
-    // }
-
-    Future<List<String>> getAllIngredients(GoogleSignInAccount user) {
-      myIngredients(user);
-
-      Future<List<String>> ingredients = FirebaseFirestore.instance
+    Future<DocumentSnapshot> getIngredients(GoogleSignInAccount user) {
+      FirebaseFirestore.instance
           .collection('ingredients')
           .doc('all_ingredients')
           .get()
           .then((DocumentSnapshot snapshot) {
         Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
 
-        for (String key in data.keys) {
-          allIngredients += List.from(data[key]);
-        }
-        return allIngredients;
+        ingredients += List.from(data[widget.ingredientType]);
+        ingredients.sort();
       });
 
-      return ingredients;
+      return FirebaseFirestore.instance
+          .collection('ingredients')
+          .doc('all_ingredients')
+          .get();
     }
 
-    return DefaultTextStyle(
-      style: Theme.of(context).textTheme.headline2!,
-      textAlign: TextAlign.center,
-      child: FutureBuilder<List<String>>(
-        future: getAllIngredients(widget.currentUser),
-        // a previously-obtained Future<String> or null
-        builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-          Widget children;
-          if (snapshot.hasData) {
-            children = Scaffold(
-                body: ListView.builder(
-                    padding: const EdgeInsets.all(16.0),
-                    itemCount: allIngredients.length,
-                    itemBuilder: (context, i) {
-                      final alreadySelected =
-                          _selected.contains(allIngredients[i]);
+    return Scaffold(
+        appBar: AppBar(
+          title: Hero(
+        tag: widget.ingredientType,
+        child: Text(widget.ingredientType,
+              style: const TextStyle(
+                   fontSize: 25, color: Colors.black, fontWeight: FontWeight.normal, decoration: TextDecoration.none, fontFamily: 'Roboto')),),
+          centerTitle: true,
+          backgroundColor: Colors.amber[900],
+        ),
+        body: DefaultTextStyle(
+          style: Theme.of(context).textTheme.headline2!,
+          textAlign: TextAlign.center,
+          child: FutureBuilder<DocumentSnapshot>(
+            future: getIngredients(widget.currentUser),
+            // a previously-obtained Future<String> or null
+            builder: (BuildContext context,
+                AsyncSnapshot<DocumentSnapshot> snapshot) {
+              Widget children;
+              if (snapshot.hasData) {
+                children = Scaffold(
+                    body: ListView.builder(
+                        padding: const EdgeInsets.all(16.0),
+                        itemCount: ingredients.length,
+                        itemBuilder: (context, i) {
+                          final alreadySelected =
+                              widget.myIngredients.contains(ingredients[i]);
 
-                      return SizedBox(
-                          child: Column(
+                          return SizedBox(
+                              child: Column(
+                            children: <Widget>[
+                              ListTile(
+                                  title: Text(
+                                    ingredients[i],
+                                    style: _biggerFont,
+                                  ),
+                                  trailing: Icon(
+                                    alreadySelected
+                                        ? Icons.shopping_cart
+                                        : Icons.add,
+                                    color: alreadySelected
+                                        ? Colors.lightGreen
+                                        : null,
+                                    semanticLabel: alreadySelected
+                                        ? "Remove From Inventory"
+                                        : "Add To Inventory",
+                                  ),
+                                  onTap: () {
+                                    setState(() {
+                                      if (alreadySelected) {
+                                        widget.myIngredients
+                                            .remove(ingredients[i]);
+                                        FirebaseFirestore.instance
+                                            .collection('users')
+                                            .doc(widget.currentUser.email)
+                                            .update({
+                                          'ingredients': FieldValue.arrayRemove(
+                                              [ingredients[i]])
+                                        });
+                                      } else {
+                                        widget.myIngredients
+                                            .add(ingredients[i]);
+                                        FirebaseFirestore.instance
+                                            .collection('users')
+                                            .doc(widget.currentUser.email)
+                                            .update({
+                                          'ingredients': FieldValue.arrayUnion(
+                                              [ingredients[i]])
+                                        });
+                                      }
+                                    });
+                                  }),
+                              const Divider(),
+                            ],
+                          ));
+                        }));
+              } else if (snapshot.hasError) {
+                children = Scaffold(
+                    body: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: const <Widget>[
+                      Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 60,
+                      ),
+                      Center(
+                        child: Text('Error: Please Reload Page'),
+                      )
+                    ]));
+              } else {
+                children = Scaffold(
+                    body: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          ListTile(
-                              title: Text(
-                                allIngredients[i],
-                                style: _biggerFont,
-                              ),
-                              trailing: Icon(
-                                alreadySelected
-                                    ? Icons.shopping_cart
-                                    : Icons.add,
-                                color:
-                                    alreadySelected ? Colors.lightGreen : null,
-                                semanticLabel: alreadySelected
-                                    ? "Remove From Inventory"
-                                    : "Add To Inventory",
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  if (alreadySelected) {
-                                    _selected.remove(allIngredients[i]);
-                                    FirebaseFirestore.instance
-                                        .collection('users')
-                                        .doc(widget.currentUser.email)
-                                        .update({
-                                      'ingredients': FieldValue.arrayRemove(
-                                          [allIngredients[i]])
-                                    });
-                                  } else {
-                                    _selected.add(allIngredients[i]);
-                                    FirebaseFirestore.instance
-                                        .collection('users')
-                                        .doc(widget.currentUser.email)
-                                        .update({
-                                      'ingredients': FieldValue.arrayUnion(
-                                          [allIngredients[i]])
-                                    });
-                                  }
-                                });
-                              }),
-                          const Divider(),
-                        ],
-                      ));
-                    }));
-          } else if (snapshot.hasError) {
-            children = Scaffold(
-                body: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const <Widget>[
-                  Icon(
-                    Icons.error_outline,
-                    color: Colors.red,
-                    size: 60,
-                  ),
-                  Center(
-                    child: Text('Error: Please Reload Page'),
-                  )
-                ]));
-          } else {
-            children = Scaffold(
-                body: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                  const SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(),
-                  ),
-                  Center(
-                    child: Text('Loading...', style: _biggerFont),
-                  )
-                ]));
-          }
-          return children;
-        },
-      ),
-    );
+                      const SizedBox(
+                        width: 60,
+                        height: 60,
+                        child: CircularProgressIndicator(),
+                      ),
+                      Center(
+                        child: Text('Loading...', style: _biggerFont),
+                      )
+                    ]));
+              }
+              return children;
+            },
+          ),
+        ));
   }
 }

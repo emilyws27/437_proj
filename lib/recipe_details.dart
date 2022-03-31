@@ -59,17 +59,19 @@ class viewRecipe extends StatelessWidget {
       body: SingleChildScrollView(
           child: Column(
         children: <Widget>[
-          Padding(
+          Hero(
+          tag: recipe['title'],
+            child: Padding(
             padding: const EdgeInsets.symmetric(
               vertical: 10,
             ),
             child: Text(
               recipe['title'].toLowerCase(),
               style:
-                  const TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
+                  const TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold, decoration: TextDecoration.none, color: Colors.black, fontFamily: 'Roboto'),
               textAlign: TextAlign.center,
             ),
-          ),
+          ),),
           Hero(
             tag: 'recipe' + number.toString(),
             child: Container(

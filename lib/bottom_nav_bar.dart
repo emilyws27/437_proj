@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zesty/ingredients.dart';
+import 'package:zesty/ingredientTypes.dart';
 import 'package:zesty/recipes.dart';
 import 'package:zesty/profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -62,7 +62,7 @@ class _BottomNav extends State<BottomNav> {
             RecipeFinder(
                 currentUser: widget.currentUser,
                 updateCurrentUser: widget.updateCurrentUser),
-            IngredientChooser(
+            IngredientTypeChooser(
                 currentUser: widget.currentUser,
                 updateCurrentUser: widget.updateCurrentUser),
             profilePage(

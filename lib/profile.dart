@@ -38,11 +38,11 @@ class profilePage extends StatelessWidget {
           ListTile(
             title: Text(
               currentUser.displayName ?? '',
-              style: TextStyle(fontSize: 22),
+              style: const TextStyle(fontSize: 22),
               textAlign: TextAlign.center,
             ),
             subtitle: Text(currentUser.email,
-                style: TextStyle(fontSize: 22), textAlign: TextAlign.center),
+                style: const TextStyle(fontSize: 22), textAlign: TextAlign.center),
           ),
           const SizedBox(
             height: 20,

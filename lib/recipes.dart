@@ -60,10 +60,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
       return recipes;
     }
 
-    return DefaultTextStyle(
-      style: Theme.of(context).textTheme.headline2!,
-      textAlign: TextAlign.center,
-      child: FutureBuilder<List<DocumentSnapshot>>(
+    return FutureBuilder<List<DocumentSnapshot>>(
         future: FindRecipes(widget.currentUser),
         // a previously-obtained Future<String> or null
         builder: (BuildContext context,
@@ -126,12 +123,14 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                       ),
                                     ),
                                     ListTile(
-                                      title: Text(
+                                      title: Hero(
+                                        tag: recipeName,
+                                        child: Text(
                                         recipeName.toLowerCase(),
-                                        style: _biggerFont,
+                                        style: const TextStyle(fontSize: 18.0, decoration: TextDecoration.none, fontWeight: FontWeight.normal, color: Colors.black, fontFamily: 'Roboto'),
                                         textAlign: TextAlign.center,
                                       ),
-                                    ),
+                                    ),)
                                   ],
                                 )));
                       }));
@@ -173,7 +172,6 @@ class _RecipeFinderState extends State<RecipeFinder> {
           }
           return children;
         },
-      ),
     );
   }
 }
