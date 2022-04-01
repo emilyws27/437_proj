@@ -126,7 +126,7 @@ class _viewRecipeState extends State<viewRecipe> {
                 vertical: 10,
               ),
               child: Text(
-                widget.recipe['title'].toLowerCase(),
+                widget.recipe['title'],
                 style: const TextStyle(
                     fontSize: 28.0,
                     fontWeight: FontWeight.bold,
@@ -206,20 +206,17 @@ class _viewRecipeState extends State<viewRecipe> {
                 return Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 15,
+                      vertical: 5,
                     ),
                     child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          //const Text("• ", style: TextStyle(fontSize: 30.0)),
-                          Expanded(
-                              child: Text(
+                    children: <Widget>[Text(
                                   widget.recipe['nutritionInformation'][index]['nutritionItem'] +
-                                      ": " +
-                                      widget.recipe['nutritionInformation'][index]['amount'] ,
+                                      ": ", style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500)),
+                                      Text(
+                                      widget.recipe['nutritionInformation'][index]['amount'],
                                   //Text("Daily Value:" + recipe['nutritionInformation'][index]['dailyValue'],
                                   //recipe['nutritionInformation'][index]['']
-                                  style: const TextStyle(fontSize: 20.0)))
-                        ]));
+                                  style: const TextStyle(fontSize: 20.0))]));
               }),
         ],
       )),

@@ -64,7 +64,7 @@ class _BottomNav extends State<BottomNav> {
             style: TextStyle(
                 fontFamily: 'Cookie', fontSize: 35, color: Colors.black)),
         centerTitle: true,
-        backgroundColor: Colors.limeAccent,
+        backgroundColor: Colors.amber[900],
         actions: <Widget>[
           GestureDetector(
             onTap: () {

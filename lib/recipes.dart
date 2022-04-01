@@ -127,7 +127,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                     ),
                                     ListTile(
                                       title:  Text(
-                                        recipeName.toLowerCase(),
+                                        recipeName,
                                         style: const TextStyle(fontSize: 18.0, decoration: TextDecoration.none, fontWeight: FontWeight.normal, color: Colors.black, fontFamily: 'Roboto'),
                                         textAlign: TextAlign.left,
                                       ),
