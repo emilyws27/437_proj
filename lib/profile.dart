@@ -15,12 +15,11 @@ class profilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     String imageurl;
     if (currentUser.photoUrl == null) {
-      imageurl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSf8xdLG78TMYzKtF09m3yqmzo8-NmjgdxR3g&usqp=CAU";
-    }
-    else {
+      imageurl =
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSf8xdLG78TMYzKtF09m3yqmzo8-NmjgdxR3g&usqp=CAU";
+    } else {
       imageurl = currentUser.photoUrl!;
     }
 
@@ -32,8 +31,8 @@ class profilePage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
-          foregroundImage: NetworkImage(imageurl),
-          radius: 50,
+            foregroundImage: NetworkImage(imageurl),
+            radius: 50,
           ),
           ListTile(
             title: Text(
@@ -42,13 +41,33 @@ class profilePage extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             subtitle: Text(currentUser.email,
-                style: const TextStyle(fontSize: 22), textAlign: TextAlign.center),
+                style: const TextStyle(fontSize: 22),
+                textAlign: TextAlign.center),
           ),
           const SizedBox(
             height: 20,
           ),
           ElevatedButton(
-              onPressed: signOut,
+              onPressed: () => showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text('Sign Out'),
+                      content: const Text('Are you sure you want to sign out?'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, 'No'),
+                          child: const Text('No', style: TextStyle(fontSize: 16.0)),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, "Yes");
+                            signOut();
+                          },
+                          child: const Text('Yes',style: TextStyle(fontSize: 16.0)),
+                        ),
+                      ],
+                    ),
+                  ),
               child: const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text('Sign Out', style: TextStyle(fontSize: 30)),
