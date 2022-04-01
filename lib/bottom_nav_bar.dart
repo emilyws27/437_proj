@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zesty/ingredientTypes.dart';
+import 'package:zesty/main.dart';
 import 'package:zesty/recipes.dart';
 import 'package:zesty/profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -48,6 +49,15 @@ class _BottomNav extends State<BottomNav> {
 
   @override
   Widget build(BuildContext context) {
+
+    String imageurl;
+    if (widget.currentUser.photoUrl == null) {
+      imageurl =
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSf8xdLG78TMYzKtF09m3yqmzo8-NmjgdxR3g&usqp=CAU";
+    } else {
+      imageurl = widget.currentUser.photoUrl!;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Zesty',
@@ -55,6 +65,36 @@ class _BottomNav extends State<BottomNav> {
                 fontFamily: 'Cookie', fontSize: 35, color: Colors.black)),
         centerTitle: true,
         backgroundColor: Colors.amber[900],
+        actions: <Widget>[
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    transitionDuration:
+                    const Duration(seconds: 1),
+                    pageBuilder: (_, __, ___) =>
+                        profilePage(
+                          googleSignIn: widget.googleSignIn,
+                            currentUser: widget.currentUser,
+                            updateCurrentUser:
+                            widget.updateCurrentUser,
+                            ),
+                  ));
+            },
+            child: Container(
+              margin: const EdgeInsets.only(
+                right: 10,
+                bottom: 10,
+              ),
+              child: Hero(
+                tag: "profilePic",
+                child: CircleAvatar(
+              foregroundImage: NetworkImage(imageurl),
+              radius: 25,
+            ),)
+          ))
+        ],
       ),
       body: PageView(
           controller: _controller,

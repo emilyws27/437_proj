@@ -84,10 +84,22 @@ class _RecipeFinderState extends State<RecipeFinder> {
                               Navigator.push(
                                 context,
                                 PageRouteBuilder(
+                                  fullscreenDialog: true,
                                     transitionDuration:
-                                        const Duration(seconds: 1),
+                                        const Duration(milliseconds: 700),
                                     pageBuilder: (_, __, ___) => viewRecipe(
-                                        recipe: snapshot.data![i], number: i)),
+                                        recipe: snapshot.data![i], number: i),
+                                  transitionsBuilder: (BuildContext context,
+                                      Animation<double> animation,
+                                      Animation<double> secondaryAnimation,
+                                      Widget child) {
+                                    return FadeTransition(
+                                      opacity:
+                                      animation,
+                                      child: child,
+                                    );
+                                  },
+                                ),
                               );
                             },
                             child: Container(

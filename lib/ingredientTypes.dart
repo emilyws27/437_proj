@@ -107,7 +107,7 @@ class _IngredientTypeChooserState extends State<IngredientTypeChooser> {
                                   context,
                                   PageRouteBuilder(
                                     transitionDuration:
-                                        const Duration(seconds: 1),
+                                        const Duration(milliseconds: 700),
                                     pageBuilder: (_, __, ___) =>
                                         IngredientChooser(
                                             currentUser: widget.currentUser,
@@ -116,6 +116,16 @@ class _IngredientTypeChooserState extends State<IngredientTypeChooser> {
                                             ingredientType:
                                                 ingredientTypesNames[i],
                                             myIngredients: myIngredients),
+                                    transitionsBuilder: (BuildContext context,
+                                        Animation<double> animation,
+                                        Animation<double> secondaryAnimation,
+                                        Widget child) {
+                                      return FadeTransition(
+                                        opacity:
+                                        animation,
+                                        child: child,
+                                      );
+                                    },
                                   ));
                             },
                           ),

@@ -23,17 +23,26 @@ class profilePage extends StatelessWidget {
       imageurl = currentUser.photoUrl!;
     }
 
-    return Padding(
+    return Scaffold(
+        appBar: AppBar(
+        title: const Text('Zesty',
+        style: TextStyle(fontFamily: 'Cookie', fontSize: 35, color: Colors.black)),
+    centerTitle: true,
+    backgroundColor: Colors.amber[900],
+    ),
+    body: Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 20,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircleAvatar(
+          Hero(
+      tag: "profilePic",
+      child: CircleAvatar(
             foregroundImage: NetworkImage(imageurl),
             radius: 50,
-          ),
+          ),),
           ListTile(
             title: Text(
               currentUser.displayName ?? '',
@@ -74,7 +83,7 @@ class profilePage extends StatelessWidget {
               ))
         ],
       ),
-    );
+    ));
   }
 
   Future<void> signOut() async {
