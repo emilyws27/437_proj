@@ -5,14 +5,12 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class IngredientChooser extends StatefulWidget {
   final GoogleSignInAccount currentUser;
-  final Function updateCurrentUser;
   final String ingredientType;
   final List<String> myIngredients;
 
   const IngredientChooser({
     Key? key,
     required this.currentUser,
-    required this.updateCurrentUser,
     required this.ingredientType,
     required this.myIngredients,
   }) : super(key: key);

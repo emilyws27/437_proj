@@ -1,12 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
-class viewRecipe extends StatelessWidget {
+class viewRecipe extends StatefulWidget {
+  final GoogleSignInAccount currentUser;
   final DocumentSnapshot<Object?> recipe;
   final int number;
-  const viewRecipe({Key? key, required this.recipe, required this.number}) : super(key: key);
+  final bool alreadySaved;
 
+  const viewRecipe(
+      {Key? key,
+      required this.currentUser,
+      required this.recipe,
+      required this.number,
+      required this.alreadySaved})
+      : super(key: key);
+
+  @override
+  State<viewRecipe> createState() => _viewRecipeState();
+}
+
+class _viewRecipeState extends State<viewRecipe> {
   Widget header(String title) {
     return Align(
         alignment: Alignment.centerLeft,
@@ -45,9 +60,16 @@ class viewRecipe extends StatelessWidget {
               ],
             )));
   }
+  late bool saved;
+  @override
+  initState(){
+    super.initState();
+    saved = widget.alreadySaved;
+  }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Zesty',
@@ -55,40 +77,85 @@ class viewRecipe extends StatelessWidget {
                 fontFamily: 'Cookie', fontSize: 35, color: Colors.black)),
         centerTitle: true,
         backgroundColor: Colors.amber[900],
+        actions: <Widget>[
+          Container(
+            margin: const EdgeInsets.only(
+              right: 10,
+              bottom: 10,
+            ),
+            child: IconButton(
+              icon: saved
+                  ? const Icon(Icons.bookmark)
+                  : const Icon(Icons.bookmark_border),
+              iconSize: 40,
+              color: saved ? Colors.yellowAccent : null,
+              onPressed: () {
+                setState(() {
+                  if (saved) {
+                    saved = false;
+                    FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(widget.currentUser.email)
+                        .update({
+                      'savedRecipes':
+                          FieldValue.arrayRemove([widget.recipe['title']])
+                    });
+                  } else {
+                    saved = true;
+                    FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(widget.currentUser.email)
+                        .update({
+                      'savedRecipes':
+                          FieldValue.arrayUnion([widget.recipe['title']])
+                    });
+                  }
+                });
+              },
+            ),
+          )
+        ],
       ),
       body: SingleChildScrollView(
           child: Column(
         children: <Widget>[
           Hero(
-          tag: recipe['title'],
+            tag: widget.recipe['title'],
             child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 10,
+              padding: const EdgeInsets.symmetric(
+                vertical: 10,
+              ),
+              child: Text(
+                widget.recipe['title'].toLowerCase(),
+                style: const TextStyle(
+                    fontSize: 28.0,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.none,
+                    color: Colors.black,
+                    fontFamily: 'Roboto'),
+                textAlign: TextAlign.center,
+              ),
             ),
-            child: Text(
-              recipe['title'].toLowerCase(),
-              style:
-                  const TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold, decoration: TextDecoration.none, color: Colors.black, fontFamily: 'Roboto'),
-              textAlign: TextAlign.center,
-            ),
-          ),),
+          ),
           Hero(
-            tag: 'recipe' + number.toString(),
+            tag: 'recipe' + widget.number.toString(),
             child: Container(
-            margin: const EdgeInsets.only(
-              left: 30,
-              right: 30,
-              bottom: 10,
+              margin: const EdgeInsets.only(
+                left: 30,
+                right: 30,
+                bottom: 10,
+              ),
+              child:
+                  Image.network(widget.recipe['imageUrl'], fit: BoxFit.contain),
             ),
-            child: Image.network(recipe['imageUrl'], fit: BoxFit.contain),
-          ),),
-          servingsAndTime("Servings: ", recipe['servings'], 10, 5),
-          servingsAndTime("Time: ", recipe['time'], 5, 10),
+          ),
+          servingsAndTime("Servings: ", widget.recipe['servings'], 10, 5),
+          servingsAndTime("Time: ", widget.recipe['time'], 5, 10),
           header("Ingredients"),
           ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
-              itemCount: recipe['ingredients'].length,
+              itemCount: widget.recipe['ingredients'].length,
               itemBuilder: (BuildContext context, int index) {
                 return Padding(
                     padding: const EdgeInsets.symmetric(
@@ -100,9 +167,10 @@ class viewRecipe extends StatelessWidget {
                           const Text("• ", style: TextStyle(fontSize: 30.0)),
                           Expanded(
                               child: Text(
-                                  recipe['ingredients'][index]['quantity'] +
+                                  widget.recipe['ingredients'][index]
+                                          ['quantity'] +
                                       " " +
-                                      recipe['ingredients'][index]
+                                      widget.recipe['ingredients'][index]
                                           ['ingredient'],
                                   style: const TextStyle(fontSize: 20.0)))
                         ]));
@@ -111,7 +179,7 @@ class viewRecipe extends StatelessWidget {
           ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
-              itemCount: recipe['directions'].length,
+              itemCount: widget.recipe['directions'].length,
               itemBuilder: (BuildContext context, int index) {
                 return Padding(
                     padding: const EdgeInsets.symmetric(
@@ -124,7 +192,7 @@ class viewRecipe extends StatelessWidget {
                           Text((index + 1).toString() + ") ",
                               style: const TextStyle(fontSize: 20.0)),
                           Expanded(
-                              child: Text(recipe['directions'][index],
+                              child: Text(widget.recipe['directions'][index],
                                   style: const TextStyle(fontSize: 20.0)))
                         ]));
               }),

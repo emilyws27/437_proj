@@ -100,15 +100,10 @@ class _BottomNav extends State<BottomNav> {
           controller: _controller,
           children: <Widget>[
             RecipeFinder(
-                currentUser: widget.currentUser,
-                updateCurrentUser: widget.updateCurrentUser),
+                currentUser: widget.currentUser),
             IngredientTypeChooser(
-                currentUser: widget.currentUser,
-                updateCurrentUser: widget.updateCurrentUser),
-            profilePage(
-                googleSignIn: widget.googleSignIn,
-                currentUser: widget.currentUser,
-                updateCurrentUser: widget.updateCurrentUser),
+                currentUser: widget.currentUser),
+            const Text("my profile"),
           ],
           onPageChanged: (int index) {
             setState(() {

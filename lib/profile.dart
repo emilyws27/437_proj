@@ -69,7 +69,7 @@ class profilePage extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.pop(context, "Yes");
+                            Navigator.of(context).popUntil((route) => route.isFirst);
                             signOut();
                           },
                           child: const Text('Yes',style: TextStyle(fontSize: 16.0)),

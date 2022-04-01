@@ -6,12 +6,10 @@ import 'package:zesty/ingredients.dart';
 
 class IngredientTypeChooser extends StatefulWidget {
   final GoogleSignInAccount currentUser;
-  final Function updateCurrentUser;
 
   const IngredientTypeChooser({
     Key? key,
     required this.currentUser,
-    required this.updateCurrentUser,
   }) : super(key: key);
 
   @override
@@ -111,8 +109,6 @@ class _IngredientTypeChooserState extends State<IngredientTypeChooser> {
                                     pageBuilder: (_, __, ___) =>
                                         IngredientChooser(
                                             currentUser: widget.currentUser,
-                                            updateCurrentUser:
-                                                widget.updateCurrentUser,
                                             ingredientType:
                                                 ingredientTypesNames[i],
                                             myIngredients: myIngredients),

@@ -2,16 +2,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:zesty/main.dart';
 import 'package:zesty/recipe_details.dart';
 
 class RecipeFinder extends StatefulWidget {
   final GoogleSignInAccount currentUser;
-  final Function updateCurrentUser;
 
   const RecipeFinder({
     Key? key,
     required this.currentUser,
-    required this.updateCurrentUser,
   }) : super(key: key);
 
   @override
@@ -26,20 +25,9 @@ class _RecipeFinderState extends State<RecipeFinder> {
 
   @override
   Widget build(BuildContext context) {
-    // Future<List<String>> myIngredients(GoogleSignInAccount? user) {
-    //   Future<List<String>> ingredients = FirebaseFirestore.instance
-    //       .collection('users')
-    //       .doc(user?.email)
-    //       .get()
-    //       .then((DocumentSnapshot data) {
-    //     _savedRecipes = List.from(data.get('savedRecipes'));
-    //     return List.from(data.get('ingredients'));
-    //   });
-    //   return ingredients;
-    // }
 
-    Future<List<DocumentSnapshot>> FindRecipes(GoogleSignInAccount? user) {
-      FirebaseFirestore.instance
+    Future<List<DocumentSnapshot>> FindRecipes(GoogleSignInAccount? user) async {
+      await FirebaseFirestore.instance
           .collection('users')
           .doc(user?.email)
           .get()
@@ -47,6 +35,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
         _savedRecipes = List.from(data.get('savedRecipes'));
         _myIngredients = List.from(data.get('ingredients'));
       });
+
       Future<List<DocumentSnapshot>> recipes = FirebaseFirestore.instance
           .collection('recipes')
           .get()
@@ -78,17 +67,18 @@ class _RecipeFinderState extends State<RecipeFinder> {
                             "Could not load image";
                         final String recipeName = snapshot.data?[i]['title'] ??
                             "Could not load recipe";
+                        final alreadySaved = _savedRecipes.contains(recipeName);
 
                         return GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
                                 PageRouteBuilder(
-                                  fullscreenDialog: true,
                                     transitionDuration:
                                         const Duration(milliseconds: 700),
                                     pageBuilder: (_, __, ___) => viewRecipe(
-                                        recipe: snapshot.data![i], number: i),
+                                      currentUser: widget.currentUser,
+                                        recipe: snapshot.data![i], number: i, alreadySaved: alreadySaved,),
                                   transitionsBuilder: (BuildContext context,
                                       Animation<double> animation,
                                       Animation<double> secondaryAnimation,
