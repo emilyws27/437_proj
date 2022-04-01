@@ -9,6 +9,8 @@ class viewRecipe extends StatefulWidget {
   final int number;
   final bool alreadySaved;
 
+  get icon => null;
+
   const viewRecipe(
       {Key? key,
       required this.currentUser,
@@ -41,7 +43,7 @@ class _viewRecipeState extends State<viewRecipe> {
   }
 
   Widget servingsAndTime(
-      String bold, String normal, double topPad, double botPad) {
+      Icon ic, String normal, double topPad, double botPad) {
     return Align(
         alignment: Alignment.centerLeft,
         child: Padding(
@@ -53,9 +55,9 @@ class _viewRecipeState extends State<viewRecipe> {
             ),
             child: Row(
               children: <Widget>[
-                Text(bold,
-                    style: const TextStyle(
-                        fontSize: 20.0, fontWeight: FontWeight.bold)),
+                ic,//Text(bold,
+                //  style: const TextStyle(
+                // fontSize: 20.0, fontWeight: FontWeight.bold)),
                 Text(normal, style: const TextStyle(fontSize: 20.0))
               ],
             )));
@@ -146,8 +148,8 @@ class _viewRecipeState extends State<viewRecipe> {
                   Image.network(widget.recipe['imageUrl'], fit: BoxFit.contain),
             ),
           ),
-          servingsAndTime("Servings: ", widget.recipe['servings'], 10, 5),
-          servingsAndTime("Time: ", widget.recipe['time'], 5, 10),
+          servingsAndTime((Icon(Icons.person)), ": " + widget.recipe['servings'] + " servings", 10, 5),
+          servingsAndTime(Icon(Icons.timer), ": " + widget.recipe['time'] + " cook time", 5, 10),
           header("Ingredients"),
           ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
@@ -193,7 +195,32 @@ class _viewRecipeState extends State<viewRecipe> {
                                   style: const TextStyle(fontSize: 20.0)))
                         ]));
               }),
+          //header("Nutrition Facts"),
+
           header("Nutrition Facts"),
+          ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: widget.recipe['nutritionInformation'].length,
+              itemBuilder: (BuildContext context, int index) {
+                return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                    ),
+                    child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          //const Text("• ", style: TextStyle(fontSize: 30.0)),
+                          Expanded(
+                              child: Text(
+                                  widget.recipe['nutritionInformation'][index]['nutritionItem'] +
+                                      ": " +
+                                      widget.recipe['nutritionInformation'][index]['amount'] ,
+                                  //Text("Daily Value:" + recipe['nutritionInformation'][index]['dailyValue'],
+                                  //recipe['nutritionInformation'][index]['']
+                                  style: const TextStyle(fontSize: 20.0)))
+                        ]));
+              }),
         ],
       )),
     );

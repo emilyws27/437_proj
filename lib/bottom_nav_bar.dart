@@ -64,7 +64,7 @@ class _BottomNav extends State<BottomNav> {
             style: TextStyle(
                 fontFamily: 'Cookie', fontSize: 35, color: Colors.black)),
         centerTitle: true,
-        backgroundColor: Colors.amber[900],
+        backgroundColor: Colors.limeAccent,
         actions: <Widget>[
           GestureDetector(
             onTap: () {
@@ -126,7 +126,7 @@ class _BottomNav extends State<BottomNav> {
             ),
           ],
           currentIndex: _selectedIndex,
-          selectedItemColor: Colors.amber[800],
+          selectedItemColor: Colors.lime,
           onTap: (int index) {
             _onItemTapped(index);
           }),
