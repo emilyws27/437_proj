@@ -100,7 +100,7 @@ class _viewRecipeState extends State<viewRecipe> {
                         .doc(widget.currentUser.email)
                         .update({
                       'savedRecipes':
-                          FieldValue.arrayRemove([widget.recipe['title']])
+                          FieldValue.arrayRemove([widget.recipe.reference])
                     });
                   } else {
                     saved = true;
@@ -109,7 +109,7 @@ class _viewRecipeState extends State<viewRecipe> {
                         .doc(widget.currentUser.email)
                         .update({
                       'savedRecipes':
-                          FieldValue.arrayUnion([widget.recipe['title']])
+                          FieldValue.arrayUnion([widget.recipe.reference])
                     });
                   }
                 });

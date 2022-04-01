@@ -20,20 +20,30 @@ class RecipeFinder extends StatefulWidget {
 class _RecipeFinderState extends State<RecipeFinder> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
-  var _savedRecipes = <String>[];
+  var _recipePaths = <DocumentReference>[];
   var _myIngredients = <String>[];
 
   @override
   Widget build(BuildContext context) {
 
     Future<List<DocumentSnapshot>> FindRecipes(GoogleSignInAccount? user) async {
-      await FirebaseFirestore.instance
+      Future<List<DocumentSnapshot>> savedRecipes = FirebaseFirestore.instance
           .collection('users')
           .doc(user?.email)
           .get()
           .then((DocumentSnapshot data) {
-        _savedRecipes = List.from(data.get('savedRecipes'));
+        _recipePaths = List.from(data.get('savedRecipes'));
         _myIngredients = List.from(data.get('ingredients'));
+
+       List<DocumentSnapshot> mySavedRecipes = [];
+        for (DocumentReference path in _recipePaths) {
+            path.get().then( (DocumentSnapshot recipeData) {
+              mySavedRecipes.add(recipeData);
+            }
+            );
+        }
+
+        return mySavedRecipes;
       });
 
       Future<List<DocumentSnapshot>> recipes = FirebaseFirestore.instance
@@ -69,7 +79,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                             "Could not load image";
                         final String recipeName = snapshot.data?[i]['title'] ??
                             "Could not load recipe";
-                        final alreadySaved = _savedRecipes.contains(recipeName);
+                        final alreadySaved = _recipePaths.contains(snapshot.data![i].reference);
 
                         return GestureDetector(
                             onTap: () {
@@ -147,7 +157,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                                 .doc(widget.currentUser.email)
                                                 .update({
                                               'savedRecipes':
-                                              FieldValue.arrayRemove([recipeName])
+                                              FieldValue.arrayRemove([snapshot.data![i].reference])
                                             });
                                           } else {
                                             FirebaseFirestore.instance
@@ -155,7 +165,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                                 .doc(widget.currentUser.email)
                                                 .update({
                                               'savedRecipes':
-                                              FieldValue.arrayUnion([recipeName])
+                                              FieldValue.arrayUnion([snapshot.data![i].reference])
                                             });
                                           }
                                         });

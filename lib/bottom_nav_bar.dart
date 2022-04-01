@@ -101,9 +101,10 @@ class _BottomNav extends State<BottomNav> {
           children: <Widget>[
             RecipeFinder(
                 currentUser: widget.currentUser),
+            RecipeFinder(
+                currentUser: widget.currentUser),
             IngredientTypeChooser(
                 currentUser: widget.currentUser),
-            const Text("my profile"),
           ],
           onPageChanged: (int index) {
             setState(() {
