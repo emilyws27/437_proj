@@ -33,6 +33,7 @@ class _IngredientChooserState extends State<IngredientChooser> {
     searchedIngredients = ingredients;
     super.initState();
   }
+
   void _runFilter(String enteredKeyword) {
     var results = <String>[];
     if (enteredKeyword.isEmpty) {
@@ -40,8 +41,9 @@ class _IngredientChooserState extends State<IngredientChooser> {
       results = ingredients;
     } else {
       results = ingredients
-          .where((ingredient) =>
-          ingredients[0].toLowerCase().contains(enteredKeyword.toLowerCase()))
+          .where((ingredient) => ingredients[0]
+              .toLowerCase()
+              .contains(enteredKeyword.toLowerCase()))
           .toList();
       // we use the toLowerCase() method to make it case-insensitive
     }
@@ -51,6 +53,7 @@ class _IngredientChooserState extends State<IngredientChooser> {
       searchedIngredients = results;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     Future<DocumentSnapshot> getIngredients(GoogleSignInAccount user) {
@@ -77,129 +80,133 @@ class _IngredientChooserState extends State<IngredientChooser> {
             tag: widget.ingredientType,
             child: Text(widget.ingredientType,
                 style: const TextStyle(
-                    fontSize: 25, color: Colors.black, fontWeight: FontWeight.normal, decoration: TextDecoration.none, fontFamily: 'Roboto')),),
+                    fontSize: 25,
+                    color: Colors.black,
+                    fontWeight: FontWeight.normal,
+                    decoration: TextDecoration.none,
+                    fontFamily: 'Roboto')),
+          ),
           centerTitle: true,
           backgroundColor: Colors.amber[900],
         ),
+        body: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(children: [
+              const SizedBox(
+                height: 20,
+              ),
+              TextField(
+                onChanged: (value) => _runFilter(value),
+                decoration: const InputDecoration(
+                    labelText: 'Search', suffixIcon: Icon(Icons.search)),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+            ])
 
+        )
 
-    body: Padding(
-    padding: const EdgeInsets.all(10),
-    child: Column(
-    children: [
-    const SizedBox(
-    height: 20,
-    ),
-    TextField(
-    onChanged: (value) => _runFilter(value),
-    decoration: const InputDecoration(
-    labelText: 'Search', suffixIcon: Icon(Icons.search)),
-    ),
-    const SizedBox(
-    height: 20,
-    ),
-    DefaultTextStyle(
-          style: Theme.of(context).textTheme.headline2!,
-          textAlign: TextAlign.center,
-          child: FutureBuilder<DocumentSnapshot>(
-            future: getIngredients(widget.currentUser),
-            // a previously-obtained Future<String> or null
-            builder: (BuildContext context,
-                AsyncSnapshot<DocumentSnapshot> snapshot) {
-              Widget children;
-              if (snapshot.hasData) {
-                children = Scaffold(
-                    body: ListView.builder(
-                        padding: const EdgeInsets.all(16.0),
-                        itemCount: ingredients.length,
-                        itemBuilder: (context, i) {
-                          final alreadySelected =
-                          widget.myIngredients.contains(ingredients[i]);
+    );
 
-                          return SizedBox(
-                              child: Column(
-                                children: <Widget>[
-                                  ListTile(
-                                      title: Text(
-                                        ingredients[i],
-                                        style: _biggerFont,
-                                      ),
-                                      trailing: Icon(
-                                        alreadySelected
-                                            ? Icons.shopping_cart
-                                            : Icons.add,
-                                        color: alreadySelected
-                                            ? Colors.lightGreen
-                                            : null,
-                                        semanticLabel: alreadySelected
-                                            ? "Remove From Inventory"
-                                            : "Add To Inventory",
-                                      ),
-                                      onTap: () {
-                                        setState(() {
-                                          if (alreadySelected) {
-                                            widget.myIngredients
-                                                .remove(ingredients[i]);
-                                            FirebaseFirestore.instance
-                                                .collection('users')
-                                                .doc(widget.currentUser.email)
-                                                .update({
-                                              'ingredients': FieldValue.arrayRemove(
-                                                  [ingredients[i]])
-                                            });
-                                          } else {
-                                            widget.myIngredients
-                                                .add(ingredients[i]);
-                                            FirebaseFirestore.instance
-                                                .collection('users')
-                                                .doc(widget.currentUser.email)
-                                                .update({
-                                              'ingredients': FieldValue.arrayUnion(
-                                                  [ingredients[i]])
-                                            });
-                                          }
-                                        });
-                                      }),
-                                  const Divider(),
-                                ],
-                              ));
-                        }));
-              } else if (snapshot.hasError) {
-                children = Scaffold(
-                    body: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const <Widget>[
-                          Icon(
-                            Icons.error_outline,
-                            color: Colors.red,
-                            size: 60,
-                          ),
-                          Center(
-                            child: Text('Error: Please Reload Page'),
-                          )
-                        ]));
-              } else {
-                children = Scaffold(
-                    body: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          const SizedBox(
-                            width: 60,
-                            height: 60,
-                            child: CircularProgressIndicator(),
-                          ),
-                          Center(
-                            child: Text('Loading...', style: _biggerFont),
-                          )
-                        ]));
-              }
-              return children;
-            },
-          ),
-        ),
-    ])));
 
   }
 }
+
+//
+// style: Theme.of(context).textTheme.headline2!,
+// textAlign: TextAlign.center,
+// child: FutureBuilder<DocumentSnapshot>(
+// future: getIngredients(widget.currentUser),
+// // a previously-obtained Future<String> or null
+// builder:
+// (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+// Widget children;
+// if (snapshot.hasData) {
+// children = Scaffold(
+// body: ListView.builder(
+// padding: const EdgeInsets.all(16.0),
+// itemCount: ingredients.length,
+// itemBuilder: (context, i) {
+// final alreadySelected =
+// widget.myIngredients.contains(ingredients[i]);
+//
+// return SizedBox(
+// child: Column(
+// children: <Widget>[
+// ListTile(
+// title: Text(
+// ingredients[i],
+// style: _biggerFont,
+// ),
+// trailing: Icon(
+// alreadySelected
+// ? Icons.shopping_cart
+//     : Icons.add,
+// color:
+// alreadySelected ? Colors.lightGreen : null,
+// semanticLabel: alreadySelected
+// ? "Remove From Inventory"
+//     : "Add To Inventory",
+// ),
+// onTap: () {
+// setState(() {
+// if (alreadySelected) {
+// widget.myIngredients.remove(ingredients[i]);
+// FirebaseFirestore.instance
+//     .collection('users')
+//     .doc(widget.currentUser.email)
+//     .update({
+// 'ingredients': FieldValue.arrayRemove(
+// [ingredients[i]])
+// });
+// } else {
+// widget.myIngredients.add(ingredients[i]);
+// FirebaseFirestore.instance
+//     .collection('users')
+//     .doc(widget.currentUser.email)
+//     .update({
+// 'ingredients': FieldValue.arrayUnion(
+// [ingredients[i]])
+// });
+// }
+// });
+// }),
+// const Divider(),
+// ],
+// ));
+// }));
+// } else if (snapshot.hasError) {
+// children = Scaffold(
+// body: Column(
+// mainAxisAlignment: MainAxisAlignment.center,
+// crossAxisAlignment: CrossAxisAlignment.center,
+// children: const <Widget>[
+// Icon(
+// Icons.error_outline,
+// color: Colors.red,
+// size: 60,
+// ),
+// Center(
+// child: Text('Error: Please Reload Page'),
+// )
+// ]));
+// } else {
+// children = Scaffold(
+// body: Column(
+// mainAxisAlignment: MainAxisAlignment.center,
+// crossAxisAlignment: CrossAxisAlignment.center,
+// children: <Widget>[
+// const SizedBox(
+// width: 60,
+// height: 60,
+// child: CircularProgressIndicator(),
+// ),
+// Center(
+// child: Text('Loading...', style: _biggerFont),
+// )
+// ]));
+// // }
+// // return children;
+// },
+// );
