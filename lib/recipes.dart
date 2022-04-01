@@ -40,11 +40,13 @@ class _RecipeFinderState extends State<RecipeFinder> {
           .collection('recipes')
           .get()
           .then((QuerySnapshot querySnapShot) {
-        List<DocumentSnapshot> toRet = [];
-        querySnapShot.docs.forEach((doc) {
-          toRet.add(doc);
+        List<DocumentSnapshot> recipeMatch = [];
+        querySnapShot.docs.forEach((recipe) {
+          if (recipe['ingredients'].every((ingredient) => _myIngredients.contains(ingredient['ingredient']))) {
+            recipeMatch.add(recipe);
+          }
         });
-        return toRet;
+        return recipeMatch;
       });
       return recipes;
     }
@@ -56,7 +58,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
             AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
           Widget children;
           if (snapshot.hasData) {
-            if (_myIngredients.isNotEmpty) {
+            if (snapshot.hasData) {
               children = Scaffold(
                   body: Scrollbar(
                       child: ListView.builder(
@@ -166,7 +168,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
             } else {
               return Center(
                   child:
-                      Text('Please Add Some Ingredients', style: _biggerFont));
+                      Text('No recipes match your ingredients. Please add some more ingredients', style: _biggerFont, textAlign: TextAlign.center));
             }
           } else if (snapshot.hasError) {
             children = Scaffold(
