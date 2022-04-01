@@ -53,10 +53,7 @@ class _IngredientChooserState extends State<IngredientChooser> {
           centerTitle: true,
           backgroundColor: Colors.amber[900],
         ),
-        body: DefaultTextStyle(
-          style: Theme.of(context).textTheme.headline2!,
-          textAlign: TextAlign.center,
-          child: FutureBuilder<DocumentSnapshot>(
+        body: FutureBuilder<DocumentSnapshot>(
             future: getIngredients(widget.currentUser),
             // a previously-obtained Future<String> or null
             builder: (BuildContext context,
@@ -154,6 +151,6 @@ class _IngredientChooserState extends State<IngredientChooser> {
               return children;
             },
           ),
-        ));
+        );
   }
 }

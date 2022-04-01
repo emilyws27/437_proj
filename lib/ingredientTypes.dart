@@ -75,10 +75,7 @@ class _IngredientTypeChooserState extends State<IngredientTypeChooser> {
           .get();
     }
 
-    return DefaultTextStyle(
-      style: Theme.of(context).textTheme.headline2!,
-      textAlign: TextAlign.center,
-      child: FutureBuilder<DocumentSnapshot>(
+    return FutureBuilder<DocumentSnapshot>(
         future: getIngredientTypes(widget.currentUser),
         // a previously-obtained Future<String> or null
         builder:
@@ -162,7 +159,6 @@ class _IngredientTypeChooserState extends State<IngredientTypeChooser> {
           }
           return children;
         },
-      ),
     );
   }
 }
