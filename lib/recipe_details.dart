@@ -119,9 +119,7 @@ class _viewRecipeState extends State<viewRecipe> {
       body: SingleChildScrollView(
           child: Column(
         children: <Widget>[
-          Hero(
-            tag: widget.recipe['title'],
-            child: Padding(
+           Padding(
               padding: const EdgeInsets.symmetric(
                 vertical: 10,
               ),
@@ -136,7 +134,6 @@ class _viewRecipeState extends State<viewRecipe> {
                 textAlign: TextAlign.center,
               ),
             ),
-          ),
           Hero(
             tag: 'recipe' + widget.number.toString(),
             child: Container(

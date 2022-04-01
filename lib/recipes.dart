@@ -78,7 +78,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                         const Duration(milliseconds: 700),
                                     pageBuilder: (_, __, ___) => viewRecipe(
                                       currentUser: widget.currentUser,
-                                        recipe: snapshot.data![i], number: i, alreadySaved: alreadySaved,),
+                                        recipe: snapshot.data![i], number: i, alreadySaved: alreadySaved),
                                   transitionsBuilder: (BuildContext context,
                                       Animation<double> animation,
                                       Animation<double> secondaryAnimation,
@@ -126,14 +126,40 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                       ),
                                     ),
                                     ListTile(
-                                      title: Hero(
-                                        tag: recipeName,
-                                        child: Text(
+                                      title:  Text(
                                         recipeName.toLowerCase(),
                                         style: const TextStyle(fontSize: 18.0, decoration: TextDecoration.none, fontWeight: FontWeight.normal, color: Colors.black, fontFamily: 'Roboto'),
-                                        textAlign: TextAlign.center,
+                                        textAlign: TextAlign.left,
                                       ),
-                                    ),)
+                                    trailing: IconButton(
+                                      icon: alreadySaved
+                                          ? const Icon(Icons.bookmark)
+                                          : const Icon(Icons.bookmark_border),
+                                      iconSize: 40,
+                                      color: alreadySaved ? Colors.yellowAccent : null,
+                                      onPressed: () {
+                                        setState(() {
+                                          if (alreadySaved) {
+                                            FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(widget.currentUser.email)
+                                                .update({
+                                              'savedRecipes':
+                                              FieldValue.arrayRemove([recipeName])
+                                            });
+                                          } else {
+                                            FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(widget.currentUser.email)
+                                                .update({
+                                              'savedRecipes':
+                                              FieldValue.arrayUnion([recipeName])
+                                            });
+                                          }
+                                        });
+                                      },
+                                    ),
+                                    ),
                                   ],
                                 )));
                       })));
