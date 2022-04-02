@@ -20,27 +20,26 @@ class IngredientChooser extends StatefulWidget {
 }
 
 class _IngredientChooserState extends State<IngredientChooser> {
-  var ingredients = <String>[];
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
   @override
   Widget build(BuildContext context) {
-    Future<DocumentSnapshot> getIngredients(GoogleSignInAccount user) {
-      FirebaseFirestore.instance
+    Future<List<String>> getIngredients(GoogleSignInAccount user) async {
+      Future<List<String>> ingredientNames = FirebaseFirestore.instance
           .collection('ingredients')
           .doc('all_ingredients')
           .get()
-          .then((DocumentSnapshot snapshot) {
+          .then((DocumentSnapshot snapshot) async {
+            List<String> ingredients = [];
         Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
         ingredients.clear();
         ingredients += List.from(data[widget.ingredientType]);
         ingredients.sort();
+
+        return ingredients;
       });
 
-      return FirebaseFirestore.instance
-          .collection('ingredients')
-          .doc('all_ingredients')
-          .get();
+      return ingredientNames;
     }
 
     return Scaffold(
@@ -53,28 +52,28 @@ class _IngredientChooserState extends State<IngredientChooser> {
           centerTitle: true,
           backgroundColor: Colors.amber[900],
         ),
-        body: FutureBuilder<DocumentSnapshot>(
+        body: FutureBuilder<List<String>>(
             future: getIngredients(widget.currentUser),
             // a previously-obtained Future<String> or null
             builder: (BuildContext context,
-                AsyncSnapshot<DocumentSnapshot> snapshot) {
+                AsyncSnapshot<List<String>> snapshot) {
               Widget children;
               if (snapshot.hasData) {
                 children = Scaffold(
                     body: Scrollbar(
                         child: ListView.builder(
                         padding: const EdgeInsets.all(16.0),
-                        itemCount: ingredients.length,
+                        itemCount: snapshot.data?.length,
                         itemBuilder: (context, i) {
                           final alreadySelected =
-                              widget.myIngredients.contains(ingredients[i]);
+                              widget.myIngredients.contains(snapshot.data?[i]);
 
                           return SizedBox(
                               child: Column(
                             children: <Widget>[
                               ListTile(
                                   title: Text(
-                                    ingredients[i],
+                                    snapshot.data![i],
                                     style: _biggerFont,
                                   ),
                                   trailing: Icon(
@@ -92,23 +91,23 @@ class _IngredientChooserState extends State<IngredientChooser> {
                                     setState(() {
                                       if (alreadySelected) {
                                         widget.myIngredients
-                                            .remove(ingredients[i]);
+                                            .remove(snapshot.data![i]);
                                         FirebaseFirestore.instance
                                             .collection('users')
                                             .doc(widget.currentUser.email)
                                             .update({
                                           'ingredients': FieldValue.arrayRemove(
-                                              [ingredients[i]])
+                                              [snapshot.data![i]])
                                         });
                                       } else {
                                         widget.myIngredients
-                                            .add(ingredients[i]);
+                                            .add(snapshot.data![i]);
                                         FirebaseFirestore.instance
                                             .collection('users')
                                             .doc(widget.currentUser.email)
                                             .update({
                                           'ingredients': FieldValue.arrayUnion(
-                                              [ingredients[i]])
+                                              [snapshot.data![i]])
                                         });
                                       }
                                     });
