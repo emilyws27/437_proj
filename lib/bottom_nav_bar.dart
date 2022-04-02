@@ -24,11 +24,11 @@ class BottomNav extends StatefulWidget {
 class _BottomNav extends State<BottomNav> {
 
   final PageController _controller = PageController(
-    initialPage: 1,
+    initialPage: 2,
     keepPage: true,
   );
 
-  int _selectedIndex = 1;
+  int _selectedIndex = 2;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -100,9 +100,10 @@ class _BottomNav extends State<BottomNav> {
           controller: _controller,
           children: <Widget>[
             RecipeFinder(
-                currentUser: widget.currentUser),
+                currentUser: widget.currentUser,
+            mySaved: true),
             RecipeFinder(
-                currentUser: widget.currentUser),
+                currentUser: widget.currentUser, mySaved: false),
             IngredientTypeChooser(
                 currentUser: widget.currentUser),
           ],
@@ -114,20 +115,20 @@ class _BottomNav extends State<BottomNav> {
       bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
+              icon: Icon(Icons.favorite),
+              label: 'Saved Recipes',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.food_bank),
-              label: 'Recipes',
+              label: 'Find Recipes',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.search),
-              label: 'My Ingredients',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.account_box),
-              label: 'My Profile',
+              label: 'Find Ingredients',
             ),
           ],
           currentIndex: _selectedIndex,
-          selectedItemColor: Colors.lime,
+          selectedItemColor: Colors.amber[800],
           onTap: (int index) {
             _onItemTapped(index);
           }),
