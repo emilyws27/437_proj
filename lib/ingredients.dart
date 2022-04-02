@@ -20,11 +20,11 @@ class IngredientList extends StatefulWidget {
 
 class _IngredientListState extends State<IngredientList> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
+  final GlobalKey<AnimatedListState> _key = GlobalKey();
   List<String> myIngredientsList = [];
 
   @override
   Widget build(BuildContext context) {
-
     Future<List<String>> getMyIngredients(GoogleSignInAccount user) async {
       Future<List<String>> myIngredients = FirebaseFirestore.instance
           .collection("users")
@@ -44,26 +44,25 @@ class _IngredientListState extends State<IngredientList> {
     Future<List<String>> getIngredients(GoogleSignInAccount user) async {
       myIngredientsList = await getMyIngredients(user);
 
-        if (widget.myIngredients == false) {
-          Future<List<String>> ingredientNames = FirebaseFirestore.instance
-              .collection('ingredients')
-              .doc('all_ingredients')
-              .get()
-              .then((DocumentSnapshot snapshot) async {
-            List<String> ingredients = [];
-            Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-            ingredients.clear();
-            ingredients += List.from(data[widget.ingredientType]);
-            ingredients.sort();
+      if (widget.myIngredients == false) {
+        Future<List<String>> ingredientNames = FirebaseFirestore.instance
+            .collection('ingredients')
+            .doc('all_ingredients')
+            .get()
+            .then((DocumentSnapshot snapshot) async {
+          List<String> ingredients = [];
+          Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+          ingredients.clear();
+          ingredients += List.from(data[widget.ingredientType]);
+          ingredients.sort();
 
-            return ingredients;
-          });
+          return ingredients;
+        });
 
-          return ingredientNames;
-        }
-        else {
-          return myIngredientsList;
-        }
+        return ingredientNames;
+      } else {
+        return myIngredientsList;
+      }
     }
 
     return Scaffold(
@@ -87,74 +86,110 @@ class _IngredientListState extends State<IngredientList> {
         builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
           Widget children;
           if (snapshot.hasData) {
+            // if (widget.myIngredients == true) {
             children = Scaffold(
                 body: Scrollbar(
-                    child: ListView.builder(
+                    child: AnimatedList(
+                        key: _key,
                         padding: const EdgeInsets.all(16.0),
-                        itemCount: snapshot.data?.length,
-                        itemBuilder: (context, i) {
-
+                        initialItemCount: snapshot.data?.length != null
+                            ? snapshot.data!.length
+                            : 0,
+                        itemBuilder: (_, i, animation) {
                           final ingredientName = snapshot.data![i];
-
                           final alreadySelected =
                               myIngredientsList.contains(snapshot.data?[i]);
 
-                          return SizedBox(
-                              child: Column(
-                            children: <Widget>[
-                              ListTile(
-                                  title: Text(
-                                    ingredientName,
-                                    style: _biggerFont,
-                                  ),
-                                  trailing: Icon(
-                                    alreadySelected
-                                        ? Icons.shopping_cart
-                                        : Icons.add,
-                                    color: alreadySelected
-                                        ? Colors.lightGreen
-                                        : null,
-                                    semanticLabel: alreadySelected
-                                        ? "Remove From Inventory"
-                                        : "Add To Inventory",
-                                  ),
-                                  onTap: () {
-                                    setState(() {
-                                      if (alreadySelected) {
+                          return SizeTransition(
+                              key: UniqueKey(),
+                              sizeFactor: animation,
+                              child: SizedBox(
+                                  child: Column(
+                                children: <Widget>[
+                                  ListTile(
+                                      title: Text(
+                                        ingredientName,
+                                        style: _biggerFont,
+                                      ),
+                                      trailing: Icon(
+                                        alreadySelected
+                                            ? Icons.shopping_cart
+                                            : Icons.add,
+                                        color: alreadySelected
+                                            ? Colors.lightGreen
+                                            : null,
+                                        semanticLabel: alreadySelected
+                                            ? "Remove From Inventory"
+                                            : "Add To Inventory",
+                                      ),
+                                      onTap: () {
+                                        setState(() {
+                                          if (alreadySelected) {
+                                            if (widget.myIngredients == true) {
+                                              _key.currentState!.removeItem(i,
+                                                  (_, animation) {
+                                                return SizeTransition(
+                                                  key: UniqueKey(),
+                                                  sizeFactor: animation,
+                                                  child: SizedBox(
+                                                    child: Column(
+                                                        children: <Widget>[
+                                                          ListTile(
+                                                            title: Text(
+                                                              ingredientName,
+                                                              style:
+                                                                  _biggerFont,
+                                                            ),
+                                                            trailing:
+                                                                const Icon(
+                                                                    Icons.add),
+                                                          )
+                                                        ]),
+                                                  ),
+                                                );
+                                              },
+                                                  duration: const Duration(
+                                                      milliseconds: 700));
 
-                                        if (widget.myIngredients) {
-                                          snapshot.data?.removeAt(i);
-                                        }
-                                        else {
-                                          myIngredientsList
-                                              .remove(ingredientName);
-                                        }
+                                              snapshot.data?.removeAt(i);
 
-
-                                          FirebaseFirestore.instance
-                                              .collection('users')
-                                              .doc(widget.currentUser.email)
-                                              .update({
-                                            'ingredients': FieldValue
-                                                .arrayRemove(
-                                                [ingredientName])
-                                          });
-                                      } else {
-                                       myIngredientsList
-                                            .add(ingredientName);
-                                        FirebaseFirestore.instance
-                                            .collection('users')
-                                            .doc(widget.currentUser.email)
-                                            .update({
-                                          'ingredients': FieldValue.arrayUnion(
-                                              [ingredientName])
+                                              FirebaseFirestore.instance
+                                                  .collection('users')
+                                                  .doc(widget.currentUser.email)
+                                                  .update({
+                                                'ingredients':
+                                                    FieldValue.arrayRemove(
+                                                        [ingredientName])
+                                              });
+                                            } else {
+                                              myIngredientsList
+                                                  .remove(ingredientName);
+                                              FirebaseFirestore.instance
+                                                  .collection('users')
+                                                  .doc(widget.currentUser.email)
+                                                  .update({
+                                                'ingredients':
+                                                    FieldValue.arrayRemove(
+                                                        [ingredientName])
+                                              });
+                                            }
+                                          } else {
+                                            myIngredientsList
+                                                .add(ingredientName);
+                                            FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(widget.currentUser.email)
+                                                .update({
+                                              'ingredients':
+                                                  FieldValue.arrayUnion(
+                                                      [ingredientName])
+                                            });
+                                          }
                                         });
-                                      }
-                                    });
-                                  }),
-                              const Divider(),
-                            ],
-                          ));
+                                      }),
+                                  const Divider(),
+                                ],
+                              )));
                         })));
           } else if (snapshot.hasError) {
             children = Scaffold(

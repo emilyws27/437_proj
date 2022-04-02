@@ -119,7 +119,7 @@ class _BottomNav extends State<BottomNav> {
                     bottom: 2,
                   ),
                   child:  IconButton(
-                    icon: const Icon(Icons.shopping_bag),
+                    icon: const Icon(Icons.shopping_bag_outlined),
                     color: Colors.blueGrey,
                     iconSize: 40,
                     onPressed: () {
@@ -131,7 +131,16 @@ class _BottomNav extends State<BottomNav> {
                             pageBuilder: (_, __, ___) =>
                                 IngredientList(
                                   currentUser: widget.currentUser,
-                                  myIngredients: true,)
+                                  myIngredients: true,),
+                            transitionsBuilder: (BuildContext context,
+                                Animation<double> animation,
+                                Animation<double> secondaryAnimation,
+                                Widget child) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
                           ));
                     },
                   )
