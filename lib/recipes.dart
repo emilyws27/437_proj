@@ -19,8 +19,6 @@ class RecipeFinder extends StatefulWidget {
 }
 
 class _RecipeFinderState extends State<RecipeFinder> {
-  final _biggerFont = const TextStyle(fontSize: 18.0);
-
   var _recipePaths = <DocumentReference>[];
   var _myIngredients = <String>[];
 
@@ -75,7 +73,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
           AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
         Widget children;
         if (snapshot.hasData) {
-          if (snapshot.hasData) {
+          if (snapshot.data!.isNotEmpty) {
             children = Scaffold(
                 body: Scrollbar(
                     child: ListView.builder(
@@ -206,11 +204,20 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                   )));
                         })));
           } else {
-            return Center(
-                child: Text(
-                    'No recipes match your ingredients. Please add some more ingredients',
-                    style: _biggerFont,
-                    textAlign: TextAlign.center));
+            if (widget.mySaved == true) {
+              return const Center(
+                  child: Text(
+                      'You have not saved any recipes yet',
+                      style: TextStyle(fontSize: 20.0),
+                      textAlign: TextAlign.center));
+            }
+            else {
+              return const Center(
+                  child: Text(
+                      'No recipes match your ingredients. Please add some more ingredients',
+                      style: TextStyle(fontSize: 20.0),
+                      textAlign: TextAlign.center));
+            }
           }
         } else if (snapshot.hasError) {
           children = Scaffold(
@@ -232,14 +239,14 @@ class _RecipeFinderState extends State<RecipeFinder> {
               body: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                const SizedBox(
+                  children: const <Widget>[
+                SizedBox(
                   width: 60,
                   height: 60,
                   child: CircularProgressIndicator(),
                 ),
                 Center(
-                  child: Text('Loading...', style: _biggerFont),
+                  child: Text('Loading...', style: TextStyle(fontSize: 20.0)),
                 )
               ]));
         }
