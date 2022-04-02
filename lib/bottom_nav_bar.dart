@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:zesty/ingredientTypes.dart';
-import 'package:zesty/main.dart';
 import 'package:zesty/recipes.dart';
 import 'package:zesty/profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -62,9 +61,6 @@ class _BottomNav extends State<BottomNav> {
     _controller.dispose();
     super.dispose();
   }
-
-  @override
-  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {

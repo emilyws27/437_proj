@@ -41,8 +41,7 @@ class _viewRecipeState extends State<viewRecipe> {
         ));
   }
 
-  Widget servingsAndTime(
-      Icon ic, String normal, double topPad, double botPad) {
+  Widget servingsAndTime(Icon ic, String normal, double topPad, double botPad) {
     return Align(
         alignment: Alignment.centerLeft,
         child: Padding(
@@ -54,23 +53,23 @@ class _viewRecipeState extends State<viewRecipe> {
             ),
             child: Row(
               children: <Widget>[
-                ic,//Text(bold,
+                ic, //Text(bold,
                 //  style: const TextStyle(
                 // fontSize: 20.0, fontWeight: FontWeight.bold)),
                 Text(normal, style: const TextStyle(fontSize: 20.0))
               ],
             )));
   }
+
   late bool saved;
   @override
-  initState(){
+  initState() {
     super.initState();
     saved = widget.alreadySaved;
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Zesty',
@@ -120,21 +119,21 @@ class _viewRecipeState extends State<viewRecipe> {
       body: SingleChildScrollView(
           child: Column(
         children: <Widget>[
-           Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 10,
-              ),
-              child: Text(
-                widget.recipe['title'],
-                style: const TextStyle(
-                    fontSize: 28.0,
-                    fontWeight: FontWeight.bold,
-                    decoration: TextDecoration.none,
-                    color: Colors.black,
-                    fontFamily: 'Roboto'),
-                textAlign: TextAlign.center,
-              ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 10,
             ),
+            child: Text(
+              widget.recipe['title'],
+              style: const TextStyle(
+                  fontSize: 28.0,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.none,
+                  color: Colors.black,
+                  fontFamily: 'Roboto'),
+              textAlign: TextAlign.center,
+            ),
+          ),
           Hero(
             tag: 'recipe' + widget.number.toString(),
             child: Container(
@@ -147,8 +146,10 @@ class _viewRecipeState extends State<viewRecipe> {
                   Image.network(widget.recipe['imageUrl'], fit: BoxFit.contain),
             ),
           ),
-          servingsAndTime((Icon(Icons.person)), ": " + widget.recipe['servings'] + " servings", 10, 5),
-          servingsAndTime(Icon(Icons.timer), ": " + widget.recipe['time'] + " cook time", 5, 10),
+          servingsAndTime((const Icon(Icons.person)),
+              ": " + widget.recipe['servings'] + " servings", 10, 5),
+          servingsAndTime(const Icon(Icons.timer),
+              ": " + widget.recipe['time'] + " cook time", 5, 10),
           header("Ingredients"),
           ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
@@ -207,15 +208,20 @@ class _viewRecipeState extends State<viewRecipe> {
                       horizontal: 15,
                       vertical: 5,
                     ),
-                    child: Row(
-                    children: <Widget>[Text(
-                                  widget.recipe['nutritionInformation'][index]['nutritionItem'] +
-                                      ": ", style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500)),
-                                      Text(
-                                      widget.recipe['nutritionInformation'][index]['amount'],
-                                  //Text("Daily Value:" + recipe['nutritionInformation'][index]['dailyValue'],
-                                  //recipe['nutritionInformation'][index]['']
-                                  style: const TextStyle(fontSize: 20.0))]));
+                    child: Row(children: <Widget>[
+                      Text(
+                          widget.recipe['nutritionInformation'][index]
+                                  ['nutritionItem'] +
+                              ": ",
+                          style: const TextStyle(
+                              fontSize: 20.0, fontWeight: FontWeight.w500)),
+                      Text(
+                          widget.recipe['nutritionInformation'][index]
+                              ['amount'],
+                          //Text("Daily Value:" + recipe['nutritionInformation'][index]['dailyValue'],
+                          //recipe['nutritionInformation'][index]['']
+                          style: const TextStyle(fontSize: 20.0))
+                    ]));
               }),
         ],
       )),
