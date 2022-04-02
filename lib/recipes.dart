@@ -114,6 +114,11 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                       );
                                     },
                                   ),
+                                ).then((_) {
+                                  setState(() {
+                                  });
+                                }
+
                                 );
                               },
                               child: Container(
