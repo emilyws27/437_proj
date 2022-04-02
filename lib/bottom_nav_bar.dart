@@ -102,7 +102,7 @@ class _BottomNav extends State<BottomNav> {
             mySaved: true),
             RecipeFinder(
                 currentUser: widget.currentUser, mySaved: false),
-            IngredientTypeChooser(
+            IngredientTypeList(
                 currentUser: widget.currentUser),
           ],
           onPageChanged: (int index) {

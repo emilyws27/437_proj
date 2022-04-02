@@ -4,20 +4,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:zesty/ingredients.dart';
 
-class IngredientTypeChooser extends StatefulWidget {
+class IngredientTypeList extends StatefulWidget {
   final GoogleSignInAccount currentUser;
 
-  const IngredientTypeChooser({
+  const IngredientTypeList({
     Key? key,
     required this.currentUser,
   }) : super(key: key);
 
   @override
-  _IngredientTypeChooserState createState() => _IngredientTypeChooserState();
+  _IngredientTypeListState createState() => _IngredientTypeListState();
 }
 
-class _IngredientTypeChooserState extends State<IngredientTypeChooser> {
-  var myIngredients = <String>[];
+class _IngredientTypeListState extends State<IngredientTypeList> {
+  var myIngredientsList = <String>[];
   var ingredientTypesNames = <String>[];
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
@@ -29,28 +29,9 @@ class _IngredientTypeChooserState extends State<IngredientTypeChooser> {
           .doc(user.email)
           .get()
           .then((DocumentSnapshot data) {
-        myIngredients = List.from(data.get('ingredients'));
+        myIngredientsList = List.from(data.get('ingredients'));
       });
     }
-
-    // Future<List<String>> getAllIngredients(GoogleSignInAccount user) {
-    //   myIngredients(user);
-    //
-    //   Future<List<String>> ingredients = FirebaseFirestore.instance
-    //       .collection('ingredients')
-    //       .doc('all_ingredients')
-    //       .get()
-    //       .then((DocumentSnapshot snapshot) {
-    //     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-    //
-    //     for (String key in data.keys) {
-    //       allIngredients += List.from(data[key]);
-    //     }
-    //     return allIngredients;
-    //   });
-    //
-    //   return ingredients;
-    // }
 
     Future<DocumentSnapshot> getIngredientTypes(GoogleSignInAccount user) async {
       getMyIngredients(user);
@@ -104,11 +85,11 @@ class _IngredientTypeChooserState extends State<IngredientTypeChooser> {
                                     transitionDuration:
                                         const Duration(milliseconds: 700),
                                     pageBuilder: (_, __, ___) =>
-                                        IngredientChooser(
+                                        IngredientList(
                                             currentUser: widget.currentUser,
                                             ingredientType:
                                                 ingredientTypesNames[i],
-                                            myIngredients: myIngredients),
+                                            myIngredientsList: myIngredientsList),
                                     transitionsBuilder: (BuildContext context,
                                         Animation<double> animation,
                                         Animation<double> secondaryAnimation,
