@@ -89,7 +89,7 @@ class _IngredientTypeListState extends State<IngredientTypeList> {
                                             currentUser: widget.currentUser,
                                             ingredientType:
                                                 ingredientTypesNames[i],
-                                            myIngredientsList: myIngredientsList),
+                                        myIngredients: false,),
                                     transitionsBuilder: (BuildContext context,
                                         Animation<double> animation,
                                         Animation<double> secondaryAnimation,

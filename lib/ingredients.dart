@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class IngredientList extends StatefulWidget {
   final GoogleSignInAccount currentUser;
   final String ingredientType;
-  final List<String> myIngredientsList;
+  final bool myIngredients;
 
   const IngredientList({
     Key? key,
     required this.currentUser,
-    required this.ingredientType,
-    required this.myIngredientsList,
+    this.ingredientType = "null",
+    required this.myIngredients,
   }) : super(key: key);
 
   @override
@@ -21,25 +20,50 @@ class IngredientList extends StatefulWidget {
 
 class _IngredientListState extends State<IngredientList> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
+  List<String> myIngredientsList = [];
 
   @override
   Widget build(BuildContext context) {
-    Future<List<String>> getIngredients(GoogleSignInAccount user) async {
-      Future<List<String>> ingredientNames = FirebaseFirestore.instance
-          .collection('ingredients')
-          .doc('all_ingredients')
+
+    Future<List<String>> getMyIngredients(GoogleSignInAccount user) async {
+      Future<List<String>> myIngredients = FirebaseFirestore.instance
+          .collection("users")
+          .doc(widget.currentUser.email)
           .get()
           .then((DocumentSnapshot snapshot) async {
         List<String> ingredients = [];
-        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-        ingredients.clear();
-        ingredients += List.from(data[widget.ingredientType]);
+        ingredients += List.from(snapshot['ingredients']);
         ingredients.sort();
 
         return ingredients;
       });
 
-      return ingredientNames;
+      return myIngredients;
+    }
+
+    Future<List<String>> getIngredients(GoogleSignInAccount user) async {
+      myIngredientsList = await getMyIngredients(user);
+
+        if (widget.myIngredients == false) {
+          Future<List<String>> ingredientNames = FirebaseFirestore.instance
+              .collection('ingredients')
+              .doc('all_ingredients')
+              .get()
+              .then((DocumentSnapshot snapshot) async {
+            List<String> ingredients = [];
+            Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+            ingredients.clear();
+            ingredients += List.from(data[widget.ingredientType]);
+            ingredients.sort();
+
+            return ingredients;
+          });
+
+          return ingredientNames;
+        }
+        else {
+          return myIngredientsList;
+        }
     }
 
     return Scaffold(
@@ -66,18 +90,22 @@ class _IngredientListState extends State<IngredientList> {
             children = Scaffold(
                 body: Scrollbar(
                     child: ListView.builder(
+                        key: UniqueKey(),
                         padding: const EdgeInsets.all(16.0),
                         itemCount: snapshot.data?.length,
                         itemBuilder: (context, i) {
+
+                          final ingredientName = snapshot.data![i];
+
                           final alreadySelected =
-                              widget.myIngredientsList.contains(snapshot.data?[i]);
+                              myIngredientsList.contains(snapshot.data?[i]);
 
                           return SizedBox(
                               child: Column(
                             children: <Widget>[
                               ListTile(
                                   title: Text(
-                                    snapshot.data![i],
+                                    ingredientName,
                                     style: _biggerFont,
                                   ),
                                   trailing: Icon(
@@ -94,24 +122,33 @@ class _IngredientListState extends State<IngredientList> {
                                   onTap: () {
                                     setState(() {
                                       if (alreadySelected) {
-                                        widget.myIngredientsList
-                                            .remove(snapshot.data![i]);
-                                        FirebaseFirestore.instance
-                                            .collection('users')
-                                            .doc(widget.currentUser.email)
-                                            .update({
-                                          'ingredients': FieldValue.arrayRemove(
-                                              [snapshot.data![i]])
-                                        });
+
+                                        if (widget.myIngredients) {
+                                          snapshot.data?.removeAt(i);
+                                        }
+                                        else {
+                                          myIngredientsList
+                                              .remove(ingredientName);
+                                        }
+
+
+                                          FirebaseFirestore.instance
+                                              .collection('users')
+                                              .doc(widget.currentUser.email)
+                                              .update({
+                                            'ingredients': FieldValue
+                                                .arrayRemove(
+                                                [ingredientName])
+                                          });
                                       } else {
-                                        widget.myIngredientsList
-                                            .add(snapshot.data![i]);
+                                       myIngredientsList
+                                            .add(ingredientName);
                                         FirebaseFirestore.instance
                                             .collection('users')
                                             .doc(widget.currentUser.email)
                                             .update({
                                           'ingredients': FieldValue.arrayUnion(
-                                              [snapshot.data![i]])
+                                              [ingredientName])
                                         });
                                       }
                                     });

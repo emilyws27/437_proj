@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:zesty/ingredientTypes.dart';
 import 'package:zesty/main.dart';
 import 'package:zesty/recipes.dart';
 import 'package:zesty/profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
+import 'ingredients.dart';
 
 class BottomNav extends StatefulWidget {
   final GoogleSignIn googleSignIn;
@@ -22,6 +25,22 @@ class BottomNav extends StatefulWidget {
 }
 
 class _BottomNav extends State<BottomNav> {
+
+  Future<List<String>> getMyIngredients(GoogleSignInAccount user) async {
+    Future<List<String>> myIngredients = FirebaseFirestore.instance
+        .collection("users")
+        .doc(widget.currentUser.email)
+        .get()
+        .then((DocumentSnapshot snapshot) async {
+      List<String> ingredients = [];
+      ingredients += List.from(snapshot['ingredients']);
+      ingredients.sort();
+
+      return ingredients;
+    });
+
+    return myIngredients;
+  }
 
   final PageController _controller = PageController(
     initialPage: 2,
@@ -93,7 +112,30 @@ class _BottomNav extends State<BottomNav> {
                 fontFamily: 'Cookie', fontSize: 35, color: Colors.black)),
         centerTitle: true,
         backgroundColor: Colors.amber[900],
-      ),
+        actions: <Widget>[
+           Container(
+                  margin: const EdgeInsets.only(
+                    left: 10,
+                    bottom: 2,
+                  ),
+                  child:  IconButton(
+                    icon: const Icon(Icons.shopping_bag),
+                    iconSize: 40,
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            transitionDuration:
+                            const Duration(milliseconds: 700),
+                            pageBuilder: (_, __, ___) =>
+                                IngredientList(
+                                  currentUser: widget.currentUser,
+                                  myIngredients: true,)
+                          ));
+                    },
+                  )
+              ),
+        ]),
       body: PageView(
           controller: _controller,
           children: <Widget>[
