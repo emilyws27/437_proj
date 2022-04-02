@@ -60,13 +60,7 @@ class _BottomNav extends State<BottomNav> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Zesty',
-            style: TextStyle(
-                fontFamily: 'Cookie', fontSize: 35, color: Colors.black)),
-        centerTitle: true,
-        backgroundColor: Colors.amber[900],
-        actions: <Widget>[
-          GestureDetector(
+        leading: GestureDetector(
             onTap: () {
               Navigator.push(
                   context,
@@ -76,25 +70,29 @@ class _BottomNav extends State<BottomNav> {
                     pageBuilder: (_, __, ___) =>
                         profilePage(
                           googleSignIn: widget.googleSignIn,
-                            currentUser: widget.currentUser,
-                            updateCurrentUser:
-                            widget.updateCurrentUser,
-                            ),
+                          currentUser: widget.currentUser,
+                          updateCurrentUser:
+                          widget.updateCurrentUser,
+                        ),
                   ));
             },
             child: Container(
-              margin: const EdgeInsets.only(
-                right: 10,
-                bottom: 10,
-              ),
-              child: Hero(
-                tag: "profilePic",
-                child: CircleAvatar(
-              foregroundImage: NetworkImage(imageurl),
-              radius: 25,
-            ),)
-          ))
-        ],
+                margin: const EdgeInsets.only(
+                  left: 10,
+                  bottom: 2,
+                ),
+                child: Hero(
+                  tag: "profilePic",
+                  child: CircleAvatar(
+                    foregroundImage: NetworkImage(imageurl),
+                    radius: 30,
+                  ),)
+            )),
+        title: const Text('Zesty',
+            style: TextStyle(
+                fontFamily: 'Cookie', fontSize: 35, color: Colors.black)),
+        centerTitle: true,
+        backgroundColor: Colors.amber[900],
       ),
       body: PageView(
           controller: _controller,
