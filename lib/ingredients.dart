@@ -10,7 +10,7 @@ class IngredientList extends StatefulWidget {
   const IngredientList({
     Key? key,
     required this.currentUser,
-    this.ingredientType = "null",
+    this.ingredientType = "My Ingredients",
     required this.myIngredients,
   }) : super(key: key);
 
@@ -90,7 +90,6 @@ class _IngredientListState extends State<IngredientList> {
             children = Scaffold(
                 body: Scrollbar(
                     child: ListView.builder(
-                        key: UniqueKey(),
                         padding: const EdgeInsets.all(16.0),
                         itemCount: snapshot.data?.length,
                         itemBuilder: (context, i) {
