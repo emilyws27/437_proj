@@ -19,8 +19,16 @@ class Login extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Zesty',
-            style: TextStyle(fontFamily: 'Cookie', fontSize: 35, color: Colors.black)),
+        title: Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
+            Image.asset('assets/images/zestyLogo.png', height: 110, width: 110),
+            const Center(
+                child: Text('Zesty',
+                    style: TextStyle(
+                        fontFamily: 'Cookie', fontSize: 35, color: Colors.black)))
+          ],
+        ),
         centerTitle: true,
         backgroundColor: Colors.amber[900],
       ),
@@ -32,9 +40,19 @@ class Login extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'Welcome to Zesty, Please Sign In',
+              'Welcome to',
               style: TextStyle(fontSize: 30),
               textAlign: TextAlign.center,
+            ),
+            Stack(
+              alignment: Alignment.center,
+              children: <Widget>[
+                Image.asset('assets/images/zestyLogo.png'),
+                const Center(
+                    child: Text('Zesty',
+                        style: TextStyle(
+                            fontFamily: 'Cookie', fontSize: 70, color: Colors.black)))
+              ],
             ),
             const SizedBox(
               height: 20,

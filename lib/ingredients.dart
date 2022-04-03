@@ -102,15 +102,6 @@ class _IngredientListState extends State<IngredientList> {
           else {
             ingredientsToReturn = [addAll] + ingredientsToReturn;
           }
-          print("_____________________");
-          print("myIngredients overlap with ingredients;");
-          print(myIngredientsList.toSet().intersection(ingredients.toSet()));
-          print("ingredients:");
-          print(ingredients);
-          print("bulk ingredients: ");
-          print(bulkIngredients);
-          print("bulk ingredients overlap with my ingredients:");
-          print(myIngredientsList.toSet().intersection(bulkIngredients.toSet()));
           return ingredientsToReturn;
         });
         return ingredientNames;

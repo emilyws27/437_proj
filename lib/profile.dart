@@ -25,9 +25,19 @@ class profilePage extends StatelessWidget {
 
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Zesty',
-              style: TextStyle(
-                  fontFamily: 'Cookie', fontSize: 35, color: Colors.black)),
+          title: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              Image.asset('assets/images/zestyLogo.png',
+                  height: 110, width: 110),
+              const Center(
+                  child: Text('Zesty',
+                      style: TextStyle(
+                          fontFamily: 'Cookie',
+                          fontSize: 35,
+                          color: Colors.black)))
+            ],
+          ),
           centerTitle: true,
           backgroundColor: Colors.amber[900],
         ),

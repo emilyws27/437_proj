@@ -24,7 +24,6 @@ class BottomNav extends StatefulWidget {
 }
 
 class _BottomNav extends State<BottomNav> {
-
   Future<List<String>> getMyIngredients(GoogleSignInAccount user) async {
     Future<List<String>> myIngredients = FirebaseFirestore.instance
         .collection("users")
@@ -64,94 +63,91 @@ class _BottomNav extends State<BottomNav> {
 
   @override
   Widget build(BuildContext context) {
-
     String imageurl;
     if (widget.currentUser.photoUrl == null) {
       imageurl =
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSf8xdLG78TMYzKtF09m3yqmzo8-NmjgdxR3g&usqp=CAU";
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSf8xdLG78TMYzKtF09m3yqmzo8-NmjgdxR3g&usqp=CAU";
     } else {
       imageurl = widget.currentUser.photoUrl!;
     }
 
     return Scaffold(
       appBar: AppBar(
-        leading: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    transitionDuration:
-                    const Duration(seconds: 1),
-                    pageBuilder: (_, __, ___) =>
-                        profilePage(
-                          googleSignIn: widget.googleSignIn,
-                          currentUser: widget.currentUser,
-                          updateCurrentUser:
-                          widget.updateCurrentUser,
-                        ),
-                  ));
-            },
-            child: Container(
-                margin: const EdgeInsets.only(
-                  left: 10,
-                  bottom: 2,
-                ),
-                child: Hero(
-                  tag: "profilePic",
-                  child: CircleAvatar(
-                    foregroundImage: NetworkImage(imageurl),
-                    radius: 30,
-                  ),)
-            )),
-        title: const Text('Zesty',
-            style: TextStyle(
-                fontFamily: 'Cookie', fontSize: 35, color: Colors.black)),
-        centerTitle: true,
-        backgroundColor: Colors.amber[900],
-        actions: <Widget>[
-           Container(
+          leading: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: const Duration(seconds: 1),
+                      pageBuilder: (_, __, ___) => profilePage(
+                        googleSignIn: widget.googleSignIn,
+                        currentUser: widget.currentUser,
+                        updateCurrentUser: widget.updateCurrentUser,
+                      ),
+                    ));
+              },
+              child: Container(
                   margin: const EdgeInsets.only(
                     left: 10,
                     bottom: 2,
                   ),
-                  child:  IconButton(
-                    icon: const Icon(Icons.shopping_bag_outlined),
-                    color: Colors.blueGrey,
-                    iconSize: 40,
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            transitionDuration:
-                            const Duration(milliseconds: 700),
-                            pageBuilder: (_, __, ___) =>
-                                IngredientList(
-                                  currentUser: widget.currentUser,
-                                  myIngredients: true,),
-                            transitionsBuilder: (BuildContext context,
-                                Animation<double> animation,
-                                Animation<double> secondaryAnimation,
-                                Widget child) {
-                              return FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              );
-                            },
-                          ));
-                    },
-                  )
-              ),
-        ]),
+                  child: Hero(
+                    tag: "profilePic",
+                    child: CircleAvatar(
+                      foregroundImage: NetworkImage(imageurl),
+                      radius: 30,
+                    ),
+                  ))),
+          title: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              Image.asset('assets/images/zestyLogo.png', height: 110, width: 110),
+              const Center(
+                child: Text('Zesty',
+                  style: TextStyle(
+                      fontFamily: 'Cookie', fontSize: 35, color: Colors.black)))
+            ],
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.amber[900],
+          actions: <Widget>[
+            Container(
+                margin: const EdgeInsets.only(
+                  right: 10,
+                  bottom: 2,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.shopping_bag_outlined),
+                  color: Colors.blueGrey,
+                  iconSize: 40,
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          transitionDuration: const Duration(milliseconds: 700),
+                          pageBuilder: (_, __, ___) => IngredientList(
+                            currentUser: widget.currentUser,
+                            myIngredients: true,
+                          ),
+                          transitionsBuilder: (BuildContext context,
+                              Animation<double> animation,
+                              Animation<double> secondaryAnimation,
+                              Widget child) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            );
+                          },
+                        ));
+                  },
+                )),
+          ]),
       body: PageView(
           controller: _controller,
           children: <Widget>[
-            RecipeFinder(
-                currentUser: widget.currentUser,
-            mySaved: true),
-            RecipeFinder(
-                currentUser: widget.currentUser, mySaved: false),
-            IngredientTypeList(
-                currentUser: widget.currentUser),
+            RecipeFinder(currentUser: widget.currentUser, mySaved: true),
+            RecipeFinder(currentUser: widget.currentUser, mySaved: false),
+            IngredientTypeList(currentUser: widget.currentUser),
           ],
           onPageChanged: (int index) {
             setState(() {
