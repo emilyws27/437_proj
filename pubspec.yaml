@@ -41,6 +41,8 @@ dependencies:
   google_sign_in: ^5.2.4
   firebase_auth: ^3.3.9
   firebase_core: ^1.13.1
+  flutter_linkify: ^5.0.2
+  url_launcher: ^6.0.20
 
 dev_dependencies:
   flutter_test:
