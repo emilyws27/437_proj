@@ -91,8 +91,6 @@ class _IngredientListState extends State<IngredientList> {
           else {
             ingredientsToReturn = ["Add All"] + ingredientsToReturn;
           }
-
-
           return ingredientsToReturn;
         });
         return ingredientNames;
