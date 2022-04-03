@@ -25,7 +25,10 @@ class profilePage extends StatelessWidget {
 
     return Scaffold(
         appBar: AppBar(
-          title: Stack(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[Stack(
             alignment: Alignment.center,
             children: <Widget>[
               Image.asset('assets/images/zestyLogo.png',
@@ -37,7 +40,7 @@ class profilePage extends StatelessWidget {
                           fontSize: 35,
                           color: Colors.black)))
             ],
-          ),
+          ),],),
           centerTitle: true,
           backgroundColor: Colors.amber[900],
         ),

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -19,17 +20,6 @@ class Login extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            Image.asset('assets/images/zestyLogo.png', height: 110, width: 110),
-            const Center(
-                child: Text('Zesty',
-                    style: TextStyle(
-                        fontFamily: 'Cookie', fontSize: 35, color: Colors.black)))
-          ],
-        ),
-        centerTitle: true,
         backgroundColor: Colors.amber[900],
       ),
       body: Padding(
@@ -51,7 +41,9 @@ class Login extends StatelessWidget {
                 const Center(
                     child: Text('Zesty',
                         style: TextStyle(
-                            fontFamily: 'Cookie', fontSize: 70, color: Colors.black)))
+                            fontFamily: 'Cookie',
+                            fontSize: 70,
+                            color: Colors.black)))
               ],
             ),
             const SizedBox(
@@ -62,8 +54,30 @@ class Login extends StatelessWidget {
                 child: const Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Text('Sign in', style: TextStyle(fontSize: 30)),
-                )
+                )),
+            const SizedBox(
+              height: 20,
             ),
+            RichText(
+                text: TextSpan(children: [
+              TextSpan(
+                  text: 'About this app',
+                  style: TextStyle(
+                      color: Colors.blueAccent,
+                      decoration: TextDecoration.underline),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      showAboutDialog(context: context,
+                      applicationName: "Zesty",
+                      applicationVersion: "0.2b",
+                      applicationIcon: Image.asset('assets/images/zestyLogo.png',
+                          height: 110, width: 110),
+                      applicationLegalese: "Zesty does not have ownership of any of the recipes provided through the app."
+                          "All recipes from this platform were scraped from Food.com where full credit is given to the"
+                          "authors of each recipe. Zesty is not responsible for any illness, injuries, or even deaths that"
+                          "may come from the use of the app and recipes provided.");
+                    }),
+            ]))
           ],
         ),
       ),
