@@ -23,9 +23,16 @@ class _IngredientListState extends State<IngredientList> {
   final GlobalKey<AnimatedListState> _key = GlobalKey();
   List<String> myIngredientsList = [];
   List<String> bulkIngredients = [];
+  final String addAll = "Add All";
+  final String removeAll = "Remove All";
+  final String addCommon = "Add All Common Ingredients of this Type";
+  final String removeCommon = "Remove All Common Ingredients of this Type";
+  Set<String> addRemoveStringsSet = {};
 
   @override
   Widget build(BuildContext context) {
+    addRemoveStringsSet = {addAll, removeAll, addCommon, removeCommon};
+
     Future<List<String>> getMyIngredients(GoogleSignInAccount user) async {
       Future<List<String>> myIngredients = FirebaseFirestore.instance
           .collection("users")
@@ -56,7 +63,6 @@ class _IngredientListState extends State<IngredientList> {
         } else {
           bulkIngredients = [];
         }
-        print(bulkIngredients);
         bulkIngredients.sort();
         return bulkIngredients;
       });
@@ -79,18 +85,32 @@ class _IngredientListState extends State<IngredientList> {
           ingredients += List.from(data[widget.ingredientType]);
           ingredients.sort();
           List<String> ingredientsToReturn = [];
-          if(myIngredientsList.toSet().intersection(bulkIngredients.toSet()).length == bulkIngredients.length) {
-            ingredientsToReturn = ["Remove All Common"] + ingredients;
+          if(bulkIngredients.length > 0) {
+            if(myIngredientsList.toSet().intersection(bulkIngredients.toSet()).length == bulkIngredients.length) {
+              ingredientsToReturn = [removeCommon] + ingredients;
+            }
+            else {
+              ingredientsToReturn = [addCommon] + ingredients;
+            }
           }
           else {
-            ingredientsToReturn = ["Add All Common"] + ingredients;
+            ingredientsToReturn = ingredients;
           }
           if(myIngredientsList.toSet().intersection(ingredients.toSet()).length == ingredients.length){
-            ingredientsToReturn = ["Remove All"] + ingredientsToReturn;
+            ingredientsToReturn = [removeAll] + ingredientsToReturn;
           }
           else {
-            ingredientsToReturn = ["Add All"] + ingredientsToReturn;
+            ingredientsToReturn = [addAll] + ingredientsToReturn;
           }
+          print("_____________________");
+          print("myIngredients overlap with ingredients;");
+          print(myIngredientsList.toSet().intersection(ingredients.toSet()));
+          print("ingredients:");
+          print(ingredients);
+          print("bulk ingredients: ");
+          print(bulkIngredients);
+          print("bulk ingredients overlap with my ingredients:");
+          print(myIngredientsList.toSet().intersection(bulkIngredients.toSet()));
           return ingredientsToReturn;
         });
         return ingredientNames;
@@ -144,14 +164,14 @@ class _IngredientListState extends State<IngredientList> {
                                         style: _biggerFont,
                                       ),
                                       trailing: Icon(
-                                        ingredientName.contains("All") && (ingredientName.contains("Add") || ingredientName.contains("Remove"))
+                                        addRemoveStringsSet.contains(ingredientName)
                                         ? (ingredientName.contains("Add") ? Icons.playlist_add : Icons.playlist_remove)
                                         :
                                             alreadySelected
                                                 ? Icons.shopping_cart
                                                 : Icons.add,
                                         color:
-                                        ingredientName.contains("All") && (ingredientName.contains("Add") || ingredientName.contains("Remove"))
+                                        addRemoveStringsSet.contains(ingredientName)
                                             ? (ingredientName.contains("Add") ? Colors.blue : Colors.red)
                                             :
                                               alreadySelected
@@ -163,18 +183,18 @@ class _IngredientListState extends State<IngredientList> {
                                       ),
                                       onTap: () {
                                         setState(() {
-                                          if(ingredientName.contains("All") && (ingredientName.contains("Add") || ingredientName.contains("Remove"))) {
+                                          if(addRemoveStringsSet.contains(ingredientName)) {
                                             if(ingredientName.contains("Add")) {
-                                              if (ingredientName == "Add All") {
+                                              if (ingredientName == addAll) {
                                                 FirebaseFirestore.instance
                                                     .collection('users')
                                                     .doc(widget.currentUser.email)
                                                     .update({
                                                   'ingredients':
                                                   FieldValue.arrayUnion(
-                                                      snapshot.data!)
+                                                      snapshot.data!.toSet().difference(addRemoveStringsSet).toList())
                                                 });
-                                              } else if (ingredientName == "Add All Common") {
+                                              } else if (ingredientName == addCommon) {
                                                 if (bulkIngredients.isNotEmpty) {
                                                   FirebaseFirestore.instance
                                                       .collection('users')
@@ -189,7 +209,7 @@ class _IngredientListState extends State<IngredientList> {
                                               }
                                             }
                                             else {
-                                              if (ingredientName == "Remove All") {
+                                              if (ingredientName == removeAll) {
                                                 FirebaseFirestore.instance
                                                     .collection('users')
                                                     .doc(widget.currentUser.email)
@@ -198,7 +218,7 @@ class _IngredientListState extends State<IngredientList> {
                                                   FieldValue.arrayRemove(
                                                       snapshot.data!)
                                                 });
-                                              } else if (ingredientName == "Remove All Common") {
+                                              } else if (ingredientName == removeCommon) {
                                                 if (bulkIngredients.isNotEmpty) {
                                                   FirebaseFirestore.instance
                                                       .collection('users')
