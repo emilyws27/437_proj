@@ -25,7 +25,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
   @override
   Widget build(BuildContext context) {
     Future<List<DocumentSnapshot>> FindRecipes(
-        GoogleSignInAccount? user) {
+        GoogleSignInAccount? user) async {
       Future<List<DocumentSnapshot>> savedRecipes = FirebaseFirestore.instance
           .collection('users')
           .doc(user?.email)
@@ -55,6 +55,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
             recipeMatch.add(recipe);
           }
         });
+
         return recipeMatch;
       });
 
@@ -62,6 +63,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
         return savedRecipes;
       }
       else {
+        Future.delayed(const Duration(seconds: 1));
         return allRecipes;
       }
     }

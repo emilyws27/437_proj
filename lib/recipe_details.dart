@@ -5,8 +5,6 @@ import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 
-
-
 class viewRecipe extends StatefulWidget {
   final GoogleSignInAccount currentUser;
   final DocumentSnapshot<Object?> recipe;
@@ -58,65 +56,64 @@ class _viewRecipeState extends State<viewRecipe> {
             ),
             child: Row(
               children: <Widget>[
-                ic, //Text(bold,
-                //  style: const TextStyle(
-                // fontSize: 20.0, fontWeight: FontWeight.bold)),
+                ic,
                 Text(normal, style: const TextStyle(fontSize: 20.0))
               ],
             )));
   }
 
-  Widget source(double topPad, double botPad) {
+  Widget source() {
     Future<void> _onOpen(LinkableElement link) async {
       launch(link.url);
-      // if (await canLaunch(link.url)) {
-      //   await launch(link.url);
-      // } else {
-      //   throw 'Could not launch $link';
-      // }
     }
-    Map<String, dynamic> recipeMap = widget.recipe.data() as Map<String, dynamic>;
+
+    Map<String, dynamic> recipeMap =
+        widget.recipe.data() as Map<String, dynamic>;
+
     return Align(
         alignment: Alignment.centerLeft,
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: 15,
-            right: 15,
-            top: topPad,
-            bottom: botPad,
+        child: Column(children: <Widget>[
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 15,
+              vertical: 5,
+            ),
+            child: Row(
+              children: <Widget>[
+                Flexible(
+                  child: Linkify(
+                      onOpen: _onOpen,
+                      text: "View this recipe on Food.com: " +
+                          "\n" +
+                          widget.recipe["url"],
+                      style: const TextStyle(fontSize: 20.0)),
+                ),
+              ],
+            ),
           ),
-          child: Column(
-            children: [
-          Row(
-            children: <Widget>[
-              Flexible(
-                child: Linkify(
-                onOpen: _onOpen,
-                text: "View this recipe on Food.com: " +
-                    "\n" + widget.recipe["url"],
-                style: const TextStyle(fontSize: 20.0)),
+          Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 15,
+                vertical: 5,
               ),
-            ],
-          ),
-              Row(
+              child: Row(
                 children: <Widget>[
                   Flexible(
                     child: Linkify(
                         onOpen: _onOpen,
-                        text: recipeMap.containsKey("authorUrl") && recipeMap.containsKey("author")
-                            ? "Recipe uploaded to Food.com by user " + widget.recipe["author"] +  "\n" + widget.recipe["authorUrl"]
+                        text: recipeMap.containsKey("authorUrl") &&
+                                recipeMap.containsKey("author")
+                            ? "Recipe uploaded to Food.com by user " +
+                                widget.recipe["author"] +
+                                ":\n" +
+                                widget.recipe["authorUrl"]
                             : "",
                         style: const TextStyle(fontSize: 20.0)),
                   )
                 ],
-              )
-            ]
-          )
-        ));
-
-
+              )),
+        ]));
   }
-
 
   late bool saved;
 
@@ -291,7 +288,7 @@ class _viewRecipeState extends State<viewRecipe> {
                     ]));
               }),
           header("Source"),
-          source(10, 10)
+          source(),
         ],
       )),
     );

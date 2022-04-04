@@ -72,9 +72,9 @@ class Login extends StatelessWidget {
                       applicationVersion: "0.2b",
                       applicationIcon: Image.asset('assets/images/zestyLogo.png',
                           height: 110, width: 110),
-                      applicationLegalese: "Zesty does not have ownership of any of the recipes provided through the app."
-                          "All recipes from this platform were scraped from Food.com where full credit is given to the"
-                          "authors of each recipe. Zesty is not responsible for any illness, injuries, or even deaths that"
+                      applicationLegalese: "Zesty does not have ownership of any of the recipes provided through the app. "
+                          "All recipes from this platform were scraped from Food.com where full credit is given to the "
+                          "authors of each recipe. Zesty is not responsible for any illness, injury, or even deaths that "
                           "may come from the use of the app and recipes provided.");
                     }),
             ]))
