@@ -20,7 +20,7 @@ class IngredientList extends StatefulWidget {
 
 class _IngredientListState extends State<IngredientList> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
-  final GlobalKey<AnimatedListState> _key = GlobalKey();
+  final GlobalKey<AnimatedListState> _keyIngredients = GlobalKey();
   List<String> myIngredientsList = [];
   List<String> bulkIngredients = [];
   final String addAll = "Add All";
@@ -143,7 +143,7 @@ class _IngredientListState extends State<IngredientList> {
             children = Scaffold(
                 body: Scrollbar(
                     child: AnimatedList(
-                        key: _key,
+                        key: _keyIngredients,
                         padding: const EdgeInsets.all(16.0),
                         initialItemCount: snapshot.data?.length != null
                             ? snapshot.data!.length
@@ -238,7 +238,7 @@ class _IngredientListState extends State<IngredientList> {
                                             if (alreadySelected) {
                                               if (widget.myIngredients ==
                                                   true) {
-                                                _key.currentState!.removeItem(i,
+                                                _keyIngredients.currentState!.removeItem(i,
                                                     (_, animation) {
                                                   return SizeTransition(
                                                     key: UniqueKey(),

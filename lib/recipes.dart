@@ -19,51 +19,67 @@ class RecipeFinder extends StatefulWidget {
 }
 
 class _RecipeFinderState extends State<RecipeFinder> {
+  final GlobalKey<AnimatedListState> _keyRecipes = GlobalKey();
   var _recipePaths = <DocumentReference>[];
   var _myIngredients = <String>[];
+  List<DocumentSnapshot> userSavedRecipes = [];
+  List<DocumentSnapshot> allRecipes =[];
+  late bool alreadySaved;
+
+  Future<List<DocumentSnapshot>> getAllRecipes(GoogleSignInAccount user) {
+    Future<List<DocumentSnapshot>> allRecipes = FirebaseFirestore.instance
+        .collection('recipes')
+        .get()
+        .then((QuerySnapshot querySnapShot) {
+      List<DocumentSnapshot> recipeMatch = [];
+
+      querySnapShot.docs.forEach((recipe) {
+        if (recipe['ingredients'].every((ingredient) =>
+            _myIngredients.contains(ingredient['ingredient']))) {
+          recipeMatch.add(recipe);
+        }
+      });
+
+      return recipeMatch;
+    });
+
+    return allRecipes;
+  }
+
+  Future<List<DocumentSnapshot>> getSavedRecipes(GoogleSignInAccount user) {
+    Future<List<DocumentSnapshot>> savedRecipes = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.email)
+        .get()
+        .then((DocumentSnapshot data) async {
+      _recipePaths = List.from(data.get('savedRecipes'));
+      _myIngredients = List.from(data.get('ingredients'));
+
+      List<DocumentSnapshot> mySavedRecipes = [];
+      for (DocumentReference path in _recipePaths) {
+        await path.get().then((DocumentSnapshot recipeData) {
+          mySavedRecipes.add(recipeData);
+        });
+      }
+
+      return mySavedRecipes;
+    });
+
+    return savedRecipes;
+  }
 
   @override
   Widget build(BuildContext context) {
     Future<List<DocumentSnapshot>> FindRecipes(
         GoogleSignInAccount? user) async {
-      Future<List<DocumentSnapshot>> savedRecipes = FirebaseFirestore.instance
-          .collection('users')
-          .doc(user?.email)
-          .get()
-          .then((DocumentSnapshot data) async {
-        _recipePaths = List.from(data.get('savedRecipes'));
-        _myIngredients = List.from(data.get('ingredients'));
 
-        List<DocumentSnapshot> mySavedRecipes = [];
-        for (DocumentReference path in _recipePaths) {
-          await path.get().then((DocumentSnapshot recipeData) {
-            mySavedRecipes.add(recipeData);
-          });
-        }
-
-        return mySavedRecipes;
-      });
-
-      Future<List<DocumentSnapshot>> allRecipes = FirebaseFirestore.instance
-          .collection('recipes')
-          .get()
-          .then((QuerySnapshot querySnapShot) {
-        List<DocumentSnapshot> recipeMatch = [];
-        querySnapShot.docs.forEach((recipe) {
-          if (recipe['ingredients'].every((ingredient) =>
-              _myIngredients.contains(ingredient['ingredient']))) {
-            recipeMatch.add(recipe);
-          }
-        });
-
-        return recipeMatch;
-      });
+      userSavedRecipes = await getSavedRecipes(user!);
 
       if (widget.mySaved == true) {
-        return savedRecipes;
+        return userSavedRecipes;
       }
       else {
-        Future.delayed(const Duration(seconds: 1));
+        allRecipes = await getAllRecipes(user);
         return allRecipes;
       }
     }
@@ -78,16 +94,17 @@ class _RecipeFinderState extends State<RecipeFinder> {
           if (snapshot.data!.isNotEmpty) {
             children = Scaffold(
                 body: Scrollbar(
-                    child: ListView.builder(
+                    child: AnimatedList(
+                      key: _keyRecipes,
                         padding: const EdgeInsets.all(16.0),
-                        itemCount: snapshot.data?.length,
-                        itemBuilder: (context, i) {
-                          final String imageUrl = snapshot.data?[i]
-                                  ['imageUrl'] ??
-                              "Could not load image";
-                          final String recipeName = snapshot.data?[i]
-                                  ['title'] ??
-                              "Could not load recipe";
+                        initialItemCount: snapshot.data?.length != null
+                            ? snapshot.data!.length
+                            : 0,
+                        itemBuilder: (_, i, animation) {
+                          final String imageUrl = snapshot.data![i]
+                                  ['imageUrl'];
+                          final String recipeName = snapshot.data![i]
+                                  ['title'];
                           final alreadySaved = _recipePaths
                               .contains(snapshot.data![i].reference);
 
@@ -113,11 +130,6 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                       );
                                     },
                                   ),
-                                ).then((_) {
-                                  setState(() {
-                                  });
-                                }
-
                                 );
                               },
                               child: Container(
