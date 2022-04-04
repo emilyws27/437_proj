@@ -102,7 +102,16 @@ class _IngredientListState extends State<IngredientList> {
           else {
             ingredientsToReturn = [addAll] + ingredientsToReturn;
           }
+          // print("bulkIngredients " + bulkIngredients.length.toString());
+          // print(bulkIngredients);
+          // print("my ingreds with bulk ingreds " + myIngredientsList.toSet().intersection(bulkIngredients.toSet()).length.toString());
+          // print(myIngredientsList.toSet().intersection(bulkIngredients.toSet()));
+          // print("ingreds in category " + ingredients.length.toString());
+          // print(ingredients);
+          // print("my ingreds with ingreds " + myIngredientsList.toSet().intersection(ingredients.toSet()).length.toString());
+          // print(myIngredientsList.toSet().intersection(ingredients.toSet()));
           return ingredientsToReturn;
+
         });
         return ingredientNames;
       } else {
