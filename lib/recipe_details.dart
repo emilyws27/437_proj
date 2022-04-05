@@ -192,7 +192,44 @@ class _viewRecipeState extends State<viewRecipe> {
                                       " " +
                                       widget.recipe['ingredients'][index]
                                           ['ingredient'],
-                                  style: const TextStyle(fontSize: 20.0)))
+                                  style: const TextStyle(fontSize: 20.0))),
+                          IconButton(
+                              icon: Icon(Icons.remove_shopping_cart_outlined),
+                              color: Colors.redAccent,
+                              onPressed: () {
+
+                                FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(widget.currentUser.email)
+                                    .update({
+                                  'ingredients': FieldValue.arrayRemove([
+                                    widget.recipe['ingredients'][index]
+                                        ['ingredient']
+                                  ])
+                                });
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(widget.recipe['ingredients'][index]
+                                    ['ingredient'] + ' was removed from your ingredients'),
+                                    action: SnackBarAction(
+                                      label: 'Undo',
+                                      onPressed: () {
+                                        FirebaseFirestore.instance
+                                            .collection('users')
+                                            .doc(widget.currentUser.email)
+                                            .update({
+                                          'ingredients': FieldValue.arrayUnion([
+                                            widget.recipe['ingredients'][index]
+                                            ['ingredient']
+                                          ])
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                );
+
+                              }),
                         ]));
               }),
           header("Directions"),
@@ -220,13 +257,15 @@ class _viewRecipeState extends State<viewRecipe> {
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 15,
-                vertical: 5,
-              ),
-              child: Text("Amount per serving: " + widget.recipe['servingSize'],
-                  style: const TextStyle(
-                      fontSize: 20.0, fontWeight: FontWeight.w500))),),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 5,
+                ),
+                child: Text(
+                    "Amount per serving: " + widget.recipe['servingSize'],
+                    style: const TextStyle(
+                        fontSize: 20.0, fontWeight: FontWeight.w500))),
+          ),
           ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
