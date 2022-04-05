@@ -278,7 +278,7 @@ class _IngredientListState extends State<IngredientList> {
                                                         duration:
                                                             const Duration(
                                                                 milliseconds:
-                                                                    700));
+                                                                    500));
 
                                                 snapshot.data?.removeAt(i);
 
