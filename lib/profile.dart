@@ -27,20 +27,23 @@ class profilePage extends StatelessWidget {
         appBar: AppBar(
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[Stack(
-            alignment: Alignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Image.asset('assets/images/zestyLogo.png',
-                  height: 110, width: 110),
-              const Center(
-                  child: Text('Zesty',
-                      style: TextStyle(
-                          fontFamily: 'Cookie',
-                          fontSize: 35,
-                          color: Colors.black)))
+              Stack(
+                alignment: Alignment.center,
+                children: <Widget>[
+                  Image.asset('assets/images/zestyLogo.png',
+                      height: 110, width: 110),
+                  const Center(
+                      child: Text('Zesty',
+                          style: TextStyle(
+                              fontFamily: 'Cookie',
+                              fontSize: 35,
+                              color: Colors.black)))
+                ],
+              ),
             ],
-          ),],),
+          ),
           centerTitle: true,
           backgroundColor: Colors.amber[900],
         ),

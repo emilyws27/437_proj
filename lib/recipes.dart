@@ -162,56 +162,61 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                         ),
                                       ),
                                       ListTile(
-                                        title: Text(
-                                          recipeName,
-                                          style: const TextStyle(
-                                              fontSize: 18.0,
-                                              decoration: TextDecoration.none,
-                                              fontWeight: FontWeight.normal,
-                                              color: Colors.black,
-                                              fontFamily: 'Roboto'),
-                                          textAlign: TextAlign.left,
-                                        ),
-                                        trailing: IconButton(
-                                          icon: alreadySaved
-                                              ? const Icon(Icons.bookmark)
-                                              : const Icon(
-                                                  Icons.bookmark_border),
-                                          iconSize: 40,
-                                          color: alreadySaved
-                                              ? Colors.yellowAccent
-                                              : null,
-                                          onPressed: () {
-                                            setState(() {
-                                              if (alreadySaved) {
-                                                alreadySaved = false;
-                                                FirebaseFirestore.instance
-                                                    .collection('users')
-                                                    .doc(widget
-                                                        .currentUser.email)
-                                                    .update({
-                                                  'savedRecipes':
-                                                      FieldValue.arrayRemove([
-                                                    snapshot.data![i].reference
-                                                  ])
+                                          title: Text(
+                                            recipeName,
+                                            style: const TextStyle(
+                                                fontSize: 18.0,
+                                                decoration: TextDecoration.none,
+                                                fontWeight: FontWeight.normal,
+                                                color: Colors.black,
+                                                fontFamily: 'Roboto'),
+                                            textAlign: TextAlign.left,
+                                          ),
+                                          trailing: StatefulBuilder(builder:
+                                              (BuildContext context,
+                                                  StateSetter setState) {
+                                            return IconButton(
+                                              icon: alreadySaved
+                                                  ? const Icon(Icons.bookmark)
+                                                  : const Icon(
+                                                      Icons.bookmark_border),
+                                              iconSize: 40,
+                                              color: alreadySaved
+                                                  ? Colors.yellowAccent
+                                                  : null,
+                                              onPressed: () {
+                                                setState(() {
+                                                  if (alreadySaved) {
+                                                    alreadySaved = false;
+                                                    FirebaseFirestore.instance
+                                                        .collection('users')
+                                                        .doc(widget
+                                                            .currentUser.email)
+                                                        .update({
+                                                      'savedRecipes': FieldValue
+                                                          .arrayRemove([
+                                                        snapshot
+                                                            .data![i].reference
+                                                      ])
+                                                    });
+                                                  } else {
+                                                    alreadySaved = true;
+                                                    FirebaseFirestore.instance
+                                                        .collection('users')
+                                                        .doc(widget
+                                                            .currentUser.email)
+                                                        .update({
+                                                      'savedRecipes': FieldValue
+                                                          .arrayUnion([
+                                                        snapshot
+                                                            .data![i].reference
+                                                      ])
+                                                    });
+                                                  }
                                                 });
-                                              } else {
-                                                alreadySaved = true;
-                                                FirebaseFirestore.instance
-                                                    .collection('users')
-                                                    .doc(widget
-                                                        .currentUser.email)
-                                                    .update({
-                                                  'savedRecipes':
-                                                      FieldValue.arrayUnion([
-                                                    snapshot.data![i].reference
-                                                  ])
-                                                });
-                                              }
-                                            });
-                                          },
-                                        ),
-                                      ),
+                                              },
+                                            );
+                                          })),
                                     ],
                                   )));
                         })));
