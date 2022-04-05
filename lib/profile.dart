@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -102,6 +103,46 @@ class profilePage extends StatelessWidget {
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('Sign Out', style: TextStyle(fontSize: 30)),
+                  )),
+              const SizedBox(
+                height: 20,
+              ),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.red,
+                  ),
+                  onPressed: () => showDialog<String>(
+                        context: context,
+                        builder: (BuildContext context) => AlertDialog(
+                          title: const Text('Delete Account'),
+                          content: const Text(
+                              'Are you sure you want to delete your account?'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, 'No'),
+                              child: const Text('No',
+                                  style: TextStyle(fontSize: 16.0)),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .popUntil((route) => route.isFirst);
+                                FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(currentUser.email)
+                                    .delete();
+                                signOut();
+                              },
+                              child: const Text('Yes',
+                                  style: TextStyle(fontSize: 16.0)),
+                            ),
+                          ],
+                        ),
+                      ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child:
+                        Text('Delete Account', style: TextStyle(fontSize: 20)),
                   ))
             ],
           ),

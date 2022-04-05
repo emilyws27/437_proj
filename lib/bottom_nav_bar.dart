@@ -117,8 +117,8 @@ class _BottomNav extends State<BottomNav> {
                   bottom: 2,
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.shopping_bag_outlined),
-                  color: Colors.blueGrey,
+                  icon: const Icon(Icons.shopping_cart_outlined),
+                  color: const Color(0xff0cd144),
                   iconSize: 40,
                   onPressed: () {
                     Navigator.push(

@@ -144,100 +144,92 @@ class _IngredientListState extends State<IngredientList> {
         builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
           Widget children;
           if (snapshot.hasData) {
-            children = Scaffold(
-                body: Scrollbar(
-                    child: AnimatedList(
-                        key: _keyIngredients,
-                        padding: const EdgeInsets.all(16.0),
-                        initialItemCount: snapshot.data?.length != null
-                            ? snapshot.data!.length
-                            : 0,
-                        itemBuilder: (_, i, animation) {
-                          final ingredientName = snapshot.data![i];
-                          final alreadySelected =
-                              myIngredientsList.contains(snapshot.data?[i]);
-                          return SizeTransition(
-                              key: UniqueKey(),
-                              sizeFactor: animation,
-                              child: SizedBox(
-                                  child: Column(
-                                children: <Widget>[
-                                  ListTile(
-                                      title: Text(
-                                        ingredientName,
-                                        style: _biggerFont,
-                                      ),
-                                      trailing: StatefulBuilder(builder:
-                                          (BuildContext context,
-                                              StateSetter setState) {
-                                        return Icon(
-                                          addRemoveStringsSet
-                                                  .contains(ingredientName)
-                                              ? (ingredientName.contains("Add")
-                                                  ? Icons.playlist_add
-                                                  : Icons.playlist_remove)
-                                              : alreadySelected
-                                                  ? Icons.shopping_cart
-                                                  : Icons.add,
-                                          color: addRemoveStringsSet
-                                                  .contains(ingredientName)
-                                              ? (ingredientName.contains("Add")
-                                                  ? Colors.blue
-                                                  : Colors.red)
-                                              : alreadySelected
-                                                  ? Colors.lightGreen
-                                                  : null,
-                                        );
-                                      }),
-                                      onTap: () {
-                                        setState(() {
-                                          if (addRemoveStringsSet
-                                              .contains(ingredientName)) {
-                                            if (ingredientName
-                                                .contains("Add")) {
-                                              if (ingredientName == addAll) {
-                                                FirebaseFirestore.instance
-                                                    .collection('users')
-                                                    .doc(widget
-                                                        .currentUser.email)
-                                                    .update({
-                                                  'ingredients': FieldValue
-                                                      .arrayUnion(snapshot.data!
-                                                          .toSet()
-                                                          .difference(
-                                                              addRemoveStringsSet)
-                                                          .toList())
-                                                });
-                                              } else if (ingredientName ==
-                                                  addCommon) {
-                                                if (bulkIngredients
-                                                    .isNotEmpty) {
+            if (snapshot.data!.isNotEmpty) {
+              children = Scaffold(
+                  body: Scrollbar(
+                      child: AnimatedList(
+                          key: _keyIngredients,
+                          padding: const EdgeInsets.all(16.0),
+                          initialItemCount: snapshot.data?.length != null
+                              ? snapshot.data!.length
+                              : 0,
+                          itemBuilder: (_, i, animation) {
+                            final ingredientName = snapshot.data![i];
+                            final alreadySelected =
+                                myIngredientsList.contains(snapshot.data?[i]);
+                            return SizeTransition(
+                                key: UniqueKey(),
+                                sizeFactor: animation,
+                                child: SizedBox(
+                                    child: Column(
+                                  children: <Widget>[
+                                    ListTile(
+                                        title: Text(
+                                          ingredientName,
+                                          style: _biggerFont,
+                                        ),
+                                        trailing: StatefulBuilder(builder:
+                                            (BuildContext context,
+                                                StateSetter setState) {
+                                          return Icon(
+                                            addRemoveStringsSet
+                                                    .contains(ingredientName)
+                                                ? (ingredientName
+                                                        .contains("Add")
+                                                    ? Icons.playlist_add
+                                                    : Icons.playlist_remove)
+                                                : alreadySelected
+                                                    ? Icons.shopping_cart
+                                                    : Icons.add,
+                                            color: addRemoveStringsSet
+                                                    .contains(ingredientName)
+                                                ? (ingredientName
+                                                        .contains("Add")
+                                                    ? Colors.blue
+                                                    : Colors.red)
+                                                : alreadySelected
+                                                    ? Colors.lightGreen
+                                                    : null,
+                                          );
+                                        }),
+                                        onTap: () {
+                                          setState(() {
+                                            if (addRemoveStringsSet
+                                                .contains(ingredientName)) {
+                                              if (ingredientName
+                                                  .contains("Add")) {
+                                                if (ingredientName == addAll) {
                                                   FirebaseFirestore.instance
                                                       .collection('users')
                                                       .doc(widget
                                                           .currentUser.email)
                                                       .update({
-                                                    'ingredients':
-                                                        FieldValue.arrayUnion(
-                                                            bulkIngredients)
+                                                    'ingredients': FieldValue
+                                                        .arrayUnion(snapshot
+                                                            .data!
+                                                            .toSet()
+                                                            .difference(
+                                                                addRemoveStringsSet)
+                                                            .toList())
                                                   });
+                                                } else if (ingredientName ==
+                                                    addCommon) {
+                                                  if (bulkIngredients
+                                                      .isNotEmpty) {
+                                                    FirebaseFirestore.instance
+                                                        .collection('users')
+                                                        .doc(widget
+                                                            .currentUser.email)
+                                                        .update({
+                                                      'ingredients':
+                                                          FieldValue.arrayUnion(
+                                                              bulkIngredients)
+                                                    });
+                                                  }
                                                 }
-                                              }
-                                            } else {
-                                              if (ingredientName == removeAll) {
-                                                FirebaseFirestore.instance
-                                                    .collection('users')
-                                                    .doc(widget
-                                                        .currentUser.email)
-                                                    .update({
-                                                  'ingredients':
-                                                      FieldValue.arrayRemove(
-                                                          snapshot.data!)
-                                                });
-                                              } else if (ingredientName ==
-                                                  removeCommon) {
-                                                if (bulkIngredients
-                                                    .isNotEmpty) {
+                                              } else {
+                                                if (ingredientName ==
+                                                    removeAll) {
                                                   FirebaseFirestore.instance
                                                       .collection('users')
                                                       .doc(widget
@@ -245,84 +237,107 @@ class _IngredientListState extends State<IngredientList> {
                                                       .update({
                                                     'ingredients':
                                                         FieldValue.arrayRemove(
-                                                            bulkIngredients)
+                                                            snapshot.data!)
                                                   });
+                                                } else if (ingredientName ==
+                                                    removeCommon) {
+                                                  if (bulkIngredients
+                                                      .isNotEmpty) {
+                                                    FirebaseFirestore.instance
+                                                        .collection('users')
+                                                        .doc(widget
+                                                            .currentUser.email)
+                                                        .update({
+                                                      'ingredients': FieldValue
+                                                          .arrayRemove(
+                                                              bulkIngredients)
+                                                    });
+                                                  }
                                                 }
                                               }
-                                            }
-                                          } else {
-                                            if (alreadySelected) {
-                                              if (widget.myIngredients ==
-                                                  true) {
-                                                _keyIngredients.currentState!
-                                                    .removeItem(i,
-                                                        (_, animation) {
-                                                  return SizeTransition(
-                                                    key: UniqueKey(),
-                                                    sizeFactor: animation,
-                                                    child: SizedBox(
-                                                      child: Column(children: <
-                                                          Widget>[
-                                                        ListTile(
-                                                          title: Text(
-                                                            ingredientName,
-                                                            style: _biggerFont,
-                                                          ),
-                                                          trailing: const Icon(
-                                                              Icons.add),
-                                                        )
-                                                      ]),
-                                                    ),
-                                                  );
-                                                },
-                                                        duration:
-                                                            const Duration(
-                                                                milliseconds:
-                                                                    500));
+                                            } else {
+                                              if (alreadySelected) {
+                                                if (widget.myIngredients ==
+                                                    true) {
+                                                  _keyIngredients.currentState!
+                                                      .removeItem(i,
+                                                          (_, animation) {
+                                                    return SizeTransition(
+                                                      key: UniqueKey(),
+                                                      sizeFactor: animation,
+                                                      child: SizedBox(
+                                                        child: Column(
+                                                            children: <Widget>[
+                                                              ListTile(
+                                                                title: Text(
+                                                                  ingredientName,
+                                                                  style:
+                                                                      _biggerFont,
+                                                                ),
+                                                                trailing:
+                                                                    const Icon(
+                                                                        Icons
+                                                                            .add),
+                                                              )
+                                                            ]),
+                                                      ),
+                                                    );
+                                                  },
+                                                          duration:
+                                                              const Duration(
+                                                                  milliseconds:
+                                                                      500));
 
-                                                snapshot.data?.removeAt(i);
+                                                  snapshot.data?.removeAt(i);
 
-                                                FirebaseFirestore.instance
-                                                    .collection('users')
-                                                    .doc(widget
-                                                        .currentUser.email)
-                                                    .update({
-                                                  'ingredients':
-                                                      FieldValue.arrayRemove(
-                                                          [ingredientName])
-                                                });
+                                                  FirebaseFirestore.instance
+                                                      .collection('users')
+                                                      .doc(widget
+                                                          .currentUser.email)
+                                                      .update({
+                                                    'ingredients':
+                                                        FieldValue.arrayRemove(
+                                                            [ingredientName])
+                                                  });
+                                                } else {
+                                                  myIngredientsList
+                                                      .remove(ingredientName);
+                                                  FirebaseFirestore.instance
+                                                      .collection('users')
+                                                      .doc(widget
+                                                          .currentUser.email)
+                                                      .update({
+                                                    'ingredients':
+                                                        FieldValue.arrayRemove(
+                                                            [ingredientName])
+                                                  });
+                                                }
                                               } else {
                                                 myIngredientsList
-                                                    .remove(ingredientName);
+                                                    .add(ingredientName);
                                                 FirebaseFirestore.instance
                                                     .collection('users')
                                                     .doc(widget
                                                         .currentUser.email)
                                                     .update({
                                                   'ingredients':
-                                                      FieldValue.arrayRemove(
+                                                      FieldValue.arrayUnion(
                                                           [ingredientName])
                                                 });
                                               }
-                                            } else {
-                                              myIngredientsList
-                                                  .add(ingredientName);
-                                              FirebaseFirestore.instance
-                                                  .collection('users')
-                                                  .doc(widget.currentUser.email)
-                                                  .update({
-                                                'ingredients':
-                                                    FieldValue.arrayUnion(
-                                                        [ingredientName])
-                                              });
                                             }
-                                          }
-                                        });
-                                      }),
-                                  const Divider(),
-                                ],
-                              )));
-                        })));
+                                          });
+                                        }),
+                                    const Divider(),
+                                  ],
+                                )));
+                          })));
+            } else {
+              return const Center(
+                  child: Text('You have not added any ingredients yet',
+                      style: TextStyle(fontSize: 20.0),
+                      textAlign: TextAlign.center));
+            }
           } else if (snapshot.hasError) {
             children = Scaffold(
                 body: Column(
@@ -339,8 +354,7 @@ class _IngredientListState extends State<IngredientList> {
                   )
                 ]));
           } else {
-            children = Scaffold(
-                );
+            children = Scaffold();
           }
           return children;
         },
