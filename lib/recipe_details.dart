@@ -167,7 +167,7 @@ class _viewRecipeState extends State<viewRecipe> {
                   Image.network(widget.recipe['imageUrl'], fit: BoxFit.contain),
             ),
           ),
-          servingsAndTime((const Icon(Icons.person)),
+          servingsAndTime((const Icon(Icons.people)),
               ": " + widget.recipe['servings'] + " servings", 10, 5),
           servingsAndTime(const Icon(Icons.timer),
               ": " + widget.recipe['time'] + " cook time", 5, 10),
@@ -216,9 +216,17 @@ class _viewRecipeState extends State<viewRecipe> {
                                   style: const TextStyle(fontSize: 20.0)))
                         ]));
               }),
-          //header("Nutrition Facts"),
-
           header("Nutrition Facts"),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 15,
+                vertical: 5,
+              ),
+              child: Text("Amount per serving: " + widget.recipe['servingSize'],
+                  style: const TextStyle(
+                      fontSize: 20.0, fontWeight: FontWeight.w500))),),
           ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
