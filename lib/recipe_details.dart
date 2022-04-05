@@ -10,8 +10,6 @@ class viewRecipe extends StatefulWidget {
   final DocumentSnapshot<Object?> recipe;
   final int number;
 
-  get icon => null;
-
   const viewRecipe(
       {Key? key,
       required this.currentUser,
