@@ -116,7 +116,8 @@ class profilePage extends StatelessWidget {
                         builder: (BuildContext context) => AlertDialog(
                           title: const Text('Delete Account'),
                           content: const Text(
-                              'Are you sure you want to delete your account?'),
+                              'Are you sure you want to delete your account? '
+                                  'All data associated with Zesty will be deleted including your profile.'),
                           actions: <Widget>[
                             TextButton(
                               onPressed: () => Navigator.pop(context, 'No'),
