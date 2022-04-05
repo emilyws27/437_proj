@@ -141,44 +141,6 @@ class _viewRecipeState extends State<viewRecipe> {
         ),
         centerTitle: true,
         backgroundColor: Colors.amber[900],
-        actions: <Widget>[
-          Container(
-            margin: const EdgeInsets.only(
-              right: 10,
-              bottom: 10,
-            ),
-            child: IconButton(
-              icon: saved
-                  ? const Icon(Icons.bookmark)
-                  : const Icon(Icons.bookmark_border),
-              iconSize: 40,
-              color: saved ? Colors.yellowAccent : null,
-              onPressed: () {
-                setState(() {
-                  if (saved) {
-                    saved = false;
-                    FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(widget.currentUser.email)
-                        .update({
-                      'savedRecipes':
-                          FieldValue.arrayRemove([widget.recipe.reference])
-                    });
-                  } else {
-                    saved = true;
-                    FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(widget.currentUser.email)
-                        .update({
-                      'savedRecipes':
-                          FieldValue.arrayUnion([widget.recipe.reference])
-                    });
-                  }
-                });
-              },
-            ),
-          )
-        ],
       ),
       body: SingleChildScrollView(
           child: Column(

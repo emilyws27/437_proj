@@ -19,12 +19,33 @@ class RecipeFinder extends StatefulWidget {
 }
 
 class _RecipeFinderState extends State<RecipeFinder> {
-  final GlobalKey<AnimatedListState> _keyRecipes = GlobalKey();
   var _recipePaths = <DocumentReference>[];
   var _myIngredients = <String>[];
   List<DocumentSnapshot> userSavedRecipes = [];
-  List<DocumentSnapshot> allRecipes =[];
+  List<DocumentSnapshot> allRecipes = [];
   late bool alreadySaved;
+
+  Future<List<DocumentSnapshot>> getSavedRecipes(GoogleSignInAccount user) {
+    Future<List<DocumentSnapshot>> savedRecipes = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.email)
+        .get()
+        .then((DocumentSnapshot data) async {
+      _myIngredients = List.from(data.get('ingredients'));
+
+      List<DocumentSnapshot> mySavedRecipes = [];
+      _recipePaths = List.from(data.get('savedRecipes'));
+      for (DocumentReference path in _recipePaths) {
+        await path.get().then((DocumentSnapshot recipeData) {
+          mySavedRecipes.add(recipeData);
+        });
+      }
+
+      return mySavedRecipes;
+    });
+
+    return savedRecipes;
+  }
 
   Future<List<DocumentSnapshot>> getAllRecipes(GoogleSignInAccount user) {
     Future<List<DocumentSnapshot>> allRecipes = FirebaseFirestore.instance
@@ -46,39 +67,15 @@ class _RecipeFinderState extends State<RecipeFinder> {
     return allRecipes;
   }
 
-  Future<List<DocumentSnapshot>> getSavedRecipes(GoogleSignInAccount user) {
-    Future<List<DocumentSnapshot>> savedRecipes = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.email)
-        .get()
-        .then((DocumentSnapshot data) async {
-      _recipePaths = List.from(data.get('savedRecipes'));
-      _myIngredients = List.from(data.get('ingredients'));
-
-      List<DocumentSnapshot> mySavedRecipes = [];
-      for (DocumentReference path in _recipePaths) {
-        await path.get().then((DocumentSnapshot recipeData) {
-          mySavedRecipes.add(recipeData);
-        });
-      }
-
-      return mySavedRecipes;
-    });
-
-    return savedRecipes;
-  }
-
   @override
   Widget build(BuildContext context) {
     Future<List<DocumentSnapshot>> FindRecipes(
         GoogleSignInAccount? user) async {
-
       userSavedRecipes = await getSavedRecipes(user!);
 
       if (widget.mySaved == true) {
         return userSavedRecipes;
-      }
-      else {
+      } else {
         allRecipes = await getAllRecipes(user);
         return allRecipes;
       }
@@ -94,18 +91,17 @@ class _RecipeFinderState extends State<RecipeFinder> {
           if (snapshot.data!.isNotEmpty) {
             children = Scaffold(
                 body: Scrollbar(
-                    child: AnimatedList(
-                      key: _keyRecipes,
+                    child: ListView.builder(
                         padding: const EdgeInsets.all(16.0),
-                        initialItemCount: snapshot.data?.length != null
-                            ? snapshot.data!.length
-                            : 0,
-                        itemBuilder: (_, i, animation) {
-                          final String imageUrl = snapshot.data![i]
-                                  ['imageUrl'];
-                          final String recipeName = snapshot.data![i]
-                                  ['title'];
-                          final alreadySaved = _recipePaths
+                        itemCount: snapshot.data?.length,
+                        itemBuilder: (context, i) {
+                          final String imageUrl = snapshot.data?[i]
+                                  ['imageUrl'] ??
+                              "Could not load image";
+                          final String recipeName = snapshot.data?[i]
+                                  ['title'] ??
+                              "Could not load recipe";
+                          var alreadySaved = _recipePaths
                               .contains(snapshot.data![i].reference);
 
                           return GestureDetector(
@@ -188,6 +184,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                           onPressed: () {
                                             setState(() {
                                               if (alreadySaved) {
+                                                alreadySaved = false;
                                                 FirebaseFirestore.instance
                                                     .collection('users')
                                                     .doc(widget
@@ -199,6 +196,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                                   ])
                                                 });
                                               } else {
+                                                alreadySaved = true;
                                                 FirebaseFirestore.instance
                                                     .collection('users')
                                                     .doc(widget
@@ -220,12 +218,10 @@ class _RecipeFinderState extends State<RecipeFinder> {
           } else {
             if (widget.mySaved == true) {
               return const Center(
-                  child: Text(
-                      'You have not saved any recipes yet',
+                  child: Text('You have not saved any recipes yet',
                       style: TextStyle(fontSize: 20.0),
                       textAlign: TextAlign.center));
-            }
-            else {
+            } else {
               return const Center(
                   child: Text(
                       'No recipes match your ingredients. Please add some more ingredients',
