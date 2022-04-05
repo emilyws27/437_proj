@@ -9,7 +9,6 @@ class viewRecipe extends StatefulWidget {
   final GoogleSignInAccount currentUser;
   final DocumentSnapshot<Object?> recipe;
   final int number;
-  final bool alreadySaved;
 
   get icon => null;
 
@@ -17,8 +16,7 @@ class viewRecipe extends StatefulWidget {
       {Key? key,
       required this.currentUser,
       required this.recipe,
-      required this.number,
-      required this.alreadySaved})
+      required this.number})
       : super(key: key);
 
   @override
@@ -113,14 +111,6 @@ class _viewRecipeState extends State<viewRecipe> {
                 ],
               )),
         ]));
-  }
-
-  late bool saved;
-
-  @override
-  initState() {
-    super.initState();
-    saved = widget.alreadySaved;
   }
 
   @override

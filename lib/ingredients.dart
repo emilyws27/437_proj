@@ -85,21 +85,26 @@ class _IngredientListState extends State<IngredientList> {
           ingredients += List.from(data[widget.ingredientType]);
           ingredients.sort();
           List<String> ingredientsToReturn = [];
-          if(bulkIngredients.length > 0) {
-            if(myIngredientsList.toSet().intersection(bulkIngredients.toSet()).length == bulkIngredients.length) {
+          if (bulkIngredients.length > 0) {
+            if (myIngredientsList
+                    .toSet()
+                    .intersection(bulkIngredients.toSet())
+                    .length ==
+                bulkIngredients.length) {
               ingredientsToReturn = [removeCommon] + ingredients;
-            }
-            else {
+            } else {
               ingredientsToReturn = [addCommon] + ingredients;
             }
-          }
-          else {
+          } else {
             ingredientsToReturn = ingredients;
           }
-          if(myIngredientsList.toSet().intersection(ingredients.toSet()).length == ingredients.length){
+          if (myIngredientsList
+                  .toSet()
+                  .intersection(ingredients.toSet())
+                  .length ==
+              ingredients.length) {
             ingredientsToReturn = [removeAll] + ingredientsToReturn;
-          }
-          else {
+          } else {
             ingredientsToReturn = [addAll] + ingredientsToReturn;
           }
           // print("bulkIngredients " + bulkIngredients.length.toString());
@@ -111,7 +116,6 @@ class _IngredientListState extends State<IngredientList> {
           // print("my ingreds with ingreds " + myIngredientsList.toSet().intersection(ingredients.toSet()).length.toString());
           // print(myIngredientsList.toSet().intersection(ingredients.toSet()));
           return ingredientsToReturn;
-
         });
         return ingredientNames;
       } else {
@@ -163,83 +167,96 @@ class _IngredientListState extends State<IngredientList> {
                                         ingredientName,
                                         style: _biggerFont,
                                       ),
-                                      trailing: Icon(
-                                        addRemoveStringsSet.contains(ingredientName)
-                                        ? (ingredientName.contains("Add") ? Icons.playlist_add : Icons.playlist_remove)
-                                        :
-                                            alreadySelected
-                                                ? Icons.shopping_cart
-                                                : Icons.add,
-                                        color:
-                                        addRemoveStringsSet.contains(ingredientName)
-                                            ? (ingredientName.contains("Add") ? Colors.blue : Colors.red)
-                                            :
-                                              alreadySelected
+                                      trailing: StatefulBuilder(builder:
+                                          (BuildContext context,
+                                              StateSetter setState) {
+                                        return Icon(
+                                          addRemoveStringsSet
+                                                  .contains(ingredientName)
+                                              ? (ingredientName.contains("Add")
+                                                  ? Icons.playlist_add
+                                                  : Icons.playlist_remove)
+                                              : alreadySelected
+                                                  ? Icons.shopping_cart
+                                                  : Icons.add,
+                                          color: addRemoveStringsSet
+                                                  .contains(ingredientName)
+                                              ? (ingredientName.contains("Add")
+                                                  ? Colors.blue
+                                                  : Colors.red)
+                                              : alreadySelected
                                                   ? Colors.lightGreen
                                                   : null,
-                                        semanticLabel: alreadySelected
-                                            ? "Remove From Inventory"
-                                            : "Add To Inventory",
-                                      ),
+                                        );
+                                      }),
                                       onTap: () {
                                         setState(() {
-                                          if(addRemoveStringsSet.contains(ingredientName)) {
-                                            if(ingredientName.contains("Add")) {
+                                          if (addRemoveStringsSet
+                                              .contains(ingredientName)) {
+                                            if (ingredientName
+                                                .contains("Add")) {
                                               if (ingredientName == addAll) {
                                                 FirebaseFirestore.instance
                                                     .collection('users')
-                                                    .doc(widget.currentUser.email)
+                                                    .doc(widget
+                                                        .currentUser.email)
                                                     .update({
-                                                  'ingredients':
-                                                  FieldValue.arrayUnion(
-                                                      snapshot.data!.toSet().difference(addRemoveStringsSet).toList())
+                                                  'ingredients': FieldValue
+                                                      .arrayUnion(snapshot.data!
+                                                          .toSet()
+                                                          .difference(
+                                                              addRemoveStringsSet)
+                                                          .toList())
                                                 });
-                                              } else if (ingredientName == addCommon) {
-                                                if (bulkIngredients.isNotEmpty) {
+                                              } else if (ingredientName ==
+                                                  addCommon) {
+                                                if (bulkIngredients
+                                                    .isNotEmpty) {
                                                   FirebaseFirestore.instance
                                                       .collection('users')
-                                                      .doc(
-                                                      widget.currentUser.email)
+                                                      .doc(widget
+                                                          .currentUser.email)
                                                       .update({
                                                     'ingredients':
-                                                    FieldValue.arrayUnion(
-                                                        bulkIngredients)
+                                                        FieldValue.arrayUnion(
+                                                            bulkIngredients)
                                                   });
                                                 }
                                               }
-                                            }
-                                            else {
+                                            } else {
                                               if (ingredientName == removeAll) {
                                                 FirebaseFirestore.instance
                                                     .collection('users')
-                                                    .doc(widget.currentUser.email)
+                                                    .doc(widget
+                                                        .currentUser.email)
                                                     .update({
                                                   'ingredients':
-                                                  FieldValue.arrayRemove(
-                                                      snapshot.data!)
+                                                      FieldValue.arrayRemove(
+                                                          snapshot.data!)
                                                 });
-                                              } else if (ingredientName == removeCommon) {
-                                                if (bulkIngredients.isNotEmpty) {
+                                              } else if (ingredientName ==
+                                                  removeCommon) {
+                                                if (bulkIngredients
+                                                    .isNotEmpty) {
                                                   FirebaseFirestore.instance
                                                       .collection('users')
-                                                      .doc(
-                                                      widget.currentUser.email)
+                                                      .doc(widget
+                                                          .currentUser.email)
                                                       .update({
                                                     'ingredients':
-                                                    FieldValue.arrayRemove(
-                                                        bulkIngredients)
+                                                        FieldValue.arrayRemove(
+                                                            bulkIngredients)
                                                   });
                                                 }
                                               }
                                             }
-
-                                          }
-                                          else {
+                                          } else {
                                             if (alreadySelected) {
                                               if (widget.myIngredients ==
                                                   true) {
-                                                _keyIngredients.currentState!.removeItem(i,
-                                                    (_, animation) {
+                                                _keyIngredients.currentState!
+                                                    .removeItem(i,
+                                                        (_, animation) {
                                                   return SizeTransition(
                                                     key: UniqueKey(),
                                                     sizeFactor: animation,
@@ -258,8 +275,10 @@ class _IngredientListState extends State<IngredientList> {
                                                     ),
                                                   );
                                                 },
-                                                    duration: const Duration(
-                                                        milliseconds: 700));
+                                                        duration:
+                                                            const Duration(
+                                                                milliseconds:
+                                                                    700));
 
                                                 snapshot.data?.removeAt(i);
 
@@ -321,19 +340,7 @@ class _IngredientListState extends State<IngredientList> {
                 ]));
           } else {
             children = Scaffold(
-                body: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                  const SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(),
-                  ),
-                  Center(
-                    child: Text('Loading...', style: _biggerFont),
-                  )
-                ]));
+                );
           }
           return children;
         },

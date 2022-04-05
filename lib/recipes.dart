@@ -114,8 +114,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                     pageBuilder: (_, __, ___) => viewRecipe(
                                         currentUser: widget.currentUser,
                                         recipe: snapshot.data![i],
-                                        number: i,
-                                        alreadySaved: alreadySaved),
+                                        number: i),
                                     transitionsBuilder: (BuildContext context,
                                         Animation<double> animation,
                                         Animation<double> secondaryAnimation,
