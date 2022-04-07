@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "179325164971-dtothovebj32cgr4snqerem71tqf960u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.zesty",
+            "certificate_hash": "a39b920dbe09a769d94ca21c67620b44690c5e39"
+          }
+        },
+        {
           "client_id": "179325164971-55shqpiitt2521mhf92vr7eqfehkipad.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -47,10 +55,10 @@
               "client_type": 3
             },
             {
-              "client_id": "179325164971-vm57ln9sqfk47p0tdcefnf8c628i94je.apps.googleusercontent.com",
+              "client_id": "179325164971-6ur72oc7ib54qho6ldga1qj7uom4n128.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "cse437.cse437.zesty"
+                "bundle_id": "com.example.zesty"
               }
             }
           ]
