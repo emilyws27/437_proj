@@ -21,12 +21,14 @@ class RecipeFinder extends StatefulWidget {
 class _RecipeFinderState extends State<RecipeFinder> {
   var _recipePaths = <DocumentReference>[];
   var _myIngredients = <String>[];
-  List<DocumentSnapshot> userSavedRecipes = [];
-  List<DocumentSnapshot> allRecipes = [];
+  List<List<DocumentSnapshot>> userSavedRecipes = [];
+  List<List<DocumentSnapshot>> allRecipes = [];
   late bool alreadySaved;
 
-  Future<List<DocumentSnapshot>> getSavedRecipes(GoogleSignInAccount user) {
-    Future<List<DocumentSnapshot>> savedRecipes = FirebaseFirestore.instance
+  Future<List<List<DocumentSnapshot>>> getSavedRecipes(
+      GoogleSignInAccount user) {
+    Future<List<List<DocumentSnapshot>>> savedRecipes = FirebaseFirestore
+        .instance
         .collection('users')
         .doc(user.email)
         .get()
@@ -40,39 +42,55 @@ class _RecipeFinderState extends State<RecipeFinder> {
           mySavedRecipes.add(recipeData);
         });
       }
-
-      return mySavedRecipes;
+      List<List<DocumentSnapshot>> toReturn = [];
+      toReturn.add(mySavedRecipes);
+      return toReturn;
     });
-
     return savedRecipes;
   }
 
-  Future<List<DocumentSnapshot>> getAllRecipes(GoogleSignInAccount user) {
-    Future<List<DocumentSnapshot>> allRecipes = FirebaseFirestore.instance
+  Future<List<List<DocumentSnapshot>>> getAllRecipes(GoogleSignInAccount user) {
+    Future<List<List<DocumentSnapshot>>> allRecipes = FirebaseFirestore.instance
         .collection('recipes')
         .get()
         .then((QuerySnapshot querySnapShot) {
-      List<DocumentSnapshot> recipeMatch = [];
-
+      List<List<DocumentSnapshot>> recipeMatches = [];
       querySnapShot.docs.forEach((recipe) {
-        if (recipe['ingredients'].every((ingredient) =>
-            _myIngredients.contains(ingredient['ingredient']))) {
-          recipeMatch.add(recipe);
+        Set<String> recipeIngredientsSet = new Set();
+        for (Map<String, String> x in recipe["ingredients"]) {
+          recipeIngredientsSet.add(x["ingredient"]!);
+        }
+
+        int intersectionSize =
+            _myIngredients.toSet().intersection(recipeIngredientsSet).length;
+        for (int x in [0, 1, 2, 3]) {
+          if (intersectionSize == x) {
+            recipeMatches[x].add(recipe);
+          }
         }
       });
-
-      return recipeMatch;
+      print(recipeMatches);
+      return recipeMatches;
     });
-
     return allRecipes;
   }
+  //
+  // Column buildColumns(List<List<DocumentSnapshot>> data) {
+  //   return Column(
+  //     children: [
+  //       //Collapsables, each with a builder under it
+  //       Text("asdfasdf"),
+  //       Text("asdfasdfasdfasdf")
+  //     ],
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
-    Future<List<DocumentSnapshot>> FindRecipes(
+    Future<List<List<DocumentSnapshot>>> FindRecipes(
         GoogleSignInAccount? user) async {
       userSavedRecipes = await getSavedRecipes(user!);
-
+      print(userSavedRecipes);
       if (widget.mySaved == true) {
         return userSavedRecipes;
       } else {
@@ -81,191 +99,187 @@ class _RecipeFinderState extends State<RecipeFinder> {
       }
     }
 
-    return FutureBuilder<List<DocumentSnapshot>>(
-      future: FindRecipes(widget.currentUser),
-      // a previously-obtained Future<String> or null
-      builder: (BuildContext context,
-          AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
-        Widget children;
-        if (snapshot.hasData) {
-          if (snapshot.data!.isNotEmpty) {
-            children = Scaffold(
-                body: Scrollbar(
-                    child: ListView.builder(
-                        padding: const EdgeInsets.all(16.0),
-                        itemCount: snapshot.data?.length,
-                        itemBuilder: (context, i) {
-                          final String imageUrl = snapshot.data?[i]
-                                  ['imageUrl'] ??
-                              "Could not load image";
-                          final String recipeName = snapshot.data?[i]
-                                  ['title'] ??
-                              "Could not load recipe";
-                          var alreadySaved = _recipePaths
-                              .contains(snapshot.data![i].reference);
+    return FutureBuilder<List<List<DocumentSnapshot>>>(
+        future: FindRecipes(widget.currentUser),
+        // a previously-obtained Future<String> or null
+        builder: (BuildContext context,
+            AsyncSnapshot<List<List<DocumentSnapshot>>> snapshot) {
+          Widget children;
+          if (snapshot.hasData) {
+            print(snapshot.data);
 
-                          return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  PageRouteBuilder(
-                                    transitionDuration:
-                                        const Duration(milliseconds: 700),
-                                    pageBuilder: (_, __, ___) => viewRecipe(
-                                        currentUser: widget.currentUser,
-                                        recipe: snapshot.data![i],
-                                        number: i),
-                                    transitionsBuilder: (BuildContext context,
-                                        Animation<double> animation,
-                                        Animation<double> secondaryAnimation,
-                                        Widget child) {
-                                      return FadeTransition(
-                                        opacity: animation,
-                                        child: child,
-                                      );
-                                    },
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 15,
-                                  ),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xffff9b9b),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(20)),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black38,
-                                        blurRadius: 5.0, // soften the shadow
-                                        //spreadRadius: 5.0, //extend the shadow
-                                        offset: Offset(
-                                          5.0, // Move to right 10  horizontally
-                                          5.0, // Move to bottom 10 Vertically
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  child: Column(
-                                    children: <Widget>[
-                                      Hero(
-                                        tag: 'recipe' + i.toString(),
-                                        child: ClipRRect(
-                                          borderRadius: const BorderRadius.only(
-                                              topRight: Radius.circular(20),
-                                              topLeft: Radius.circular(20)),
-                                          child: Image.network(imageUrl,
-                                              fit: BoxFit.contain),
-                                        ),
-                                      ),
-                                      ListTile(
-                                          title: Text(
-                                            recipeName,
-                                            style: const TextStyle(
-                                                fontSize: 18.0,
-                                                decoration: TextDecoration.none,
-                                                fontWeight: FontWeight.normal,
-                                                color: Colors.black,
-                                                fontFamily: 'Roboto'),
-                                            textAlign: TextAlign.left,
-                                          ),
-                                          trailing: StatefulBuilder(builder:
-                                              (BuildContext context,
-                                                  StateSetter setState) {
-                                            return IconButton(
-                                              icon: alreadySaved
-                                                  ? const Icon(Icons.bookmark)
-                                                  : const Icon(
-                                                      Icons.bookmark_border),
-                                              iconSize: 40,
-                                              color: alreadySaved
-                                                  ? Colors.yellowAccent
-                                                  : null,
-                                              onPressed: () {
-                                                setState(() {
-                                                  if (alreadySaved) {
-                                                    alreadySaved = false;
-                                                    FirebaseFirestore.instance
-                                                        .collection('users')
-                                                        .doc(widget
-                                                            .currentUser.email)
-                                                        .update({
-                                                      'savedRecipes': FieldValue
-                                                          .arrayRemove([
-                                                        snapshot
-                                                            .data![i].reference
-                                                      ])
-                                                    });
-                                                  } else {
-                                                    alreadySaved = true;
-                                                    FirebaseFirestore.instance
-                                                        .collection('users')
-                                                        .doc(widget
-                                                            .currentUser.email)
-                                                        .update({
-                                                      'savedRecipes': FieldValue
-                                                          .arrayUnion([
-                                                        snapshot
-                                                            .data![i].reference
-                                                      ])
-                                                    });
-                                                  }
-                                                });
-                                              },
-                                            );
-                                          })),
-                                    ],
-                                  )));
-                        })));
+            List<List<DocumentSnapshot>> data = snapshot.data!;
+            children = SingleChildScrollView(
+                child: Column(
+              children: [
+                createList(data[0]),
+              ],
+            ));
+          } else if (snapshot.hasError) {
+            children = Scaffold(
+                body: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: const <Widget>[
+                  Icon(
+                    Icons.error_outline,
+                    color: Colors.red,
+                    size: 60,
+                  ),
+                  Center(
+                    child: Text('Error: Please Reload Page'),
+                  )
+                ]));
           } else {
-            if (widget.mySaved == true) {
-              return const Center(
-                  child: Text('You have not saved any recipes yet',
-                      style: TextStyle(fontSize: 20.0),
-                      textAlign: TextAlign.center));
-            } else {
-              return const Center(
-                  child: Text(
-                      'No recipes match your ingredients. Please add some more ingredients',
-                      style: TextStyle(fontSize: 20.0),
-                      textAlign: TextAlign.center));
-            }
+            children = Scaffold(
+                body: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: const <Widget>[
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: CircularProgressIndicator(),
+                  ),
+                  Center(
+                    child: Text('Loading...', style: TextStyle(fontSize: 20.0)),
+                  )
+                ]));
           }
-        } else if (snapshot.hasError) {
-          children = Scaffold(
-              body: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const <Widget>[
-                Icon(
-                  Icons.error_outline,
-                  color: Colors.red,
-                  size: 60,
-                ),
-                Center(
-                  child: Text('Error: Please Reload Page'),
-                )
-              ]));
-        } else {
-          children = Scaffold(
-              body: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const <Widget>[
-                SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: CircularProgressIndicator(),
-                ),
-                Center(
-                  child: Text('Loading...', style: TextStyle(fontSize: 20.0)),
-                )
-              ]));
-        }
-        return children;
-      },
-    );
+          return children;
+        });
+  }
+
+  Widget createList(List<DocumentSnapshot> data) {
+    print(data[0].data());
+    return  ListView.builder(
+        padding: const EdgeInsets.all(16.0),
+        itemCount: data.length,
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        itemBuilder: (context, i) {
+          final String imageUrl = data[i]
+          ['imageUrl'] ??
+              "Could not load image";
+          final String recipeName = data[i]
+          ['title'] ??
+              "Could not load recipe";
+          var alreadySaved = _recipePaths
+              .contains(data[i].reference);
+
+          return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    transitionDuration:
+                    const Duration(milliseconds: 700),
+                    pageBuilder: (_, __, ___) => viewRecipe(
+                        currentUser: widget.currentUser,
+                        recipe: data[i],
+                        number: i),
+                    transitionsBuilder: (BuildContext context,
+                        Animation<double> animation,
+                        Animation<double> secondaryAnimation,
+                        Widget child) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                  ),
+                );
+              },
+              child: Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 15,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Color(0xffff9b9b),
+                    borderRadius:
+                    BorderRadius.all(Radius.circular(20)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black38,
+                        blurRadius: 5.0, // soften the shadow
+                        //spreadRadius: 5.0, //extend the shadow
+                        offset: Offset(
+                          5.0, // Move to right 10  horizontally
+                          5.0, // Move to bottom 10 Vertically
+                        ),
+                      )
+                    ],
+                  ),
+                  child: Column(
+                    children: <Widget>[
+                      Hero(
+                        tag: 'recipe' + i.toString(),
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(20),
+                              topLeft: Radius.circular(20)),
+                          child: Image.network(imageUrl,
+                              fit: BoxFit.contain),
+                        ),
+                      ),
+                      ListTile(
+                          title: Text(
+                            recipeName,
+                            style: const TextStyle(
+                                fontSize: 18.0,
+                                decoration: TextDecoration.none,
+                                fontWeight: FontWeight.normal,
+                                color: Colors.black,
+                                fontFamily: 'Roboto'),
+                            textAlign: TextAlign.left,
+                          ),
+                          trailing: StatefulBuilder(builder:
+                              (BuildContext context,
+                              StateSetter setState) {
+                            return IconButton(
+                              icon: alreadySaved
+                                  ? const Icon(Icons.bookmark)
+                                  : const Icon(
+                                  Icons.bookmark_border),
+                              iconSize: 40,
+                              color: alreadySaved
+                                  ? Colors.yellowAccent
+                                  : null,
+                              onPressed: () {
+                                setState(() {
+                                  if (alreadySaved) {
+                                    alreadySaved = false;
+                                    FirebaseFirestore.instance
+                                        .collection('users')
+                                        .doc(widget
+                                        .currentUser.email)
+                                        .update({
+                                      'savedRecipes': FieldValue
+                                          .arrayRemove([
+
+                                            data[i].reference
+                                      ])
+                                    });
+                                  } else {
+                                    alreadySaved = true;
+                                    FirebaseFirestore.instance
+                                        .collection('users')
+                                        .doc(widget
+                                        .currentUser.email)
+                                        .update({
+                                      'savedRecipes': FieldValue
+                                          .arrayUnion([
+                                        data[i].reference
+                                      ])
+                                    });
+                                  }
+                                });
+                              },
+                            );
+                          })),
+                    ],
+                  )));
+        });
   }
 }
