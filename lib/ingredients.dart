@@ -136,7 +136,7 @@ class _IngredientListState extends State<IngredientList> {
                   fontFamily: 'Roboto')),
         ),
         centerTitle: true,
-        backgroundColor: Colors.amber[900],
+        backgroundColor: Color(0xffe0274a),
       ),
       body: FutureBuilder<List<String>>(
         future: getIngredients(widget.currentUser),
@@ -188,7 +188,7 @@ class _IngredientListState extends State<IngredientList> {
                                                     ? Colors.blue
                                                     : Colors.red)
                                                 : alreadySelected
-                                                    ? Colors.lightGreen
+                                                    ? Color(0xffffba97)
                                                     : null,
                                           );
                                         }),

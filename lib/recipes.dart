@@ -133,7 +133,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                     vertical: 15,
                                   ),
                                   decoration: const BoxDecoration(
-                                    color: Colors.orangeAccent,
+                                    color: Color(0xffff9b9b),
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(20)),
                                     boxShadow: [

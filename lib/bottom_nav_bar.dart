@@ -109,7 +109,7 @@ class _BottomNav extends State<BottomNav> {
             ],
           ),
           centerTitle: true,
-          backgroundColor: Colors.amber[900],
+          backgroundColor: Color(0xffe0274a),
           actions: <Widget>[
             Container(
                 margin: const EdgeInsets.only(
@@ -118,7 +118,7 @@ class _BottomNav extends State<BottomNav> {
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.shopping_cart_outlined),
-                  color: const Color(0xff0cd144),
+                  color: const Color(0xffff9b9b),
                   iconSize: 40,
                   onPressed: () {
                     Navigator.push(
@@ -170,7 +170,7 @@ class _BottomNav extends State<BottomNav> {
             ),
           ],
           currentIndex: _selectedIndex,
-          selectedItemColor: Colors.amber[800],
+          selectedItemColor: Color(0xffff9b9b),
           onTap: (int index) {
             _onItemTapped(index);
           }),

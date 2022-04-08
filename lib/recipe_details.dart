@@ -135,7 +135,7 @@ class _viewRecipeState extends State<viewRecipe> {
           ],
         ),
         centerTitle: true,
-        backgroundColor: Colors.amber[900],
+        backgroundColor: Color(0xffe0274a),
       ),
       body: SingleChildScrollView(
           child: Column(

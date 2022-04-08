@@ -46,7 +46,7 @@ class profilePage extends StatelessWidget {
             ],
           ),
           centerTitle: true,
-          backgroundColor: Colors.amber[900],
+          backgroundColor: Color(0xffe0274a),
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(
