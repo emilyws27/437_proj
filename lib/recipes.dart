@@ -54,20 +54,33 @@ class _RecipeFinderState extends State<RecipeFinder> {
         .collection('recipes')
         .get()
         .then((QuerySnapshot querySnapShot) {
-      List<List<DocumentSnapshot>> recipeMatches = [];
+      List<List<DocumentSnapshot>> recipeMatches = new List.filled(4, new List.empty());
       querySnapShot.docs.forEach((recipe) {
+        print(recipe);
+        recipeMatches[0].add(recipe);
+
         Set<String> recipeIngredientsSet = new Set();
-        for (Map<String, String> x in recipe["ingredients"]) {
+        print("HERE");
+        print(recipe["ingredients"]);
+        for (dynamic x in recipe["ingredients"]) {
+          print(x["ingredient"]);
           recipeIngredientsSet.add(x["ingredient"]!);
         }
-
+        print("here2");
+        print(recipeMatches);
         int intersectionSize =
             _myIngredients.toSet().intersection(recipeIngredientsSet).length;
+        print(intersectionSize);
         for (int x in [0, 1, 2, 3]) {
-          if (intersectionSize == x) {
+          if (recipeIngredientsSet.length - intersectionSize == x) {
+            print("Insert here");
+            print(recipe.runtimeType);
+            print(recipeMatches[3]);
             recipeMatches[x].add(recipe);
+            print("here!");
           }
         }
+        print("Here4");
       });
       print(recipeMatches);
       return recipeMatches;
@@ -151,13 +164,14 @@ class _RecipeFinderState extends State<RecipeFinder> {
   }
 
   Widget createList(List<DocumentSnapshot> data) {
-    print(data[0].data());
-    return  ListView.builder(
+    return ListView.builder(
         padding: const EdgeInsets.all(16.0),
         itemCount: data.length,
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
         itemBuilder: (context, i) {
+          print(i);
+          // print(data[i].data());
           final String imageUrl = data[i]
           ['imageUrl'] ??
               "Could not load image";
