@@ -212,7 +212,7 @@ class _IngredientListState extends State<IngredientList> {
                                   ),
                                   trailing: StatefulBuilder(builder:
                                       (BuildContext context,
-                                          StateSetter setState) {
+                                          StateSetter setStateIcon) {
                                     return IconButton(
                                       icon: addRemoveStringsSet
                                               .contains(ingredientName)
@@ -231,9 +231,9 @@ class _IngredientListState extends State<IngredientList> {
                                               ? Color(0xffffba97)
                                               : null,
                                       onPressed: () {
-                                        setState(() {
-                                          if (addRemoveStringsSet
-                                              .contains(ingredientName)) {
+                                        if (addRemoveStringsSet
+                                            .contains(ingredientName)) {
+                                          setState(() {
                                             if (ingredientName
                                                 .contains("Add")) {
                                               if (ingredientName == addAll) {
@@ -291,7 +291,9 @@ class _IngredientListState extends State<IngredientList> {
                                                 }
                                               }
                                             }
-                                          } else {
+                                          });
+                                        } else {
+                                          setStateIcon(() {
                                             if (alreadySelected) {
                                               if (widget.myIngredients ==
                                                   true) {
@@ -332,8 +334,8 @@ class _IngredientListState extends State<IngredientList> {
                                                         [ingredientName])
                                               });
                                             }
-                                          }
-                                        });
+                                          });
+                                        }
                                       },
                                     );
                                   }),
