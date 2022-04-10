@@ -149,6 +149,7 @@ class _IngredientTypeListState extends State<IngredientTypeList> {
                       })),
             ]));
           } else {
+            searchWord.selection = TextSelection.fromPosition(TextPosition(offset: searchWord.text.length));
             List<String> filteredIngredients = [];
 
             Map<String, dynamic> ingredientMap =
