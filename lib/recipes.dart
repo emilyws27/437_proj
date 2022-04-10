@@ -1,4 +1,6 @@
 import 'dart:async';
+
+// import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -24,6 +26,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
   List<List<DocumentSnapshot>> userSavedRecipes = [];
   List<List<DocumentSnapshot>> allRecipes = [];
   late bool alreadySaved;
+  var matchSectionTitles = ["Ready to Make", "Missing an ingredient", "Missing two ingredients", "Missing three ingredients"];
 
   Future<List<List<DocumentSnapshot>>> getSavedRecipes(
       GoogleSignInAccount user) {
@@ -117,10 +120,12 @@ class _RecipeFinderState extends State<RecipeFinder> {
             // print(snapshot.data);
 
             List<List<DocumentSnapshot>> data = snapshot.data!;
-            children = Scaffold(
-                body: Scrollbar(
-              child: createList(data[0]),
-            ));
+            children =
+                SingleChildScrollView(child: createList(data[0], matchSectionTitles[0]));
+            //     Scaffold(
+            //     body: Scrollbar(
+            //   child: createList(data[0], "Can be made now"),
+            // ));
           } else if (snapshot.hasError) {
             children = Scaffold(
                 body: Column(
@@ -156,9 +161,48 @@ class _RecipeFinderState extends State<RecipeFinder> {
         });
   }
 
-  Widget createList(List<DocumentSnapshot> data) {
-    return
+
+
+  Widget createList(List<DocumentSnapshot> data, sectionTitle) {
+    bool _expanded = false;
+    Widget toReturn = Column(children: [
+      Container(
+        margin: EdgeInsets.all(10),
+        color: Colors.green,
+        child: ExpansionPanelList(
+          animationDuration: Duration(milliseconds: 2000),
+          children: [
+            ExpansionPanel(
+              headerBuilder: (context, isExpanded) {
+                return ListTile(
+                  title: Text(
+                    'Click To Expand',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                );
+              },
+              body: ListTile(
+                title: Text('Description text',
+                    style: TextStyle(color: Colors.black)),
+              ),
+              isExpanded: _expanded,
+              canTapOnHeader: true,
+            ),
+          ],
+          dividerColor: Colors.grey,
+          expansionCallback: (panelIndex, isExpanded) {
+            _expanded = !_expanded;
+            setState(() {});
+          },
+        ),
+      ),
+      // Container(
+      //   height: 100,
+      //   child: MyHomePage(),
+      // ),
+      Text(sectionTitle, textScaleFactor: 2),
       ListView.builder(
+          physics: NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16.0),
           itemCount: data.length,
           scrollDirection: Axis.vertical,
@@ -272,6 +316,61 @@ class _RecipeFinderState extends State<RecipeFinder> {
                             })),
                       ],
                     )));
-          });
+          })
+    ]);
+    return toReturn;
+  }
+}
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState()
+  {
+    return _MyHomePageState();
+  }
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  bool _expanded = false;
+  var _test = "Full Screen";
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Flutter Learning"),
+      ),
+      body: Column(
+          children: [
+            Container(
+              margin: EdgeInsets.all(10),
+              color: Colors.green,
+              child: ExpansionPanelList(
+                animationDuration: Duration(milliseconds: 2000),
+                children: [
+                  ExpansionPanel(
+                    headerBuilder: (context, isExpanded) {
+                      return ListTile(
+                        title: Text('Click To Expand', style: TextStyle(color: Colors.black),),
+                      );
+                    },
+                    body:ListTile(
+                      title: Text('Description text',style: TextStyle(color: Colors.black)),
+                    ),
+                    isExpanded: _expanded,
+                    canTapOnHeader: true,
+                  ),
+                ],
+                dividerColor: Colors.grey,
+                expansionCallback: (panelIndex, isExpanded) {
+                  _expanded = !_expanded;
+                  setState(() {
+
+                  });
+                },
+
+              ),
+            ),
+          ]
+      ),
+    );
   }
 }
