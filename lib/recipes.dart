@@ -49,65 +49,60 @@ class _RecipeFinderState extends State<RecipeFinder> {
     return savedRecipes;
   }
 
-  Future<List<List<DocumentSnapshot>>> getAllRecipes(GoogleSignInAccount user) {
+  Future<List<List<DocumentSnapshot>>> getAllRecipes(
+      GoogleSignInAccount user, int numRecipesToReturn) {
     Future<List<List<DocumentSnapshot>>> allRecipes = FirebaseFirestore.instance
         .collection('recipes')
         .get()
         .then((QuerySnapshot querySnapShot) {
-      List<List<DocumentSnapshot>> recipeMatches = new List.filled(4, new List.empty());
-      querySnapShot.docs.forEach((recipe) {
-        print(recipe);
-        recipeMatches[0].add(recipe);
+      // List<List<DocumentSnapshot>> recipeMatches = new List.filled(4, new List.empty());
+      List<DocumentSnapshot> matches0 = [];
+      List<DocumentSnapshot> matches1 = [];
+      List<DocumentSnapshot> matches2 = [];
+      List<DocumentSnapshot> matches3 = [];
 
+      querySnapShot.docs.forEach((recipe) {
+        // print("Now checking match for: " + recipe["title"]);
         Set<String> recipeIngredientsSet = new Set();
-        print("HERE");
-        print(recipe["ingredients"]);
         for (dynamic x in recipe["ingredients"]) {
-          print(x["ingredient"]);
           recipeIngredientsSet.add(x["ingredient"]!);
         }
-        print("here2");
-        print(recipeMatches);
         int intersectionSize =
             _myIngredients.toSet().intersection(recipeIngredientsSet).length;
-        print(intersectionSize);
+        // print("Missing " + (recipeIngredientsSet.length - intersectionSize).toString() + " ingredients");
         for (int x in [0, 1, 2, 3]) {
           if (recipeIngredientsSet.length - intersectionSize == x) {
-            print("Insert here");
-            print(recipe.runtimeType);
-            print(recipeMatches[3]);
-            recipeMatches[x].add(recipe);
-            print("here!");
+            if (x == 0) matches0.add(recipe);
+            if (x == 1) matches1.add(recipe);
+            if (x == 2) matches2.add(recipe);
+            if (x == 3) matches3.add(recipe);
           }
         }
-        print("Here4");
       });
-      print(recipeMatches);
+      List<List<DocumentSnapshot>> recipeMatches = [];
+      recipeMatches.addAll([matches0, matches1, matches2, matches3]);
+      for (int i in [0, 1, 2, 3]) {
+        if (recipeMatches[i].length > numRecipesToReturn) {
+          recipeMatches[i] = recipeMatches[i].sublist(0, numRecipesToReturn);
+          numRecipesToReturn = 0;
+        } else {
+          numRecipesToReturn -= recipeMatches[i].length;
+        }
+      }
       return recipeMatches;
     });
     return allRecipes;
   }
-  //
-  // Column buildColumns(List<List<DocumentSnapshot>> data) {
-  //   return Column(
-  //     children: [
-  //       //Collapsables, each with a builder under it
-  //       Text("asdfasdf"),
-  //       Text("asdfasdfasdfasdf")
-  //     ],
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
     Future<List<List<DocumentSnapshot>>> FindRecipes(
         GoogleSignInAccount? user) async {
       userSavedRecipes = await getSavedRecipes(user!);
-      print(userSavedRecipes);
       if (widget.mySaved == true) {
         return userSavedRecipes;
       } else {
-        allRecipes = await getAllRecipes(user);
+        allRecipes = await getAllRecipes(user, 20);
         return allRecipes;
       }
     }
@@ -119,14 +114,12 @@ class _RecipeFinderState extends State<RecipeFinder> {
             AsyncSnapshot<List<List<DocumentSnapshot>>> snapshot) {
           Widget children;
           if (snapshot.hasData) {
-            print(snapshot.data);
+            // print(snapshot.data);
 
             List<List<DocumentSnapshot>> data = snapshot.data!;
-            children = SingleChildScrollView(
-                child: Column(
-              children: [
-                createList(data[0]),
-              ],
+            children = Scaffold(
+                body: Scrollbar(
+              child: createList(data[0]),
             ));
           } else if (snapshot.hasError) {
             children = Scaffold(
@@ -164,136 +157,121 @@ class _RecipeFinderState extends State<RecipeFinder> {
   }
 
   Widget createList(List<DocumentSnapshot> data) {
-    return ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: data.length,
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        itemBuilder: (context, i) {
-          print(i);
-          // print(data[i].data());
-          final String imageUrl = data[i]
-          ['imageUrl'] ??
-              "Could not load image";
-          final String recipeName = data[i]
-          ['title'] ??
-              "Could not load recipe";
-          var alreadySaved = _recipePaths
-              .contains(data[i].reference);
+    return
+      ListView.builder(
+          padding: const EdgeInsets.all(16.0),
+          itemCount: data.length,
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          itemBuilder: (context, i) {
+            // print(i);
+            // print(data[i].data());
+            final String imageUrl =
+                data[i]['imageUrl'] ?? "Could not load image";
+            final String recipeName =
+                data[i]['title'] ?? "Could not load recipe";
+            var alreadySaved = _recipePaths.contains(data[i].reference);
 
-          return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    transitionDuration:
-                    const Duration(milliseconds: 700),
-                    pageBuilder: (_, __, ___) => viewRecipe(
-                        currentUser: widget.currentUser,
-                        recipe: data[i],
-                        number: i),
-                    transitionsBuilder: (BuildContext context,
-                        Animation<double> animation,
-                        Animation<double> secondaryAnimation,
-                        Widget child) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      );
-                    },
-                  ),
-                );
-              },
-              child: Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 15,
-                  ),
-                  decoration: const BoxDecoration(
-                    color: Color(0xffff9b9b),
-                    borderRadius:
-                    BorderRadius.all(Radius.circular(20)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black38,
-                        blurRadius: 5.0, // soften the shadow
-                        //spreadRadius: 5.0, //extend the shadow
-                        offset: Offset(
-                          5.0, // Move to right 10  horizontally
-                          5.0, // Move to bottom 10 Vertically
-                        ),
-                      )
-                    ],
-                  ),
-                  child: Column(
-                    children: <Widget>[
-                      Hero(
-                        tag: 'recipe' + i.toString(),
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                              topRight: Radius.circular(20),
-                              topLeft: Radius.circular(20)),
-                          child: Image.network(imageUrl,
-                              fit: BoxFit.contain),
-                        ),
-                      ),
-                      ListTile(
-                          title: Text(
-                            recipeName,
-                            style: const TextStyle(
-                                fontSize: 18.0,
-                                decoration: TextDecoration.none,
-                                fontWeight: FontWeight.normal,
-                                color: Colors.black,
-                                fontFamily: 'Roboto'),
-                            textAlign: TextAlign.left,
+            return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: const Duration(milliseconds: 700),
+                      pageBuilder: (_, __, ___) => viewRecipe(
+                          currentUser: widget.currentUser,
+                          recipe: data[i],
+                          number: i),
+                      transitionsBuilder: (BuildContext context,
+                          Animation<double> animation,
+                          Animation<double> secondaryAnimation,
+                          Widget child) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                },
+                child: Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 15,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Color(0xffff9b9b),
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black38,
+                          blurRadius: 5.0, // soften the shadow
+                          //spreadRadius: 5.0, //extend the shadow
+                          offset: Offset(
+                            5.0, // Move to right 10  horizontally
+                            5.0, // Move to bottom 10 Vertically
                           ),
-                          trailing: StatefulBuilder(builder:
-                              (BuildContext context,
-                              StateSetter setState) {
-                            return IconButton(
-                              icon: alreadySaved
-                                  ? const Icon(Icons.bookmark)
-                                  : const Icon(
-                                  Icons.bookmark_border),
-                              iconSize: 40,
-                              color: alreadySaved
-                                  ? Colors.yellowAccent
-                                  : null,
-                              onPressed: () {
-                                setState(() {
-                                  if (alreadySaved) {
-                                    alreadySaved = false;
-                                    FirebaseFirestore.instance
-                                        .collection('users')
-                                        .doc(widget
-                                        .currentUser.email)
-                                        .update({
-                                      'savedRecipes': FieldValue
-                                          .arrayRemove([
-
-                                            data[i].reference
-                                      ])
-                                    });
-                                  } else {
-                                    alreadySaved = true;
-                                    FirebaseFirestore.instance
-                                        .collection('users')
-                                        .doc(widget
-                                        .currentUser.email)
-                                        .update({
-                                      'savedRecipes': FieldValue
-                                          .arrayUnion([
-                                        data[i].reference
-                                      ])
-                                    });
-                                  }
-                                });
-                              },
-                            );
-                          })),
-                    ],
-                  )));
-        });
+                        )
+                      ],
+                    ),
+                    child: Column(
+                      children: <Widget>[
+                        Hero(
+                          tag: 'recipe' + i.toString(),
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                                topRight: Radius.circular(20),
+                                topLeft: Radius.circular(20)),
+                            child: Image.network(imageUrl, fit: BoxFit.contain),
+                          ),
+                        ),
+                        ListTile(
+                            title: Text(
+                              recipeName,
+                              style: const TextStyle(
+                                  fontSize: 18.0,
+                                  decoration: TextDecoration.none,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.black,
+                                  fontFamily: 'Roboto'),
+                              textAlign: TextAlign.left,
+                            ),
+                            trailing: StatefulBuilder(builder:
+                                (BuildContext context, StateSetter setState) {
+                              return IconButton(
+                                icon: alreadySaved
+                                    ? const Icon(Icons.bookmark)
+                                    : const Icon(Icons.bookmark_border),
+                                iconSize: 40,
+                                color:
+                                    alreadySaved ? Colors.yellowAccent : null,
+                                onPressed: () {
+                                  setState(() {
+                                    if (alreadySaved) {
+                                      alreadySaved = false;
+                                      FirebaseFirestore.instance
+                                          .collection('users')
+                                          .doc(widget.currentUser.email)
+                                          .update({
+                                        'savedRecipes': FieldValue.arrayRemove(
+                                            [data[i].reference])
+                                      });
+                                    } else {
+                                      alreadySaved = true;
+                                      FirebaseFirestore.instance
+                                          .collection('users')
+                                          .doc(widget.currentUser.email)
+                                          .update({
+                                        'savedRecipes': FieldValue.arrayUnion(
+                                            [data[i].reference])
+                                      });
+                                    }
+                                  });
+                                },
+                              );
+                            })),
+                      ],
+                    )));
+          });
   }
 }
