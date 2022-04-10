@@ -22,7 +22,6 @@ class _IngredientListState extends State<IngredientList> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
   bool searching = false;
   String searchWord = "";
-  final GlobalKey<AnimatedListState> _keyIngredients = GlobalKey();
   List<String> myIngredientsList = [];
   List<String> bulkIngredients = [];
   final String addAll = "Add All";
@@ -31,7 +30,7 @@ class _IngredientListState extends State<IngredientList> {
   final String removeCommon = "Remove All Common Ingredients of this Type";
   Set<String> addRemoveStringsSet = {};
 
-  Future<List<String>> getMyIngredients(GoogleSignInAccount user) async {
+  Future<List<String>> getMyIngredients() async {
     Future<List<String>> myIngredients = FirebaseFirestore.instance
         .collection("users")
         .doc(widget.currentUser.email)
@@ -68,7 +67,7 @@ class _IngredientListState extends State<IngredientList> {
   }
 
   Future<List<String>> getIngredients(GoogleSignInAccount user) async {
-    myIngredientsList = await getMyIngredients(user);
+    myIngredientsList = await getMyIngredients();
     bulkIngredients = await getBulkIngredients();
 
     if (widget.myIngredients == false) {
@@ -146,10 +145,6 @@ class _IngredientListState extends State<IngredientList> {
                 },
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                    icon: Icon(
-                      Icons.search,
-                      color: Colors.white,
-                    ),
                     hintText: "Search Ingredient",
                     hintStyle: TextStyle(color: Colors.white)),
               ),
@@ -195,7 +190,6 @@ class _IngredientListState extends State<IngredientList> {
               children = Scaffold(
                   body: Scrollbar(
                       child: ListView.builder(
-                          key: _keyIngredients,
                           padding: const EdgeInsets.all(16.0),
                           itemCount: filteredIngredients.length,
                           itemBuilder: (context, i) {
