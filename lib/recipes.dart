@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 // import 'dart:html';
 import 'package:flutter/material.dart';
@@ -26,7 +27,12 @@ class _RecipeFinderState extends State<RecipeFinder> {
   List<List<DocumentSnapshot>> userSavedRecipes = [];
   List<List<DocumentSnapshot>> allRecipes = [];
   late bool alreadySaved;
-  var matchSectionTitles = ["Ready to Make", "Missing One Ingredient", "Missing Two Ingredients", "Missing Three Ingredients"];
+  final matchSectionTitles = ["Ready to Make", "Missing One Ingredient", "Missing Two Ingredients", "Missing Three Ingredients"];
+  bool shouldFilterByDishType = true;
+  String dishType = "Main Course";
+  final dishTypes = ["Appetizer", "Beverage", "Bread", "Dessert", "Main Course", "Other", "Salad", "Soup"];
+  bool shouldTruncateByMaxResults = true;
+  int maxRecipesToReturn = 20;
 
   Future<List<List<DocumentSnapshot>>> getSavedRecipes(
       GoogleSignInAccount user) {
@@ -37,7 +43,6 @@ class _RecipeFinderState extends State<RecipeFinder> {
         .get()
         .then((DocumentSnapshot data) async {
       _myIngredients = List.from(data.get('ingredients'));
-
       List<DocumentSnapshot> mySavedRecipes = [];
       _recipePaths = List.from(data.get('savedRecipes'));
       for (DocumentReference path in _recipePaths) {
@@ -50,6 +55,54 @@ class _RecipeFinderState extends State<RecipeFinder> {
       return toReturn;
     });
     return savedRecipes;
+  }
+
+  List<List<DocumentSnapshot>> filterRecipesByDishType(List<List<DocumentSnapshot>> recipes){
+    print("Made it to filterreciepsbydishtype");
+
+    List<DocumentSnapshot> matches0 = [];
+    List<DocumentSnapshot> matches1 = [];
+    List<DocumentSnapshot> matches2 = [];
+    List<DocumentSnapshot> matches3 = [];
+    for(int i = 0; i < recipes.length; ++i){
+      for(int j = 0; j < recipes[i].length; ++j){
+        if(recipes[i][j].get("dishType") == dishType) {
+          print(dishType + " == " + recipes[i][j].get("dishType") + " is " + (recipes[i][j].get("dishType") == dishType).toString());
+          print(i);
+          if (i == 0) matches0.add(recipes[i][j]);
+          if (i == 1) matches1.add(recipes[i][j]);
+          if (i == 2) matches2.add(recipes[i][j]);
+          if (i == 3) matches3.add(recipes[i][j]);
+        }
+      }
+    }
+    List<List<DocumentSnapshot>> toReturn = List.generate(4, (index) => []);
+    toReturn[0].addAll(matches0);
+    toReturn[1].addAll(matches1);
+    toReturn[2].addAll(matches2);
+    toReturn[3].addAll(matches3);
+    return toReturn;
+  }
+
+  List<List<DocumentSnapshot>> truncateRecipesByMaxResults(List<List<DocumentSnapshot>> recipes){
+    bool testIncompleteMatches = false;
+    if(testIncompleteMatches){
+      recipes[0] = recipes[0].sublist(0, min(3, recipes[0].length));
+      recipes[1] = recipes[1].sublist(0, min(3, recipes[1].length));
+      recipes[2] = recipes[2].sublist(0, min(3, recipes[2].length));
+      recipes[3] = recipes[3].sublist(0, min(3, recipes[3].length));
+    }
+    List<List<DocumentSnapshot>> recipeMatches = [];
+    int numRecipesToReturn = maxRecipesToReturn;
+    for (int i in [0, 1, 2, 3]) {
+      if (recipes[i].length > numRecipesToReturn) {
+        recipes[i] = recipes[i].sublist(0, numRecipesToReturn);
+        numRecipesToReturn = 0;
+      } else {
+        numRecipesToReturn -= recipes[i].length;
+      }
+    }
+    return recipes;
   }
 
   Future<List<List<DocumentSnapshot>>> getAllRecipes(
@@ -82,23 +135,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
           }
         }
       });
-      bool testIncompleteMatches = true;
-      if(testIncompleteMatches){
-        matches0 = matches0.sublist(0, 3);
-        matches1 = matches1.sublist(0, 5);
-        matches2 = matches2.sublist(0, 3);
-        matches3 = matches3.sublist(0, 7);
-      }
       List<List<DocumentSnapshot>> recipeMatches = [];
       recipeMatches.addAll([matches0, matches1, matches2, matches3]);
-      for (int i in [0, 1, 2, 3]) {
-        if (recipeMatches[i].length > numRecipesToReturn) {
-          recipeMatches[i] = recipeMatches[i].sublist(0, numRecipesToReturn);
-          numRecipesToReturn = 0;
-        } else {
-          numRecipesToReturn -= recipeMatches[i].length;
-        }
-      }
       return recipeMatches;
     });
     return allRecipes;
@@ -109,12 +147,20 @@ class _RecipeFinderState extends State<RecipeFinder> {
     Future<List<List<DocumentSnapshot>>> FindRecipes(
         GoogleSignInAccount? user) async {
       userSavedRecipes = await getSavedRecipes(user!);
+      List<List<DocumentSnapshot>> toReturn;
       if (widget.mySaved == true) {
-        return userSavedRecipes;
+        toReturn = userSavedRecipes;
       } else {
-        allRecipes = await getAllRecipes(user, 20);
-        return allRecipes;
+        allRecipes = await getAllRecipes(user, maxRecipesToReturn);
+        toReturn = allRecipes;
       }
+      if(shouldFilterByDishType) {
+        toReturn = filterRecipesByDishType(toReturn);
+      }
+      if(shouldTruncateByMaxResults){
+        toReturn = truncateRecipesByMaxResults(toReturn);
+      }
+      return toReturn;
     }
 
     return FutureBuilder<List<List<DocumentSnapshot>>>(
@@ -169,12 +215,12 @@ class _RecipeFinderState extends State<RecipeFinder> {
   }
 
   Widget createLists(List<List<DocumentSnapshot>> data, List<String> sectionTitles){
+    print(widget.mySaved);
     Widget toReturn = Column(children: [
-      data[0].length > 0 ? createList(data[0], sectionTitles[0]) : Container(),
-      data[1].length > 0 ? createList(data[1], sectionTitles[1]) : Container(),
-      data[2].length > 0 ? createList(data[2], sectionTitles[2]) : Container(),
-      data[3].length > 0 ? createList(data[3], sectionTitles[3]) : Container(),
-
+        data[0].length > 0 ? createList(data[0], sectionTitles[0]) : Container(),
+        !widget.mySaved ? data[1].length > 0 ? createList(data[1], sectionTitles[1]) : Container() : Container(),
+        !widget.mySaved ? data[2].length > 0 ? createList(data[2], sectionTitles[2]) : Container() : Container(),
+        !widget.mySaved ? data[3].length > 0 ? createList(data[3], sectionTitles[3]) : Container() : Container(),
     ]);
     return toReturn;
   }
@@ -252,7 +298,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
       //   height: 220,
       //   child: MyHomePage(),
       // ),
-      createHeader(sectionTitle),
+      widget.mySaved ? Container() : createHeader(sectionTitle),
       ListView.builder(
           physics: NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16.0),
