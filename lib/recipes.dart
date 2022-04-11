@@ -26,7 +26,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
   List<List<DocumentSnapshot>> userSavedRecipes = [];
   List<List<DocumentSnapshot>> allRecipes = [];
   late bool alreadySaved;
-  var matchSectionTitles = ["Ready to Make", "Missing an ingredient", "Missing two ingredients", "Missing three ingredients"];
+  var matchSectionTitles = ["Ready to Make", "Missing One Ingredient", "Missing Two Ingredients", "Missing Three Ingredients"];
 
   Future<List<List<DocumentSnapshot>>> getSavedRecipes(
       GoogleSignInAccount user) {
@@ -82,6 +82,13 @@ class _RecipeFinderState extends State<RecipeFinder> {
           }
         }
       });
+      bool testIncompleteMatches = true;
+      if(testIncompleteMatches){
+        matches0 = matches0.sublist(0, 3);
+        matches1 = matches1.sublist(0, 5);
+        matches2 = matches2.sublist(0, 3);
+        matches3 = matches3.sublist(0, 7);
+      }
       List<List<DocumentSnapshot>> recipeMatches = [];
       recipeMatches.addAll([matches0, matches1, matches2, matches3]);
       for (int i in [0, 1, 2, 3]) {
@@ -121,7 +128,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
 
             List<List<DocumentSnapshot>> data = snapshot.data!;
             children =
-                SingleChildScrollView(child: createList(data[0], matchSectionTitles[0]));
+                SingleChildScrollView(child: createLists(data, matchSectionTitles));
             //     Scaffold(
             //     body: Scrollbar(
             //   child: createList(data[0], "Can be made now"),
@@ -161,46 +168,91 @@ class _RecipeFinderState extends State<RecipeFinder> {
         });
   }
 
+  Widget createLists(List<List<DocumentSnapshot>> data, List<String> sectionTitles){
+    Widget toReturn = Column(children: [
+      data[0].length > 0 ? createList(data[0], sectionTitles[0]) : Container(),
+      data[1].length > 0 ? createList(data[1], sectionTitles[1]) : Container(),
+      data[2].length > 0 ? createList(data[2], sectionTitles[2]) : Container(),
+      data[3].length > 0 ? createList(data[3], sectionTitles[3]) : Container(),
 
+    ]);
+    return toReturn;
+  }
+
+  Widget createHeader(String title){
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 20, 10, 10),
+      padding: const EdgeInsets.all(5.0),
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Colors.deepOrange,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black38,
+            blurRadius: 5.0, // soften the shadow
+            //spreadRadius: 5.0, //extend the shadow
+            offset: Offset(
+              5.0, // Move to right 10  horizontally
+              5.0, // Move to bottom 10 Vertically
+            ),
+          )
+        ],
+      ),
+      child: Text(
+      title,
+      style: const TextStyle(
+          fontSize: 18.0,
+          decoration: TextDecoration.none,
+          fontWeight: FontWeight.normal,
+          color: Colors.black,
+          fontFamily: 'Roboto'),
+      textScaleFactor: 2,
+      textAlign: TextAlign.center,
+    ),
+
+    );
+
+  }
 
   Widget createList(List<DocumentSnapshot> data, sectionTitle) {
     bool _expanded = false;
     Widget toReturn = Column(children: [
-      Container(
-        margin: EdgeInsets.all(10),
-        color: Colors.green,
-        child: ExpansionPanelList(
-          animationDuration: Duration(milliseconds: 2000),
-          children: [
-            ExpansionPanel(
-              headerBuilder: (context, isExpanded) {
-                return ListTile(
-                  title: Text(
-                    'Click To Expand',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                );
-              },
-              body: ListTile(
-                title: Text('Description text',
-                    style: TextStyle(color: Colors.black)),
-              ),
-              isExpanded: _expanded,
-              canTapOnHeader: true,
-            ),
-          ],
-          dividerColor: Colors.grey,
-          expansionCallback: (panelIndex, isExpanded) {
-            _expanded = !_expanded;
-            setState(() {});
-          },
-        ),
-      ),
       // Container(
-      //   height: 100,
+      //   margin: EdgeInsets.all(10),
+      //   color: Colors.green,
+      //   child: ExpansionPanelList(
+      //     animationDuration: Duration(milliseconds: 2000),
+      //     children: [
+      //       ExpansionPanel(
+      //         headerBuilder: (context, isExpanded) {
+      //           return ListTile(
+      //             title: Text(
+      //               'Click To Expand',
+      //               style: TextStyle(color: Colors.black),
+      //             ),
+      //           );
+      //         },
+      //         body: ListTile(
+      //           title: Text('Description text',
+      //               style: TextStyle(color: Colors.black)),
+      //         ),
+      //         isExpanded: _expanded,
+      //         canTapOnHeader: true,
+      //       ),
+      //     ],
+      //     dividerColor: Colors.grey,
+      //     expansionCallback: (panelIndex, isExpanded) {
+      //       _expanded = !_expanded;
+      //       setState(() {});
+      //     },
+      //   ),
+      // ),
+      // Container(
+      //   height: 220,
       //   child: MyHomePage(),
       // ),
-      Text(sectionTitle, textScaleFactor: 2),
+      createHeader(sectionTitle),
       ListView.builder(
           physics: NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16.0),
@@ -239,9 +291,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
                   );
                 },
                 child: Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 15,
+                    margin: const EdgeInsets.fromLTRB(
+                      10, 0, 10, 25,
                     ),
                     decoration: const BoxDecoration(
                       color: Color(0xffff9b9b),
@@ -335,16 +386,13 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Flutter Learning"),
-      ),
       body: Column(
           children: [
             Container(
               margin: EdgeInsets.all(10),
               color: Colors.green,
               child: ExpansionPanelList(
-                animationDuration: Duration(milliseconds: 2000),
+                animationDuration: Duration(milliseconds: 500),
                 children: [
                   ExpansionPanel(
                     headerBuilder: (context, isExpanded) {
@@ -352,9 +400,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         title: Text('Click To Expand', style: TextStyle(color: Colors.black),),
                       );
                     },
-                    body:ListTile(
-                      title: Text('Description text',style: TextStyle(color: Colors.black)),
-                    ),
+                    body: Text("hello!"),
                     isExpanded: _expanded,
                     canTapOnHeader: true,
                   ),
