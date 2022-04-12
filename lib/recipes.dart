@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:math';
 
 // import 'dart:html';
@@ -29,10 +30,14 @@ class _RecipeFinderState extends State<RecipeFinder> {
   late bool alreadySaved;
   final matchSectionTitles = ["Ready to Make", "Missing One Ingredient", "Missing Two Ingredients", "Missing Three Ingredients"];
   bool shouldFilterByDishType = true;
-  String dishType = "Main Course";
+  String dishType = "Dessert";
   final dishTypes = ["Appetizer", "Beverage", "Bread", "Dessert", "Main Course", "Other", "Salad", "Soup"];
   bool shouldTruncateByMaxResults = true;
   int maxRecipesToReturn = 20;
+  bool shouldFilterByServings = true;
+  int minServings = 6;
+  bool shouldFilterByCalories = true;
+  int maxCalories = 200;
 
   Future<List<List<DocumentSnapshot>>> getSavedRecipes(
       GoogleSignInAccount user) {
@@ -58,41 +63,25 @@ class _RecipeFinderState extends State<RecipeFinder> {
   }
 
   List<List<DocumentSnapshot>> filterRecipesByDishType(List<List<DocumentSnapshot>> recipes){
-    print("Made it to filterreciepsbydishtype");
-
-    List<DocumentSnapshot> matches0 = [];
-    List<DocumentSnapshot> matches1 = [];
-    List<DocumentSnapshot> matches2 = [];
-    List<DocumentSnapshot> matches3 = [];
+    List<List<DocumentSnapshot>> toReturn = List.generate(4, (index) => []);
     for(int i = 0; i < recipes.length; ++i){
       for(int j = 0; j < recipes[i].length; ++j){
         if(recipes[i][j].get("dishType") == dishType) {
-          print(dishType + " == " + recipes[i][j].get("dishType") + " is " + (recipes[i][j].get("dishType") == dishType).toString());
-          print(i);
-          if (i == 0) matches0.add(recipes[i][j]);
-          if (i == 1) matches1.add(recipes[i][j]);
-          if (i == 2) matches2.add(recipes[i][j]);
-          if (i == 3) matches3.add(recipes[i][j]);
+          toReturn[i].add(recipes[i][j]);
         }
       }
     }
-    List<List<DocumentSnapshot>> toReturn = List.generate(4, (index) => []);
-    toReturn[0].addAll(matches0);
-    toReturn[1].addAll(matches1);
-    toReturn[2].addAll(matches2);
-    toReturn[3].addAll(matches3);
     return toReturn;
   }
 
   List<List<DocumentSnapshot>> truncateRecipesByMaxResults(List<List<DocumentSnapshot>> recipes){
-    bool testIncompleteMatches = false;
-    if(testIncompleteMatches){
-      recipes[0] = recipes[0].sublist(0, min(3, recipes[0].length));
-      recipes[1] = recipes[1].sublist(0, min(3, recipes[1].length));
-      recipes[2] = recipes[2].sublist(0, min(3, recipes[2].length));
-      recipes[3] = recipes[3].sublist(0, min(3, recipes[3].length));
-    }
-    List<List<DocumentSnapshot>> recipeMatches = [];
+    // bool testIncompleteMatches = false;
+    // if(testIncompleteMatches){
+    //   recipes[0] = recipes[0].sublist(0, min(3, recipes[0].length));
+    //   recipes[1] = recipes[1].sublist(0, min(3, recipes[1].length));
+    //   recipes[2] = recipes[2].sublist(0, min(3, recipes[2].length));
+    //   recipes[3] = recipes[3].sublist(0, min(3, recipes[3].length));
+    // }
     int numRecipesToReturn = maxRecipesToReturn;
     for (int i in [0, 1, 2, 3]) {
       if (recipes[i].length > numRecipesToReturn) {
@@ -103,6 +92,40 @@ class _RecipeFinderState extends State<RecipeFinder> {
       }
     }
     return recipes;
+  }
+
+  List<List<DocumentSnapshot>> filterRecipesByServings(List<List<DocumentSnapshot>> recipes){
+    List<List<DocumentSnapshot>> toReturn = List.generate(4, (index) => []);
+    for(int i = 0; i < recipes.length; ++i){
+      for(int j = 0; j < recipes[i].length; ++j){
+        if(int.parse(recipes[i][j].get("servings")) >= minServings) {
+          toReturn[i].add(recipes[i][j]);
+        }
+      }
+    }
+    return toReturn;
+  }
+
+  List<List<DocumentSnapshot>> filterRecipesByCalories(List<List<DocumentSnapshot>> recipes){
+    List<List<DocumentSnapshot>> toReturn = List.generate(4, (index) => []);
+    for(int i = 0; i < recipes.length; ++i){
+      print(i);
+      for(int j = 0; j < recipes[i].length; ++j){
+        String calories = "";
+        dynamic nutritionInfo = recipes[i][j].get("nutritionInformation");
+        for(int k = 0; k < nutritionInfo.length; k++){
+          if(nutritionInfo[k].containsValue("Calories")){
+            calories = nutritionInfo[k]["amount"]!;
+          }
+        }
+        if(calories != "") {
+          if (double.parse(calories) <= maxCalories) {
+            toReturn[i].add(recipes[i][j]);
+          }
+        }
+      }
+    }
+    return toReturn;
   }
 
   Future<List<List<DocumentSnapshot>>> getAllRecipes(
@@ -157,6 +180,14 @@ class _RecipeFinderState extends State<RecipeFinder> {
       if(shouldFilterByDishType) {
         toReturn = filterRecipesByDishType(toReturn);
       }
+      if(shouldFilterByServings){
+        toReturn = filterRecipesByServings(toReturn);
+      }
+      if(shouldFilterByCalories){
+        toReturn = filterRecipesByCalories(toReturn);
+      }
+
+      //truncate to max results should always be last
       if(shouldTruncateByMaxResults){
         toReturn = truncateRecipesByMaxResults(toReturn);
       }
@@ -215,7 +246,6 @@ class _RecipeFinderState extends State<RecipeFinder> {
   }
 
   Widget createLists(List<List<DocumentSnapshot>> data, List<String> sectionTitles){
-    print(widget.mySaved);
     Widget toReturn = Column(children: [
         data[0].length > 0 ? createList(data[0], sectionTitles[0]) : Container(),
         !widget.mySaved ? data[1].length > 0 ? createList(data[1], sectionTitles[1]) : Container() : Container(),
