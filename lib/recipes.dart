@@ -30,14 +30,14 @@ class _RecipeFinderState extends State<RecipeFinder> {
   late bool alreadySaved;
   final matchSectionTitles = ["Ready to Make", "Missing One Ingredient", "Missing Two Ingredients", "Missing Three Ingredients"];
   bool shouldFilterByDishType = true;
-  String dishType = "Dessert";
-  final dishTypes = ["Appetizer", "Beverage", "Bread", "Dessert", "Main Course", "Other", "Salad", "Soup"];
+  String dishType = "Main Course";
+  final dishTypes = ["All", "Appetizer", "Beverage", "Bread", "Dessert", "Main Course", "Other", "Salad", "Soup"];
   bool shouldTruncateByMaxResults = true;
   int maxRecipesToReturn = 20;
   bool shouldFilterByServings = true;
-  int minServings = 6;
+  int minServings = 3;
   bool shouldFilterByCalories = true;
-  int maxCalories = 200;
+  int maxCalories = 1000;
 
   Future<List<List<DocumentSnapshot>>> getSavedRecipes(
       GoogleSignInAccount user) {
@@ -66,7 +66,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
     List<List<DocumentSnapshot>> toReturn = List.generate(4, (index) => []);
     for(int i = 0; i < recipes.length; ++i){
       for(int j = 0; j < recipes[i].length; ++j){
-        if(recipes[i][j].get("dishType") == dishType) {
+        if(recipes[i][j].get("dishType") == dishType || dishType == "All") {
           toReturn[i].add(recipes[i][j]);
         }
       }
