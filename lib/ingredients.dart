@@ -30,6 +30,7 @@ class _IngredientListState extends State<IngredientList> {
   final String removeCommon = "Remove All Common Ingredients of this Type";
   Set<String> addRemoveStringsSet = {};
 
+  //function to get all the users ingredients
   Future<List<String>> getMyIngredients() async {
     Future<List<String>> myIngredients = FirebaseFirestore.instance
         .collection("users")
@@ -46,6 +47,7 @@ class _IngredientListState extends State<IngredientList> {
     return myIngredients;
   }
 
+  //function to get the bulk item packages for add all and add all common items capability
   Future<List<String>> getBulkIngredients() async {
     Future<List<String>> bulkIngredientsList = FirebaseFirestore.instance
         .collection('ingredientsBulkAddPackages')
@@ -66,6 +68,7 @@ class _IngredientListState extends State<IngredientList> {
     return bulkIngredientsList;
   }
 
+  //function to get ingredients of a specific type and add the bulk packages option
   Future<List<String>> getIngredients(GoogleSignInAccount user) async {
     myIngredientsList = await getMyIngredients();
     bulkIngredients = await getBulkIngredients();
@@ -177,8 +180,12 @@ class _IngredientListState extends State<IngredientList> {
         builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
           Widget children;
           if (snapshot.hasData) {
+
+            //check that ingredients list is not empty, specifically used for the list of ingredients the user currently has
             if (snapshot.data!.isNotEmpty) {
               List<String> filteredIngredients = [];
+
+              //checking if the search bar is empty or not to filter ingredients the user is looking for
               if (searchWord != "") {
                 filteredIngredients = snapshot.data!
                     .where((ingredient) =>
@@ -225,6 +232,8 @@ class _IngredientListState extends State<IngredientList> {
                                               ? Color(0xffffba97)
                                               : null,
                                       onPressed: () {
+
+                                        //making sure add all and add all common ingredient type doesn't add to users ingredients
                                         if (addRemoveStringsSet
                                             .contains(ingredientName)) {
                                           setState(() {

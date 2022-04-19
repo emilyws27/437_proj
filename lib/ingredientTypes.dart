@@ -22,6 +22,8 @@ class _IngredientTypeListState extends State<IngredientTypeList> {
 
   @override
   Widget build(BuildContext context) {
+
+    //function to get the ingredients that user has
     Future<List<String>> getMyIngredients(GoogleSignInAccount user) async {
       Future<List<String>> myIngredients = FirebaseFirestore.instance
           .collection("users")
@@ -38,8 +40,8 @@ class _IngredientTypeListState extends State<IngredientTypeList> {
       return myIngredients;
     }
 
-    Future<DocumentSnapshot> getIngredientTypes(
-        GoogleSignInAccount user) async {
+    //function to get labels for the ingredient types, calls the getMyIngredients function and returns a documentsnapshot of all the ingredients
+    Future<DocumentSnapshot> getIngredientTypes(GoogleSignInAccount user) async {
       myIngredientsList = await getMyIngredients(user);
 
       await FirebaseFirestore.instance
@@ -69,6 +71,8 @@ class _IngredientTypeListState extends State<IngredientTypeList> {
           (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         Widget children;
         if (snapshot.hasData) {
+
+          //if search bar is empty then show labels for ingredient type, else display ingredients that match search bar word
           if (searchWord.text.isEmpty) {
             children = Scaffold(
                 body: Column(children: <Widget>[

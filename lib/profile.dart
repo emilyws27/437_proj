@@ -16,6 +16,7 @@ class profilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //check if user has a valid google image profile, if not then use a stock image
     String imageurl;
     if (currentUser.photoUrl == null) {
       imageurl =
@@ -150,6 +151,7 @@ class profilePage extends StatelessWidget {
         ));
   }
 
+  //sign out function that calls the updateCurrentUser function from the main.dart file and does a google sign out
   Future<void> signOut() async {
     updateCurrentUser(await googleSignIn.signOut());
   }
