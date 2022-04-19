@@ -109,7 +109,7 @@ class profilePage extends StatelessWidget {
               ),
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.red,
+                    primary: Color(0xffe0274a),
                   ),
                   onPressed: () => showDialog<String>(
                         context: context,
