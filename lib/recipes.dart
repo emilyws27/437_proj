@@ -248,12 +248,17 @@ class _RecipeFinderState extends State<RecipeFinder> {
 
   Widget createLists(List<List<DocumentSnapshot>> data, List<String> sectionTitles){
     Widget toReturn = Column(children: [
+        Filters(),
         data[0].length > 0 ? createList(data[0], sectionTitles[0]) : Container(),
         !widget.mySaved ? data[1].length > 0 ? createList(data[1], sectionTitles[1]) : Container() : Container(),
         !widget.mySaved ? data[2].length > 0 ? createList(data[2], sectionTitles[2]) : Container() : Container(),
         !widget.mySaved ? data[3].length > 0 ? createList(data[3], sectionTitles[3]) : Container() : Container(),
     ]);
     return toReturn;
+  }
+
+  Widget Filters(){
+    return Text("asdfasdf");
   }
 
   Widget createHeader(String title){
