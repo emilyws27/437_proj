@@ -31,13 +31,13 @@ class _RecipeFinderState extends State<RecipeFinder> {
   final matchSectionTitles = ["Ready to Make", "Missing One Ingredient", "Missing Two Ingredients", "Missing Three Ingredients"];
   bool shouldFilterByDishType = true;
   String dishType = "Main Course";
-  final dishTypes = ["All", "Appetizer", "Beverage", "Bread", "Dessert", "Main Course", "Other", "Salad", "Soup"];
+  final dishTypes = ["Appetizer", "Beverage", "Bread", "Dessert", "Main Course", "Other", "Salad", "Soup"];
   bool shouldTruncateByMaxResults = true;
   int maxRecipesToReturn = 20;
-  bool shouldFilterByServings = true;
-  int minServings = 3;
-  bool shouldFilterByCalories = true;
-  int maxCalories = 1000;
+  bool shouldFilterByServings = false;
+  int minServings = 10;
+  bool shouldFilterByCalories = false;
+  int maxCalories = 500;
 
   Future<List<List<DocumentSnapshot>>> getSavedRecipes(
       GoogleSignInAccount user) {
@@ -66,7 +66,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
     List<List<DocumentSnapshot>> toReturn = List.generate(4, (index) => []);
     for(int i = 0; i < recipes.length; ++i){
       for(int j = 0; j < recipes[i].length; ++j){
-        if(recipes[i][j].get("dishType") == dishType || dishType == "All") {
+        if(recipes[i][j].get("dishType") == dishType) {
           toReturn[i].add(recipes[i][j]);
         }
       }
@@ -109,7 +109,6 @@ class _RecipeFinderState extends State<RecipeFinder> {
   List<List<DocumentSnapshot>> filterRecipesByCalories(List<List<DocumentSnapshot>> recipes){
     List<List<DocumentSnapshot>> toReturn = List.generate(4, (index) => []);
     for(int i = 0; i < recipes.length; ++i){
-      print(i);
       for(int j = 0; j < recipes[i].length; ++j){
         String calories = "";
         dynamic nutritionInfo = recipes[i][j].get("nutritionInformation");
@@ -127,6 +126,12 @@ class _RecipeFinderState extends State<RecipeFinder> {
     }
     return toReturn;
   }
+
+  List<DocumentSnapshot> sortRecipesByPopularity(List<DocumentSnapshot> recipes){
+    recipes.sort((a, b)=> int.parse(a.get("likes")) - int.parse(b.get("likes")));
+    return recipes;
+  }
+
 
   Future<List<List<DocumentSnapshot>>> getAllRecipes(
       GoogleSignInAccount user, int numRecipesToReturn) {
@@ -206,10 +211,6 @@ class _RecipeFinderState extends State<RecipeFinder> {
             List<List<DocumentSnapshot>> data = snapshot.data!;
             children =
                 SingleChildScrollView(child: createLists(data, matchSectionTitles));
-            //     Scaffold(
-            //     body: Scrollbar(
-            //   child: createList(data[0], "Can be made now"),
-            // ));
           } else if (snapshot.hasError) {
             children = Scaffold(
                 body: Column(
