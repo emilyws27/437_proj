@@ -195,7 +195,7 @@ class _viewRecipeState extends State<viewRecipe> {
                                   style: const TextStyle(fontSize: 20.0))),
                           IconButton(
                               icon: Icon(Icons.remove_shopping_cart_outlined),
-                              color: Colors.redAccent,
+                              color: Color(0xffe0274a),
                               onPressed: () {
 
                                 FirebaseFirestore.instance

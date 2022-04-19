@@ -40,10 +40,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
           mySavedRecipes.add(recipeData);
         });
       }
-
       return mySavedRecipes;
     });
-
     return savedRecipes;
   }
 
@@ -181,7 +179,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                                       Icons.bookmark_border),
                                               iconSize: 40,
                                               color: alreadySaved
-                                                  ? Colors.yellowAccent
+                                                  ? Color(0xffe0274a)
                                                   : null,
                                               onPressed: () {
                                                 setState(() {
@@ -241,7 +239,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                   children: const <Widget>[
                 Icon(
                   Icons.error_outline,
-                  color: Colors.red,
+                  color: Color(0xffe0274a),
                   size: 60,
                 ),
                 Center(
