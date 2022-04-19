@@ -90,7 +90,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
             children = Scaffold(
                 body: Scrollbar(
                     child: ListView.builder(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(8.0),
                         itemCount: snapshot.data?.length,
                         itemBuilder: (context, i) {
                           final String imageUrl = snapshot.data?[i]
@@ -127,8 +127,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
                               },
                               child: Container(
                                   margin: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 15,
+                                    horizontal: 8,
+                                    vertical: 8,
                                   ),
                                   decoration: const BoxDecoration(
                                     color: Color(0xffff9b9b),
@@ -137,11 +137,11 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.black38,
-                                        blurRadius: 5.0, // soften the shadow
+                                        blurRadius: 1.0, // soften the shadow
                                         //spreadRadius: 5.0, //extend the shadow
                                         offset: Offset(
-                                          5.0, // Move to right 10  horizontally
-                                          5.0, // Move to bottom 10 Vertically
+                                          2.0, // Move to right 10  horizontally
+                                          2.0, // Move to bottom 10 Vertically
                                         ),
                                       )
                                     ],
