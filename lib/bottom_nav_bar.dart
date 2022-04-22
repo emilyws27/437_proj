@@ -117,7 +117,7 @@ class _BottomNav extends State<BottomNav> {
                   bottom: 2,
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.shopping_cart_outlined),
+                  icon: const Icon(Icons.kitchen),
                   color: const Color(0xffff9b9b),
                   iconSize: 40,
                   onPressed: () {
