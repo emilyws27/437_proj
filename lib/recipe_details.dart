@@ -6,18 +6,19 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 import 'package:google_fonts/google_fonts.dart';
 
-
 class viewRecipe extends StatefulWidget {
   final GoogleSignInAccount currentUser;
   final DocumentSnapshot<Object?> recipe;
   final int number;
+  final int num_missing_ingr;
 
-  const viewRecipe(
-      {Key? key,
-      required this.currentUser,
-      required this.recipe,
-      required this.number})
-      : super(key: key);
+  const viewRecipe({
+    Key? key,
+    required this.currentUser,
+    required this.recipe,
+    required this.number,
+    required this.num_missing_ingr,
+  }) : super(key: key);
 
   @override
   State<viewRecipe> createState() => _viewRecipeState();
@@ -147,16 +148,16 @@ class _viewRecipeState extends State<viewRecipe> {
               vertical: 10,
             ),
             child: Text(
-      widget.recipe['title'],
-        style: const TextStyle(
-            fontSize: 28.0,
-            fontWeight: FontWeight.bold,
-            decoration: TextDecoration.none,
-            color: Colors.black54,
-            fontFamily: 'Dosis'),
-        textAlign: TextAlign.center,
-      ),
-    ),
+              widget.recipe['title'],
+              style: const TextStyle(
+                  fontSize: 28.0,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.none,
+                  color: Colors.black54,
+                  fontFamily: 'Dosis'),
+              textAlign: TextAlign.center,
+            ),
+          ),
           Hero(
             tag: 'recipe' + widget.number.toString(),
             child: Container(
@@ -173,6 +174,8 @@ class _viewRecipeState extends State<viewRecipe> {
               ": " + widget.recipe['servings'] + " servings", 10, 5),
           servingsAndTime(const Icon(Icons.timer),
               ": " + widget.recipe['time'] + " cook time", 5, 10),
+          servingsAndTime((const Icon(Icons.warning)),
+              ": ${widget.num_missing_ingr}", 5, 10),
           header("Ingredients"),
           ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
@@ -199,7 +202,6 @@ class _viewRecipeState extends State<viewRecipe> {
                               icon: Icon(Icons.remove_shopping_cart_outlined),
                               color: Color(0xffe0274a),
                               onPressed: () {
-
                                 FirebaseFirestore.instance
                                     .collection('users')
                                     .doc(widget.currentUser.email)
@@ -212,8 +214,9 @@ class _viewRecipeState extends State<viewRecipe> {
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(widget.recipe['ingredients'][index]
-                                    ['ingredient'] + ' was removed from your ingredients'),
+                                    content: Text(widget.recipe['ingredients']
+                                            [index]['ingredient'] +
+                                        ' was removed from your ingredients'),
                                     action: SnackBarAction(
                                       label: 'Undo',
                                       onPressed: () {
@@ -223,14 +226,13 @@ class _viewRecipeState extends State<viewRecipe> {
                                             .update({
                                           'ingredients': FieldValue.arrayUnion([
                                             widget.recipe['ingredients'][index]
-                                            ['ingredient']
+                                                ['ingredient']
                                           ])
                                         });
                                       },
                                     ),
                                   ),
                                 );
-
                               }),
                         ]));
               }),

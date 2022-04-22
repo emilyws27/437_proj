@@ -11,7 +11,6 @@ import 'package:zesty/recipe_details.dart';
 class RecipeFinder extends StatefulWidget {
   final GoogleSignInAccount currentUser;
   final bool mySaved;
-
   const RecipeFinder({
     Key? key,
     required this.currentUser,
@@ -28,7 +27,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
   List<List<DocumentSnapshot>> userSavedRecipes = [];
   List<List<DocumentSnapshot>> allRecipes = [];
   late bool alreadySaved;
-  final matchSectionTitles = ["Ready to Make", "Missing One Ingredient", "Missing Two Ingredients", "Missing Three Ingredients"];
+  final matchSectionTitles = ["Ready to Make", "Missing 1 Ingredient", "Missing 2 Ingredients", "Missing 3 Ingredients"];
   bool shouldFilterByDishType = true;
   String dishType = "Main Course";
   final dishTypes = ["Appetizer", "Beverage", "Bread", "Dessert", "Main Course", "Other", "Salad", "Soup"];
@@ -249,10 +248,10 @@ class _RecipeFinderState extends State<RecipeFinder> {
   Widget createLists(List<List<DocumentSnapshot>> data, List<String> sectionTitles){
     Widget toReturn = Column(children: [
         Filters(),
-        data[0].length > 0 ? createList(data[0], sectionTitles[0]) : Container(),
-        !widget.mySaved ? data[1].length > 0 ? createList(data[1], sectionTitles[1]) : Container() : Container(),
-        !widget.mySaved ? data[2].length > 0 ? createList(data[2], sectionTitles[2]) : Container() : Container(),
-        !widget.mySaved ? data[3].length > 0 ? createList(data[3], sectionTitles[3]) : Container() : Container(),
+        data[0].length > 0 ? createList(data[0], 0) : Container(),
+        !widget.mySaved ? data[1].length > 0 ? createList(data[1], 1) : Container() : Container(),
+        !widget.mySaved ? data[2].length > 0 ? createList(data[2], 2) : Container() : Container(),
+        !widget.mySaved ? data[3].length > 0 ? createList(data[3], 3) : Container() : Container(),
     ]);
     return toReturn;
   }
@@ -297,44 +296,9 @@ class _RecipeFinderState extends State<RecipeFinder> {
 
   }
 
-  Widget createList(List<DocumentSnapshot> data, sectionTitle) {
+  Widget createList(List<DocumentSnapshot> data, int num_missing) {
     bool _expanded = false;
     Widget toReturn = Column(children: [
-      // Container(
-      //   margin: EdgeInsets.all(10),
-      //   color: Colors.green,
-      //   child: ExpansionPanelList(
-      //     animationDuration: Duration(milliseconds: 2000),
-      //     children: [
-      //       ExpansionPanel(
-      //         headerBuilder: (context, isExpanded) {
-      //           return ListTile(
-      //             title: Text(
-      //               'Click To Expand',
-      //               style: TextStyle(color: Colors.black),
-      //             ),
-      //           );
-      //         },
-      //         body: ListTile(
-      //           title: Text('Description text',
-      //               style: TextStyle(color: Colors.black)),
-      //         ),
-      //         isExpanded: _expanded,
-      //         canTapOnHeader: true,
-      //       ),
-      //     ],
-      //     dividerColor: Colors.grey,
-      //     expansionCallback: (panelIndex, isExpanded) {
-      //       _expanded = !_expanded;
-      //       setState(() {});
-      //     },
-      //   ),
-      // ),
-      // Container(
-      //   height: 220,
-      //   child: MyHomePage(),
-      // ),
-      widget.mySaved ? Container() : createHeader(sectionTitle),
       ListView.builder(
           physics: NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16.0),
@@ -359,7 +323,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
                       pageBuilder: (_, __, ___) => viewRecipe(
                           currentUser: widget.currentUser,
                           recipe: data[i],
-                          number: i),
+                          number: i,
+                          num_missing_ingr: num_missing),
                       transitionsBuilder: (BuildContext context,
                           Animation<double> animation,
                           Animation<double> secondaryAnimation,
