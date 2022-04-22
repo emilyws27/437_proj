@@ -1,61 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:zesty/ingredients.dart';
 
-class IngredientTypeChooser extends StatefulWidget {
+class IngredientTypeList extends StatefulWidget {
   final GoogleSignInAccount currentUser;
-  final Function updateCurrentUser;
 
-  const IngredientTypeChooser({
+  const IngredientTypeList({
     Key? key,
     required this.currentUser,
-    required this.updateCurrentUser,
   }) : super(key: key);
 
   @override
-  _IngredientTypeChooserState createState() => _IngredientTypeChooserState();
+  _IngredientTypeListState createState() => _IngredientTypeListState();
 }
 
-class _IngredientTypeChooserState extends State<IngredientTypeChooser> {
-  var myIngredients = <String>[];
+class _IngredientTypeListState extends State<IngredientTypeList> {
+  final TextEditingController searchWord = TextEditingController();
+  var myIngredientsList = <String>[];
   var ingredientTypesNames = <String>[];
-  final _biggerFont = const TextStyle(fontSize: 18.0);
 
   @override
   Widget build(BuildContext context) {
-    getMyIngredients(GoogleSignInAccount user) async {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.email)
+
+    //function to get the ingredients that user has
+    Future<List<String>> getMyIngredients(GoogleSignInAccount user) async {
+      Future<List<String>> myIngredients = FirebaseFirestore.instance
+          .collection("users")
+          .doc(widget.currentUser.email)
           .get()
-          .then((DocumentSnapshot data) {
-        myIngredients = List.from(data.get('ingredients'));
+          .then((DocumentSnapshot snapshot) async {
+        List<String> ingredients = [];
+        ingredients += List.from(snapshot['ingredients']);
+        ingredients.sort();
+
+        return ingredients;
       });
+
+      return myIngredients;
     }
 
-    // Future<List<String>> getAllIngredients(GoogleSignInAccount user) {
-    //   myIngredients(user);
-    //
-    //   Future<List<String>> ingredients = FirebaseFirestore.instance
-    //       .collection('ingredients')
-    //       .doc('all_ingredients')
-    //       .get()
-    //       .then((DocumentSnapshot snapshot) {
-    //     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-    //
-    //     for (String key in data.keys) {
-    //       allIngredients += List.from(data[key]);
-    //     }
-    //     return allIngredients;
-    //   });
-    //
-    //   return ingredients;
-    // }
-
+    //function to get labels for the ingredient types, calls the getMyIngredients function and returns a documentsnapshot of all the ingredients
     Future<DocumentSnapshot> getIngredientTypes(GoogleSignInAccount user) async {
-      getMyIngredients(user);
+      myIngredientsList = await getMyIngredients(user);
 
       await FirebaseFirestore.instance
           .collection('ingredients')
@@ -77,86 +64,236 @@ class _IngredientTypeChooserState extends State<IngredientTypeChooser> {
           .get();
     }
 
-    return DefaultTextStyle(
-      style: Theme.of(context).textTheme.headline2!,
-      textAlign: TextAlign.center,
-      child: FutureBuilder<DocumentSnapshot>(
-        future: getIngredientTypes(widget.currentUser),
-        // a previously-obtained Future<String> or null
-        builder:
-            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-          Widget children;
-          if (snapshot.hasData) {
+    return FutureBuilder<DocumentSnapshot>(
+      future: getIngredientTypes(widget.currentUser),
+      // a previously-obtained Future<String> or null
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        Widget children;
+        if (snapshot.hasData) {
+
+          //if search bar is empty then show labels for ingredient type, else display ingredients that match search bar word
+          if (searchWord.text.isEmpty) {
             children = Scaffold(
-                body: ListView.builder(
-                    padding: const EdgeInsets.all(16.0),
-                    itemCount: ingredientTypesNames.length,
-                    itemBuilder: (context, i) {
-                      return SizedBox(
-                          child: Column(
-                        children: <Widget>[
-                          ListTile(
-                            title: Hero(
-                            tag: ingredientTypesNames[i],
-                            child: Text(
-                              ingredientTypesNames[i],
-                              style: const TextStyle(fontSize: 18.0, decoration: TextDecoration.none, fontWeight: FontWeight.normal, color: Colors.black, fontFamily: 'Roboto'),
-                            ),),
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  PageRouteBuilder(
-                                    transitionDuration:
-                                        const Duration(seconds: 1),
-                                    pageBuilder: (_, __, ___) =>
-                                        IngredientChooser(
-                                            currentUser: widget.currentUser,
-                                            updateCurrentUser:
-                                                widget.updateCurrentUser,
-                                            ingredientType:
-                                                ingredientTypesNames[i],
-                                            myIngredients: myIngredients),
-                                  ));
+                body: Column(children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                ),
+                child: TextField(
+                  controller: searchWord,
+                  decoration: InputDecoration(
+                    labelText: 'Search Ingredient',
+                    labelStyle: TextStyle(fontSize: 18),
+                    suffixIcon: searchWord.text.isEmpty
+                        ? Icon(Icons.search)
+                        : IconButton(
+                            icon: Icon(Icons.clear),
+                            onPressed: () {
+                              searchWord.clear();
+                              setState(() {});
                             },
                           ),
-                          const Divider(),
-                        ],
-                      ));
-                    }));
-          } else if (snapshot.hasError) {
-            children = Scaffold(
-                body: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const <Widget>[
-                  Icon(
-                    Icons.error_outline,
-                    color: Colors.red,
-                    size: 60,
                   ),
-                  Center(
-                    child: Text('Error: Please Reload Page'),
-                  )
-                ]));
+                  onChanged: (value) {
+                    setState(() {
+                      searchWord.text = value;
+                    });
+                  },
+                ),
+              ),
+              Expanded(
+                  child: ListView.builder(
+                      padding: const EdgeInsets.all(16.0),
+                      itemCount: ingredientTypesNames.length,
+                      itemBuilder: (context, i) {
+                        return SizedBox(
+                            child: Column(
+                          children: <Widget>[
+                            ListTile(
+                              title: Hero(
+                                tag: ingredientTypesNames[i],
+                                child: Text(
+                                  ingredientTypesNames[i],
+                                  style: const TextStyle(
+                                      fontSize: 18.0,
+                                      decoration: TextDecoration.none,
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.black,
+                                      fontFamily: 'Roboto'),
+                                ),
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    PageRouteBuilder(
+                                      transitionDuration:
+                                          const Duration(milliseconds: 700),
+                                      pageBuilder: (_, __, ___) =>
+                                          IngredientList(
+                                        currentUser: widget.currentUser,
+                                        ingredientType: ingredientTypesNames[i],
+                                        myIngredients: false,
+                                      ),
+                                      transitionsBuilder: (BuildContext context,
+                                          Animation<double> animation,
+                                          Animation<double> secondaryAnimation,
+                                          Widget child) {
+                                        return FadeTransition(
+                                          opacity: animation,
+                                          child: child,
+                                        );
+                                      },
+                                    ));
+                              },
+                            ),
+                            const Divider(),
+                          ],
+                        ));
+                      })),
+            ]));
           } else {
-            children = Scaffold(
-                body: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                  const SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(),
+            searchWord.selection = TextSelection.fromPosition(TextPosition(offset: searchWord.text.length));
+            List<String> filteredIngredients = [];
+
+            Map<String, dynamic> ingredientMap =
+                snapshot.data?.data() as Map<String, dynamic>;
+
+            ingredientMap.forEach((key, value) {
+              filteredIngredients += List<String>.from(value
+                  .where((ingredient) => ingredient
+                      .toString()
+                      .toLowerCase()
+                      .contains(searchWord.text))
+                  .toList());
+            });
+
+            return children = Scaffold(
+              body: Column(children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
                   ),
-                  Center(
-                    child: Text('Loading...', style: _biggerFont),
-                  )
-                ]));
+                  child: TextField(
+                    controller: searchWord,
+                    decoration: InputDecoration(
+                      labelText: 'Search Ingredient',
+                      labelStyle: TextStyle(fontSize: 18),
+                      suffixIcon: searchWord.text.isEmpty
+                          ? Icon(Icons.search)
+                          : IconButton(
+                              icon: Icon(Icons.clear),
+                              onPressed: () {
+                                searchWord.clear();
+                                setState(() {});
+                              },
+                            ),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                      });
+                    },
+                  ),
+                ),
+                Expanded(
+                    child: Scrollbar(
+                        child: ListView.builder(
+                            padding: const EdgeInsets.all(16.0),
+                            itemCount: filteredIngredients.length,
+                            itemBuilder: (context, i) {
+                              final ingredientName = filteredIngredients[i];
+                              var alreadySelected = myIngredientsList
+                                  .contains(filteredIngredients[i]);
+                              return SizedBox(
+                                  child: Column(
+                                children: <Widget>[
+                                  ListTile(
+                                    title: Text(
+                                      ingredientName,
+                                      style: TextStyle(fontSize: 18),
+                                    ),
+                                    trailing: StatefulBuilder(builder:
+                                        (BuildContext context,
+                                            StateSetter setStateIcon) {
+                                      return IconButton(
+                                        icon: alreadySelected
+                                            ? Icon(Icons.shopping_cart)
+                                            : Icon(Icons.add),
+                                        color: alreadySelected
+                                            ? Color(0xffffba97)
+                                            : null,
+                                        onPressed: () {
+                                          setStateIcon(() {
+                                            if (alreadySelected) {
+                                              alreadySelected = false;
+                                              myIngredientsList
+                                                  .remove(ingredientName);
+                                              FirebaseFirestore.instance
+                                                  .collection('users')
+                                                  .doc(widget.currentUser.email)
+                                                  .update({
+                                                'ingredients':
+                                                    FieldValue.arrayRemove(
+                                                        [ingredientName])
+                                              });
+                                            } else {
+                                              alreadySelected = true;
+                                              myIngredientsList
+                                                  .add(ingredientName);
+                                              FirebaseFirestore.instance
+                                                  .collection('users')
+                                                  .doc(widget.currentUser.email)
+                                                  .update({
+                                                'ingredients':
+                                                    FieldValue.arrayUnion(
+                                                        [ingredientName])
+                                              });
+                                            }
+                                          });
+                                        },
+                                      );
+                                    }),
+                                  ),
+                                  const Divider(),
+                                ],
+                              ));
+                            }))),
+              ]),
+            );
           }
-          return children;
-        },
-      ),
+        } else if (snapshot.hasError) {
+          children = Scaffold(
+              body: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: const <Widget>[
+                Icon(
+                  Icons.error_outline,
+                  color: Colors.red,
+                  size: 60,
+                ),
+                Center(
+                  child: Text('Error: Please Reload Page'),
+                )
+              ]));
+        } else {
+          children = Scaffold(
+              body: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                const SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: CircularProgressIndicator(),
+                ),
+                Center(
+                  child: Text('Loading...', style: TextStyle(fontSize: 18)),
+                )
+              ]));
+        }
+        return children;
+      },
     );
   }
 }
