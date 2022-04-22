@@ -158,15 +158,15 @@ class _BottomNav extends State<BottomNav> {
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.favorite),
-              label: 'Saved Recipes',
+              label: 'Favorites',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.food_bank),
-              label: 'Find Recipes',
+              label: 'Recipes',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.search),
-              label: 'Find Ingredients',
+              label: 'Ingredients',
             ),
           ],
           currentIndex: _selectedIndex,

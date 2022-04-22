@@ -4,6 +4,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
+import 'package:google_fonts/google_fonts.dart';
+
 
 class viewRecipe extends StatefulWidget {
   final GoogleSignInAccount currentUser;
@@ -145,16 +147,16 @@ class _viewRecipeState extends State<viewRecipe> {
               vertical: 10,
             ),
             child: Text(
-              widget.recipe['title'],
-              style: const TextStyle(
-                  fontSize: 28.0,
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.none,
-                  color: Colors.black,
-                  fontFamily: 'Roboto'),
-              textAlign: TextAlign.center,
-            ),
-          ),
+      widget.recipe['title'],
+        style: const TextStyle(
+            fontSize: 28.0,
+            fontWeight: FontWeight.bold,
+            decoration: TextDecoration.none,
+            color: Colors.black54,
+            fontFamily: 'Dosis'),
+        textAlign: TextAlign.center,
+      ),
+    ),
           Hero(
             tag: 'recipe' + widget.number.toString(),
             child: Container(

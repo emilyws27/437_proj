@@ -26,8 +26,8 @@ class _IngredientListState extends State<IngredientList> {
   List<String> bulkIngredients = [];
   final String addAll = "Add All";
   final String removeAll = "Remove All";
-  final String addCommon = "Add All Common Ingredients of this Type";
-  final String removeCommon = "Remove All Common Ingredients of this Type";
+  final String addCommon = "Add Popular Ingredients";
+  final String removeCommon = "Remove Popular Ingredients";
   Set<String> addRemoveStringsSet = {};
 
   //function to get all the users ingredients
@@ -144,12 +144,13 @@ class _IngredientListState extends State<IngredientList> {
                 onChanged: (value) {
                   setState(() {
                     searchWord = value;
+                    searchWord = value;
                   });
                 },
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Color(0xffe0274a)),
                 decoration: InputDecoration(
                     hintText: "Search Ingredient",
-                    hintStyle: TextStyle(color: Colors.white)),
+                    hintStyle: TextStyle(color: Color(0xffe0274a))),
               ),
         centerTitle: true,
         backgroundColor: Color(0xffe0274a),
@@ -221,15 +222,15 @@ class _IngredientListState extends State<IngredientList> {
                                               ? Icon(Icons.playlist_add)
                                               : Icon(Icons.playlist_remove))
                                           : alreadySelected
-                                              ? Icon(Icons.shopping_cart)
+                                              ? Icon(Icons.check)
                                               : Icon(Icons.add),
                                       color: addRemoveStringsSet
                                               .contains(ingredientName)
                                           ? (ingredientName.contains("Add")
-                                              ? Colors.blue
-                                              : Colors.red)
+                                              ? Color(0xffe0274a)
+                                              : Color(0xffe0274a))
                                           : alreadySelected
-                                              ? Color(0xffffba97)
+                                              ? Color(0xffe0274a)
                                               : null,
                                       onPressed: () {
 
@@ -361,7 +362,7 @@ class _IngredientListState extends State<IngredientList> {
                     children: const <Widget>[
                   Icon(
                     Icons.error_outline,
-                    color: Colors.red,
+                    color: Color(0xffe0274a),
                     size: 60,
                   ),
                   Center(
