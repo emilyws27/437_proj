@@ -10,7 +10,7 @@ class viewRecipe extends StatefulWidget {
   final GoogleSignInAccount currentUser;
   final DocumentSnapshot<Object?> recipe;
   final int number;
-  final int num_missing_ingr;
+  final String num_missing_ingr;
 
   const viewRecipe({
     Key? key,

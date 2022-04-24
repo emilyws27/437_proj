@@ -1,6 +1,7 @@
 import 'dart:async';
-import 'dart:collection';
-import 'dart:math';
+// import 'dart:collection';
+// import 'dart:html';
+// import 'dart:math';
 
 // import 'dart:html';
 import 'package:flutter/material.dart';
@@ -173,21 +174,9 @@ class _RecipeFinderState extends State<RecipeFinder> {
         .collection('recipes')
         .get()
         .then((QuerySnapshot querySnapShot) {
-      querySnapShot.docs.sort((a, b) {
-        // if(a.get("likes") > 10){
-        //   print(a.get("title"));
-        // }
-        return b.get("likes") - a.get("likes");
-      });
-      // print(querySnapShot.docs[0].get("title"));
-      // querySnapShot.docs.sort((a, b) {
-      //   // if(a.get("likes") > 10){
-      //   //   print(a.get("title"));
-      //   // }
-      //   return 0;//- a.get("likes") + b.get("likes");
-      // });
-      // print(querySnapShot.docs[0].get("title"));
-      return querySnapShot.docs.sublist(0, maxRecipesToReturn);
+      List<DocumentSnapshot> data = querySnapShot.docs;
+      data.sort((a, b)=>b.get("likes").compareTo(a.get("likes")));//{
+      return data.sublist(0, maxRecipesToReturn);
     });
     return popularRecipes;
   }
@@ -275,18 +264,18 @@ class _RecipeFinderState extends State<RecipeFinder> {
   Widget createLists(List<List<DocumentSnapshot>> data, List<String> sectionTitles){
     Widget toReturn = Column(children: [
         Filters(),
-        data[0].length > 0 ? createList(data[0], 0) : Container(),
-        !widget.mySaved ? data[1].length > 0 ? createList(data[1], 1) : Container() : Container(),
-        !widget.mySaved ? data[2].length > 0 ? createList(data[2], 2) : Container() : Container(),
-        !widget.mySaved ? data[3].length > 0 ? createList(data[3], 3) : Container() : Container(),
-        !widget.mySaved ? data[4].length > 0 ? createList(data[4], 4) : Container() : Container(),
+        data[0].length > 0 ? createList(data[0], sectionTitles[0], "0") : Container(),
+        !widget.mySaved ? data[1].length > 0 ? createList(data[1], sectionTitles[1], "1") : Container() : Container(),
+        !widget.mySaved ? data[2].length > 0 ? createList(data[2], sectionTitles[2], "2") : Container() : Container(),
+        !widget.mySaved ? data[3].length > 0 ? createList(data[3], sectionTitles[3], "3") : Container() : Container(),
+        !widget.mySaved ? data[4].length > 0 ? createList(data[4], sectionTitles[4], "4+") : Container() : Container(),
 
     ]);
     return toReturn;
   }
 
   Widget Filters(){
-    return Text("asdfasdf");
+    return Text("This is where the filters list will go!!!!!", textScaleFactor: 2);
   }
 
   Widget createHeader(String title){
@@ -325,9 +314,10 @@ class _RecipeFinderState extends State<RecipeFinder> {
 
   }
 
-  Widget createList(List<DocumentSnapshot> data, int num_missing) {
+  Widget createList(List<DocumentSnapshot> data, String title, String num_missing) {
     bool _expanded = false;
     Widget toReturn = Column(children: [
+      !widget.mySaved ? createHeader(title) : Container(),
       ListView.builder(
           physics: NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16.0),
@@ -335,8 +325,6 @@ class _RecipeFinderState extends State<RecipeFinder> {
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
           itemBuilder: (context, i) {
-            // print(i);
-            // print(data[i].data());
             final String imageUrl =
                 data[i]['imageUrl'] ?? "Could not load image";
             final String recipeName =
@@ -427,6 +415,12 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                         'savedRecipes': FieldValue.arrayRemove(
                                             [data[i].reference])
                                       });
+                                      String recipeDocName = data[i].reference.toString().split("/")[1];
+                                      recipeDocName = recipeDocName.substring(0, recipeDocName.length -1);
+                                      FirebaseFirestore.instance
+                                          .collection('recipes')
+                                          .doc(recipeDocName)
+                                          .update({"likes": FieldValue.increment(-1)});
                                     } else {
                                       alreadySaved = true;
                                       FirebaseFirestore.instance
@@ -436,6 +430,12 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                         'savedRecipes': FieldValue.arrayUnion(
                                             [data[i].reference])
                                       });
+                                      String recipeDocName = data[i].reference.toString().split("/")[1];
+                                      recipeDocName = recipeDocName.substring(0, recipeDocName.length -1);
+                                      FirebaseFirestore.instance
+                                          .collection('recipes')
+                                          .doc(recipeDocName)
+                                          .update({"likes": FieldValue.increment(1)});
                                     }
                                   });
                                 },
