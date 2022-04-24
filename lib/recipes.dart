@@ -27,7 +27,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
   List<List<DocumentSnapshot>> userSavedRecipes = [];
   List<List<DocumentSnapshot>> allRecipes = [];
   late bool alreadySaved;
-  final matchSectionTitles = ["Ready to Make", "Missing 1 Ingredient", "Missing 2 Ingredients", "Missing 3 Ingredients"];
+  final matchSectionTitles = ["Ready to Make", "Missing 1 Ingredient", "Missing 2 Ingredients", "Missing 3 Ingredients", "Popular Recipes"];
   bool shouldFilterByDishType = true;
   String dishType = "Main Course";
   final dishTypes = ["Appetizer", "Beverage", "Bread", "Dessert", "Main Course", "Other", "Salad", "Soup"];
@@ -82,7 +82,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
     //   recipes[3] = recipes[3].sublist(0, min(3, recipes[3].length));
     // }
     int numRecipesToReturn = maxRecipesToReturn;
-    for (int i in [0, 1, 2, 3]) {
+    for (int i in [0, 1, 2, 3]){//, 4]) {
       if (recipes[i].length > numRecipesToReturn) {
         recipes[i] = recipes[i].sublist(0, numRecipesToReturn);
         numRecipesToReturn = 0;
@@ -126,14 +126,13 @@ class _RecipeFinderState extends State<RecipeFinder> {
     return toReturn;
   }
 
-  List<DocumentSnapshot> sortRecipesByPopularity(List<DocumentSnapshot> recipes){
-    recipes.sort((a, b)=> int.parse(a.get("likes")) - int.parse(b.get("likes")));
-    return recipes;
-  }
+  // List<DocumentSnapshot> sortRecipesByPopularity(List<DocumentSnapshot> recipes){
+  //   recipes.sort((a, b)=> int.parse(a.get("likes")) - int.parse(b.get("likes")));
+  //   return recipes;
+  // }
 
 
-  Future<List<List<DocumentSnapshot>>> getAllRecipes(
-      GoogleSignInAccount user, int numRecipesToReturn) {
+  Future<List<List<DocumentSnapshot>>> getAllRecipes(GoogleSignInAccount user, int numRecipesToReturn) {
     Future<List<List<DocumentSnapshot>>> allRecipes = FirebaseFirestore.instance
         .collection('recipes')
         .get()
@@ -168,6 +167,30 @@ class _RecipeFinderState extends State<RecipeFinder> {
     });
     return allRecipes;
   }
+  
+  Future<List<DocumentSnapshot>> getPopularRecipes(){
+    Future<List<DocumentSnapshot>> popularRecipes = FirebaseFirestore.instance
+        .collection('recipes')
+        .get()
+        .then((QuerySnapshot querySnapShot) {
+      querySnapShot.docs.sort((a, b) {
+        // if(a.get("likes") > 10){
+        //   print(a.get("title"));
+        // }
+        return b.get("likes") - a.get("likes");
+      });
+      // print(querySnapShot.docs[0].get("title"));
+      // querySnapShot.docs.sort((a, b) {
+      //   // if(a.get("likes") > 10){
+      //   //   print(a.get("title"));
+      //   // }
+      //   return 0;//- a.get("likes") + b.get("likes");
+      // });
+      // print(querySnapShot.docs[0].get("title"));
+      return querySnapShot.docs.sublist(0, maxRecipesToReturn);
+    });
+    return popularRecipes;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +213,11 @@ class _RecipeFinderState extends State<RecipeFinder> {
       if(shouldFilterByCalories){
         toReturn = filterRecipesByCalories(toReturn);
       }
-
+      
+      if(!widget.mySaved){
+        toReturn.add([]);
+        toReturn[4] = await getPopularRecipes();
+      }
       //truncate to max results should always be last
       if(shouldTruncateByMaxResults){
         toReturn = truncateRecipesByMaxResults(toReturn);
@@ -252,6 +279,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
         !widget.mySaved ? data[1].length > 0 ? createList(data[1], 1) : Container() : Container(),
         !widget.mySaved ? data[2].length > 0 ? createList(data[2], 2) : Container() : Container(),
         !widget.mySaved ? data[3].length > 0 ? createList(data[3], 3) : Container() : Container(),
+        !widget.mySaved ? data[4].length > 0 ? createList(data[4], 4) : Container() : Container(),
+
     ]);
     return toReturn;
   }
