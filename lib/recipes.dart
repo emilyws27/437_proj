@@ -36,30 +36,12 @@ class _RecipeFinderState extends State<RecipeFinder> {
     "Missing 3 Ingredients",
     "Popular Recipes"
   ];
-  bool shouldFilterByDishType = false;
-  String dishType = "Main Course";
-  final dishTypes = [
-    "Appetizer",
-    "Beverage",
-    "Bread",
-    "Dessert",
-    "Main Course",
-    "Other",
-    "Salad",
-    "Soup"
-  ];
   bool shouldTruncateByMaxResults = true;
   int maxRecipesToReturn = 20;
   bool shouldFilterByServings = false;
   double minServings = 1;
   bool shouldFilterByCalories = false;
   double maxCalories = 500;
-
-  // bool isCaloriesFilterApplied = false;
-  // bool isDishTypeFilterApplied = false;
-  // bool isServingsFilterApplied = false;
-  // double _currentCaloriesSliderValue = 2000;
-  // double _currentServingsSliderValue = 12;
 
   Future<List<List<DocumentSnapshot>>> getSavedRecipes(
       GoogleSignInAccount user) {
@@ -81,35 +63,13 @@ class _RecipeFinderState extends State<RecipeFinder> {
       toReturn.add(mySavedRecipes);
       return toReturn;
     });
-    print("got saved Recipes");
     return savedRecipes;
   }
 
-  // List<List<DocumentSnapshot>> filterRecipesByDishType(
-  //     List<List<DocumentSnapshot>> recipes) {
-  //   List<List<DocumentSnapshot>> toReturn = List.generate(4, (index) => []);
-  //   for (int i = 0; i < recipes.length; ++i) {
-  //     for (int j = 0; j < recipes[i].length; ++j) {
-  //       if (recipes[i][j].get("dishType") == dishType) {
-  //         toReturn[i].add(recipes[i][j]);
-  //       }
-  //     }
-  //   }
-  //   return toReturn;
-  // }
-
   List<List<DocumentSnapshot>> truncateRecipesByMaxResults(
       List<List<DocumentSnapshot>> recipes) {
-    // bool testIncompleteMatches = false;
-    // if(testIncompleteMatches){
-    //   recipes[0] = recipes[0].sublist(0, min(3, recipes[0].length));
-    //   recipes[1] = recipes[1].sublist(0, min(3, recipes[1].length));
-    //   recipes[2] = recipes[2].sublist(0, min(3, recipes[2].length));
-    //   recipes[3] = recipes[3].sublist(0, min(3, recipes[3].length));
-    // }
     int numRecipesToReturn = maxRecipesToReturn;
-    for (int i in [0, 1, 2, 3]) {
-      //, 4]) {
+    for (int i in [0, 1, 2, 3, 4]) {
       if (recipes[i].length > numRecipesToReturn) {
         recipes[i] = recipes[i].sublist(0, numRecipesToReturn);
         numRecipesToReturn = 0;
@@ -155,32 +115,24 @@ class _RecipeFinderState extends State<RecipeFinder> {
     return toReturn;
   }
 
-  // List<DocumentSnapshot> sortRecipesByPopularity(List<DocumentSnapshot> recipes){
-  //   recipes.sort((a, b)=> int.parse(a.get("likes")) - int.parse(b.get("likes")));
-  //   return recipes;
-  // }
-
   Future<List<List<DocumentSnapshot>>> getAllRecipes(
       GoogleSignInAccount user, int numRecipesToReturn) {
     Future<List<List<DocumentSnapshot>>> allRecipes = FirebaseFirestore.instance
         .collection('recipes')
         .get()
         .then((QuerySnapshot querySnapShot) {
-      // List<List<DocumentSnapshot>> recipeMatches = new List.filled(4, new List.empty());
       List<DocumentSnapshot> matches0 = [];
       List<DocumentSnapshot> matches1 = [];
       List<DocumentSnapshot> matches2 = [];
       List<DocumentSnapshot> matches3 = [];
 
       querySnapShot.docs.forEach((recipe) {
-        // print("Now checking match for: " + recipe["title"]);
         Set<String> recipeIngredientsSet = new Set();
         for (dynamic x in recipe["ingredients"]) {
           recipeIngredientsSet.add(x["ingredient"]!);
         }
         int intersectionSize =
             _myIngredients.toSet().intersection(recipeIngredientsSet).length;
-        // print("Missing " + (recipeIngredientsSet.length - intersectionSize).toString() + " ingredients");
         for (int x in [0, 1, 2, 3]) {
           if (recipeIngredientsSet.length - intersectionSize == x) {
             if (x == 0) matches0.add(recipe);
@@ -221,27 +173,19 @@ class _RecipeFinderState extends State<RecipeFinder> {
         allRecipes = await getAllRecipes(user, maxRecipesToReturn);
         toReturn = allRecipes;
 
-      // if (shouldFilterByDishType) {
-      //   toReturn = filterRecipesByDishType(toReturn);
-      // }
       if (shouldFilterByServings) {
         toReturn = filterRecipesByServings(toReturn);
       }
       if (shouldFilterByCalories) {
         toReturn = filterRecipesByCalories(toReturn);
       }
-
-
-        print("before adding blank");
         toReturn.add([]);
         toReturn[4] = await getPopularRecipes();
-        print("post adding popular");
         //truncate to max results should always be last
         if (shouldTruncateByMaxResults) {
           toReturn = truncateRecipesByMaxResults(toReturn);
         }
       }
-      print("about to return from widget build");
       return toReturn;
     }
 
@@ -252,8 +196,6 @@ class _RecipeFinderState extends State<RecipeFinder> {
             AsyncSnapshot<List<List<DocumentSnapshot>>> snapshot) {
           Widget children;
           if (snapshot.hasData) {
-            // print(snapshot.data);
-
             List<List<DocumentSnapshot>> data = snapshot.data!;
             children = SingleChildScrollView(
                 child: createLists(data, matchSectionTitles));
@@ -331,19 +273,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
               title: Text('Add a Filter'),
-              //collapsedBackgroundColor: Colors.white,
               children: <Widget>[
-                // Text("Dish Type"),
-                // Checkbox(
-                //   checkColor: Colors.white,
-                //   //fillColor: MaterialStateProperty.resolveWith(getColor),
-                //   value: shouldFilterByDishType,
-                //   onChanged: (bool? value) {
-                //     setState(() {
-                //       shouldFilterByDishType = value!;
-                //     });
-                //   },
-                // ),
                 Text("Max Calories Per Serving: " + maxCalories.toInt().toString()),
                 Slider(
                   value: maxCalories,
@@ -391,7 +321,6 @@ class _RecipeFinderState extends State<RecipeFinder> {
           BoxShadow(
             color: Colors.grey,
             blurRadius: 1.0, // soften the shadow
-            //spreadRadius: 5.0, //extend the shadow
             offset: Offset(
               1.0, // Move to right 10  horizontally
               1.0, // Move to bottom 10 Vertically
