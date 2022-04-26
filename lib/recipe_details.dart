@@ -175,7 +175,7 @@ class _viewRecipeState extends State<viewRecipe> {
           servingsAndTime(const Icon(Icons.timer),
               ": " + widget.recipe['time'] + " cook time", 5, 10),
           servingsAndTime((const Icon(Icons.warning)),
-              ": ${widget.num_missing_ingr}", 5, 10),
+              ": ${widget.num_missing_ingr}" + " missing ingredient(s)", 5, 10),
           header("Ingredients"),
           ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
@@ -199,7 +199,7 @@ class _viewRecipeState extends State<viewRecipe> {
                                           ['ingredient'],
                                   style: const TextStyle(fontSize: 20.0))),
                           IconButton(
-                              icon: Icon(Icons.remove_shopping_cart_outlined),
+                              icon: Icon(Icons.check),
                               color: Color(0xffe0274a),
                               onPressed: () {
                                 FirebaseFirestore.instance

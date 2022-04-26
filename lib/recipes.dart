@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 // import 'dart:collection';
 // import 'dart:html';
 // import 'dart:math';
@@ -49,15 +50,16 @@ class _RecipeFinderState extends State<RecipeFinder> {
   ];
   bool shouldTruncateByMaxResults = true;
   int maxRecipesToReturn = 20;
-  bool shouldFilterByServings = false;
-  int minServings = 10;
-  bool shouldFilterByCalories = false;
-  int maxCalories = 500;
-  bool isCaloriesFilterApplied = false;
-  bool isDishTypeFilterApplied = false;
-  bool isServingsFilterApplied = false;
-  double _currentCaloriesSliderValue = 2000;
-  double _currentServingsSliderValue = 12;
+  bool shouldFilterByServings = true;
+  double minServings = 1;
+  bool shouldFilterByCalories = true;
+  double maxCalories = 500;
+
+  // bool isCaloriesFilterApplied = false;
+  // bool isDishTypeFilterApplied = false;
+  // bool isServingsFilterApplied = false;
+  // double _currentCaloriesSliderValue = 2000;
+  // double _currentServingsSliderValue = 12;
 
   Future<List<List<DocumentSnapshot>>> getSavedRecipes(
       GoogleSignInAccount user) {
@@ -290,6 +292,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
       List<List<DocumentSnapshot>> data, List<String> sectionTitles) {
     Widget toReturn = Column(children: [
       Filters(),
+      Divider(thickness: 1),
       data[0].length > 0
           ? createList(data[0], sectionTitles[0], "0")
           : Container(),
@@ -318,50 +321,56 @@ class _RecipeFinderState extends State<RecipeFinder> {
   }
 
   Widget Filters() {
-    return Column(children: <Widget>[
-      ExpansionTile(title: Text('Add a Filter'), children: <Widget>[
-        Text("Dish Type"),
-        Checkbox(
-          checkColor: Colors.white,
-          //fillColor: MaterialStateProperty.resolveWith(getColor),
-          value: isDishTypeFilterApplied,
-          onChanged: (bool? value) {
-            setState(() {
-              isDishTypeFilterApplied = value!;
-            });
-          },
-        ),
-         Text("# of Calories"),
-         Slider(
-           value: _currentCaloriesSliderValue,
-           max: 2000,
-           divisions: 200,
-           label: _currentCaloriesSliderValue.round().toString(),
-           onChanged: (double value) {
-             setState(() {
-               _currentCaloriesSliderValue = value;
-             });
-           },
-         ),
-        Text("# of Servings"),
-        Slider(
-          value: _currentServingsSliderValue,
-          max: 12,
-          divisions: 12,
-          label: _currentServingsSliderValue.round().toString(),
-          onChanged: (double value) {
-            setState(() {
-              _currentServingsSliderValue = value;
-            });
-          },
-        ),
-      ]
-          // Text("Filter by Dish Type"),
+    return Column(
+      children: <Widget>[
+        Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+              title: Text('Add a Filter'),
+              //collapsedBackgroundColor: Colors.white,
+              children: <Widget>[
+                Text("Dish Type"),
+                Checkbox(
+                  checkColor: Colors.white,
+                  //fillColor: MaterialStateProperty.resolveWith(getColor),
+                  value: shouldFilterByDishType,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      shouldFilterByDishType = value!;
+                    });
+                  },
+                ),
+                Text("Max Calories Per Serving: " + maxCalories.toInt().toString()),
+                Slider(
+                  value: maxCalories,
+                  max: 2000,
+                  divisions: 20,
+                  label: maxCalories.round().toString(),
+                  onChanged: (double value) {
+                    setState(() {
+                      maxCalories = value;
+                    });
+                  },
+                ),
+                Text("Min # of Servings: " + minServings.toInt().toString()),
+                Slider(
+                  value: minServings,
+                  max: 20,
+                  divisions: 10,
+                  label: minServings.round().toString(),
+                  onChanged: (double value) {
+                    setState(() {
+                      minServings = value;
+                    });
+                  },
+                ),
+              ]
+              // Text("Filter by Dish Type"),
 
-
-
-          ),
-    ]);
+              ),
+        )
+      ],
+    );
 
     // return Column(children: [
   }
