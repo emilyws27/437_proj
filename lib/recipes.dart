@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+
 // import 'dart:collection';
 // import 'dart:html';
 // import 'dart:math';
@@ -7,12 +8,14 @@ import 'dart:math';
 // import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/rendering.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:zesty/recipe_details.dart';
 
 class RecipeFinder extends StatefulWidget {
   final GoogleSignInAccount currentUser;
   final bool mySaved;
+
   const RecipeFinder({
     Key? key,
     required this.currentUser,
@@ -173,12 +176,12 @@ class _RecipeFinderState extends State<RecipeFinder> {
         allRecipes = await getAllRecipes(user, maxRecipesToReturn);
         toReturn = allRecipes;
 
-      if (shouldFilterByServings) {
-        toReturn = filterRecipesByServings(toReturn);
-      }
-      if (shouldFilterByCalories) {
-        toReturn = filterRecipesByCalories(toReturn);
-      }
+        if (shouldFilterByServings) {
+          toReturn = filterRecipesByServings(toReturn);
+        }
+        if (shouldFilterByCalories) {
+          toReturn = filterRecipesByCalories(toReturn);
+        }
         toReturn.add([]);
         toReturn[4] = await getPopularRecipes();
         //truncate to max results should always be last
@@ -262,6 +265,38 @@ class _RecipeFinderState extends State<RecipeFinder> {
               ? createList(data[4], sectionTitles[4], "4+")
               : Container()
           : Container(),
+      widget.mySaved && data[0].length == 0
+          ? Container(
+              margin: const EdgeInsets.fromLTRB(100, 250, 100, 5),
+              padding: const EdgeInsets.all(15.0),
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Color(0xffff9b9b),
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey,
+                    blurRadius: 1.0, // soften the shadow
+                    offset: Offset(
+                      1.0, // Move to right 10  horizontally
+                      1.0, // Move to bottom 10 Vertically
+                    ),
+                  )
+                ],
+              ),
+              child: Text(
+                "You don't have any saved recipes yet!",
+                style: const TextStyle(
+                    fontSize: 10.0,
+                    decoration: TextDecoration.none,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.white,
+                    fontFamily: 'Dosis'),
+                textScaleFactor: 2,
+                textAlign: TextAlign.center,
+              ),
+            )
+          : Container(),
     ]);
     return toReturn;
   }
@@ -271,34 +306,32 @@ class _RecipeFinderState extends State<RecipeFinder> {
       children: <Widget>[
         Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-          child: ExpansionTile(
-              title: Text('Add a Filter'),
-              children: <Widget>[
-                Text("Max Calories Per Serving: " + maxCalories.toInt().toString()),
-                Slider(
-                  value: maxCalories,
-                  max: 2000,
-                  divisions: 20,
-                  label: maxCalories.round().toString(),
-                  onChanged: (double value) {
-                    setState(() {
-                      maxCalories = value;
-                    });
-                  },
-                ),
-                Text("Min # of Servings: " + minServings.toInt().toString()),
-                Slider(
-                  value: minServings,
-                  max: 20,
-                  divisions: 10,
-                  label: minServings.round().toString(),
-                  onChanged: (double value) {
-                    setState(() {
-                      minServings = value;
-                    });
-                  },
-                ),
-              ]
+          child: ExpansionTile(title: Text('Add a Filter'), children: <Widget>[
+            Text("Max Calories Per Serving: " + maxCalories.toInt().toString()),
+            Slider(
+              value: maxCalories,
+              max: 2000,
+              divisions: 20,
+              label: maxCalories.round().toString(),
+              onChanged: (double value) {
+                setState(() {
+                  maxCalories = value;
+                });
+              },
+            ),
+            Text("Min # of Servings: " + minServings.toInt().toString()),
+            Slider(
+              value: minServings,
+              max: 20,
+              divisions: 10,
+              label: minServings.round().toString(),
+              onChanged: (double value) {
+                setState(() {
+                  minServings = value;
+                });
+              },
+            ),
+          ]
               // Text("Filter by Dish Type"),
 
               ),
@@ -501,6 +534,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   bool _expanded = false;
   var _test = "Full Screen";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
