@@ -11,6 +11,7 @@ class viewRecipe extends StatefulWidget {
   final DocumentSnapshot<Object?> recipe;
   final int number;
   final String num_missing_ingr;
+  final List<String> myIngredients;
 
   const viewRecipe({
     Key? key,
@@ -18,6 +19,7 @@ class viewRecipe extends StatefulWidget {
     required this.recipe,
     required this.number,
     required this.num_missing_ingr,
+    required this.myIngredients,
   }) : super(key: key);
 
   @override
@@ -174,8 +176,8 @@ class _viewRecipeState extends State<viewRecipe> {
               ": " + widget.recipe['servings'] + " servings", 10, 5),
           servingsAndTime(const Icon(Icons.timer),
               ": " + widget.recipe['time'] + " cook time", 5, 10),
-          servingsAndTime((const Icon(Icons.warning)),
-              ": ${widget.num_missing_ingr}" + " missing ingredient(s)", 5, 10),
+          widget.num_missing_ingr != "0" ? servingsAndTime((const Icon(Icons.warning)),
+              ": ${widget.num_missing_ingr}" + " missing ingredient(s)", 5, 10) : Container(),
           header("Ingredients"),
           ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
@@ -198,42 +200,8 @@ class _viewRecipeState extends State<viewRecipe> {
                                       widget.recipe['ingredients'][index]
                                           ['ingredient'],
                                   style: const TextStyle(fontSize: 20.0))),
-                          IconButton(
-                              icon: Icon(Icons.check),
-                              color: Color(0xffe0274a),
-                              onPressed: () {
-                                FirebaseFirestore.instance
-                                    .collection('users')
-                                    .doc(widget.currentUser.email)
-                                    .update({
-                                  'ingredients': FieldValue.arrayRemove([
-                                    widget.recipe['ingredients'][index]
-                                        ['ingredient']
-                                  ])
-                                });
-
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(widget.recipe['ingredients']
-                                            [index]['ingredient'] +
-                                        ' was removed from your ingredients'),
-                                    action: SnackBarAction(
-                                      label: 'Undo',
-                                      onPressed: () {
-                                        FirebaseFirestore.instance
-                                            .collection('users')
-                                            .doc(widget.currentUser.email)
-                                            .update({
-                                          'ingredients': FieldValue.arrayUnion([
-                                            widget.recipe['ingredients'][index]
-                                                ['ingredient']
-                                          ])
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                );
-                              }),
+                          widget.myIngredients.contains(widget.recipe['ingredients'][index]['ingredient']) ? Icon(Icons.check, color: Color(0xffe0274a))
+                               : Icon(Icons.warning),
                         ]));
               }),
           header("Directions"),
