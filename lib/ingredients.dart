@@ -350,7 +350,7 @@ class _IngredientListState extends State<IngredientList> {
                           })));
             } else {
               return const Center(
-                  child: Text('You have not added any ingredients yet',
+                  child: Text('You have not added any ingredients',
                       style: TextStyle(fontSize: 20.0),
                       textAlign: TextAlign.center));
             }

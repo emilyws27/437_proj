@@ -28,16 +28,36 @@ class _RecipeFinderState extends State<RecipeFinder> {
   List<List<DocumentSnapshot>> userSavedRecipes = [];
   List<List<DocumentSnapshot>> allRecipes = [];
   late bool alreadySaved;
-  final matchSectionTitles = ["Ready to Make", "Missing 1 Ingredient", "Missing 2 Ingredients", "Missing 3 Ingredients", "Popular Recipes"];
+  final matchSectionTitles = [
+    "Ready to Make",
+    "Missing 1 Ingredient",
+    "Missing 2 Ingredients",
+    "Missing 3 Ingredients",
+    "Popular Recipes"
+  ];
   bool shouldFilterByDishType = true;
   String dishType = "Main Course";
-  final dishTypes = ["Appetizer", "Beverage", "Bread", "Dessert", "Main Course", "Other", "Salad", "Soup"];
+  final dishTypes = [
+    "Appetizer",
+    "Beverage",
+    "Bread",
+    "Dessert",
+    "Main Course",
+    "Other",
+    "Salad",
+    "Soup"
+  ];
   bool shouldTruncateByMaxResults = true;
   int maxRecipesToReturn = 20;
   bool shouldFilterByServings = false;
   int minServings = 10;
   bool shouldFilterByCalories = false;
   int maxCalories = 500;
+  bool isCaloriesFilterApplied = false;
+  bool isDishTypeFilterApplied = false;
+  bool isServingsFilterApplied = false;
+  double _currentCaloriesSliderValue = 2000;
+  double _currentServingsSliderValue = 12;
 
   Future<List<List<DocumentSnapshot>>> getSavedRecipes(
       GoogleSignInAccount user) {
@@ -62,11 +82,12 @@ class _RecipeFinderState extends State<RecipeFinder> {
     return savedRecipes;
   }
 
-  List<List<DocumentSnapshot>> filterRecipesByDishType(List<List<DocumentSnapshot>> recipes){
+  List<List<DocumentSnapshot>> filterRecipesByDishType(
+      List<List<DocumentSnapshot>> recipes) {
     List<List<DocumentSnapshot>> toReturn = List.generate(4, (index) => []);
-    for(int i = 0; i < recipes.length; ++i){
-      for(int j = 0; j < recipes[i].length; ++j){
-        if(recipes[i][j].get("dishType") == dishType) {
+    for (int i = 0; i < recipes.length; ++i) {
+      for (int j = 0; j < recipes[i].length; ++j) {
+        if (recipes[i][j].get("dishType") == dishType) {
           toReturn[i].add(recipes[i][j]);
         }
       }
@@ -74,7 +95,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
     return toReturn;
   }
 
-  List<List<DocumentSnapshot>> truncateRecipesByMaxResults(List<List<DocumentSnapshot>> recipes){
+  List<List<DocumentSnapshot>> truncateRecipesByMaxResults(
+      List<List<DocumentSnapshot>> recipes) {
     // bool testIncompleteMatches = false;
     // if(testIncompleteMatches){
     //   recipes[0] = recipes[0].sublist(0, min(3, recipes[0].length));
@@ -83,7 +105,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
     //   recipes[3] = recipes[3].sublist(0, min(3, recipes[3].length));
     // }
     int numRecipesToReturn = maxRecipesToReturn;
-    for (int i in [0, 1, 2, 3]){//, 4]) {
+    for (int i in [0, 1, 2, 3]) {
+      //, 4]) {
       if (recipes[i].length > numRecipesToReturn) {
         recipes[i] = recipes[i].sublist(0, numRecipesToReturn);
         numRecipesToReturn = 0;
@@ -94,11 +117,12 @@ class _RecipeFinderState extends State<RecipeFinder> {
     return recipes;
   }
 
-  List<List<DocumentSnapshot>> filterRecipesByServings(List<List<DocumentSnapshot>> recipes){
+  List<List<DocumentSnapshot>> filterRecipesByServings(
+      List<List<DocumentSnapshot>> recipes) {
     List<List<DocumentSnapshot>> toReturn = List.generate(4, (index) => []);
-    for(int i = 0; i < recipes.length; ++i){
-      for(int j = 0; j < recipes[i].length; ++j){
-        if(int.parse(recipes[i][j].get("servings")) >= minServings) {
+    for (int i = 0; i < recipes.length; ++i) {
+      for (int j = 0; j < recipes[i].length; ++j) {
+        if (int.parse(recipes[i][j].get("servings")) >= minServings) {
           toReturn[i].add(recipes[i][j]);
         }
       }
@@ -106,18 +130,19 @@ class _RecipeFinderState extends State<RecipeFinder> {
     return toReturn;
   }
 
-  List<List<DocumentSnapshot>> filterRecipesByCalories(List<List<DocumentSnapshot>> recipes){
+  List<List<DocumentSnapshot>> filterRecipesByCalories(
+      List<List<DocumentSnapshot>> recipes) {
     List<List<DocumentSnapshot>> toReturn = List.generate(4, (index) => []);
-    for(int i = 0; i < recipes.length; ++i){
-      for(int j = 0; j < recipes[i].length; ++j){
+    for (int i = 0; i < recipes.length; ++i) {
+      for (int j = 0; j < recipes[i].length; ++j) {
         String calories = "";
         dynamic nutritionInfo = recipes[i][j].get("nutritionInformation");
-        for(int k = 0; k < nutritionInfo.length; k++){
-          if(nutritionInfo[k].containsValue("Calories")){
+        for (int k = 0; k < nutritionInfo.length; k++) {
+          if (nutritionInfo[k].containsValue("Calories")) {
             calories = nutritionInfo[k]["amount"]!;
           }
         }
-        if(calories != "") {
+        if (calories != "") {
           if (double.parse(calories) <= maxCalories) {
             toReturn[i].add(recipes[i][j]);
           }
@@ -132,8 +157,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
   //   return recipes;
   // }
 
-
-  Future<List<List<DocumentSnapshot>>> getAllRecipes(GoogleSignInAccount user, int numRecipesToReturn) {
+  Future<List<List<DocumentSnapshot>>> getAllRecipes(
+      GoogleSignInAccount user, int numRecipesToReturn) {
     Future<List<List<DocumentSnapshot>>> allRecipes = FirebaseFirestore.instance
         .collection('recipes')
         .get()
@@ -168,14 +193,14 @@ class _RecipeFinderState extends State<RecipeFinder> {
     });
     return allRecipes;
   }
-  
-  Future<List<DocumentSnapshot>> getPopularRecipes(){
+
+  Future<List<DocumentSnapshot>> getPopularRecipes() {
     Future<List<DocumentSnapshot>> popularRecipes = FirebaseFirestore.instance
         .collection('recipes')
         .get()
         .then((QuerySnapshot querySnapShot) {
       List<DocumentSnapshot> data = querySnapShot.docs;
-      data.sort((a, b)=>b.get("likes").compareTo(a.get("likes")));//{
+      data.sort((a, b) => b.get("likes").compareTo(a.get("likes"))); //{
       return data.sublist(0, maxRecipesToReturn);
     });
     return popularRecipes;
@@ -193,22 +218,22 @@ class _RecipeFinderState extends State<RecipeFinder> {
         allRecipes = await getAllRecipes(user, maxRecipesToReturn);
         toReturn = allRecipes;
       }
-      if(shouldFilterByDishType) {
+      if (shouldFilterByDishType) {
         toReturn = filterRecipesByDishType(toReturn);
       }
-      if(shouldFilterByServings){
+      if (shouldFilterByServings) {
         toReturn = filterRecipesByServings(toReturn);
       }
-      if(shouldFilterByCalories){
+      if (shouldFilterByCalories) {
         toReturn = filterRecipesByCalories(toReturn);
       }
-      
-      if(!widget.mySaved){
+
+      if (!widget.mySaved) {
         toReturn.add([]);
         toReturn[4] = await getPopularRecipes();
       }
       //truncate to max results should always be last
-      if(shouldTruncateByMaxResults){
+      if (shouldTruncateByMaxResults) {
         toReturn = truncateRecipesByMaxResults(toReturn);
       }
       return toReturn;
@@ -224,8 +249,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
             // print(snapshot.data);
 
             List<List<DocumentSnapshot>> data = snapshot.data!;
-            children =
-                SingleChildScrollView(child: createLists(data, matchSectionTitles));
+            children = SingleChildScrollView(
+                child: createLists(data, matchSectionTitles));
           } else if (snapshot.hasError) {
             children = Scaffold(
                 body: Column(
@@ -261,60 +286,122 @@ class _RecipeFinderState extends State<RecipeFinder> {
         });
   }
 
-  Widget createLists(List<List<DocumentSnapshot>> data, List<String> sectionTitles){
+  Widget createLists(
+      List<List<DocumentSnapshot>> data, List<String> sectionTitles) {
     Widget toReturn = Column(children: [
-        Filters(),
-        data[0].length > 0 ? createList(data[0], sectionTitles[0], "0") : Container(),
-        !widget.mySaved ? data[1].length > 0 ? createList(data[1], sectionTitles[1], "1") : Container() : Container(),
-        !widget.mySaved ? data[2].length > 0 ? createList(data[2], sectionTitles[2], "2") : Container() : Container(),
-        !widget.mySaved ? data[3].length > 0 ? createList(data[3], sectionTitles[3], "3") : Container() : Container(),
-        !widget.mySaved ? data[4].length > 0 ? createList(data[4], sectionTitles[4], "4+") : Container() : Container(),
-
+      Filters(),
+      data[0].length > 0
+          ? createList(data[0], sectionTitles[0], "0")
+          : Container(),
+      !widget.mySaved
+          ? data[1].length > 0
+              ? createList(data[1], sectionTitles[1], "1")
+              : Container()
+          : Container(),
+      !widget.mySaved
+          ? data[2].length > 0
+              ? createList(data[2], sectionTitles[2], "2")
+              : Container()
+          : Container(),
+      !widget.mySaved
+          ? data[3].length > 0
+              ? createList(data[3], sectionTitles[3], "3")
+              : Container()
+          : Container(),
+      !widget.mySaved
+          ? data[4].length > 0
+              ? createList(data[4], sectionTitles[4], "4+")
+              : Container()
+          : Container(),
     ]);
     return toReturn;
   }
 
-  Widget Filters(){
-    return Text("This is where the filters list will go!!!!!", textScaleFactor: 2);
+  Widget Filters() {
+    return Column(children: <Widget>[
+      ExpansionTile(title: Text('Add a Filter'), children: <Widget>[
+        Text("Dish Type"),
+        Checkbox(
+          checkColor: Colors.white,
+          //fillColor: MaterialStateProperty.resolveWith(getColor),
+          value: isDishTypeFilterApplied,
+          onChanged: (bool? value) {
+            setState(() {
+              isDishTypeFilterApplied = value!;
+            });
+          },
+        ),
+         Text("# of Calories"),
+         Slider(
+           value: _currentCaloriesSliderValue,
+           max: 2000,
+           divisions: 200,
+           label: _currentCaloriesSliderValue.round().toString(),
+           onChanged: (double value) {
+             setState(() {
+               _currentCaloriesSliderValue = value;
+             });
+           },
+         ),
+        Text("# of Servings"),
+        Slider(
+          value: _currentServingsSliderValue,
+          max: 12,
+          divisions: 12,
+          label: _currentServingsSliderValue.round().toString(),
+          onChanged: (double value) {
+            setState(() {
+              _currentServingsSliderValue = value;
+            });
+          },
+        ),
+      ]
+          // Text("Filter by Dish Type"),
+
+
+
+          ),
+    ]);
+
+    // return Column(children: [
   }
 
-  Widget createHeader(String title){
+  Widget createHeader(String title) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(10, 20, 10, 10),
+      margin: const EdgeInsets.fromLTRB(15, 5, 15, 5),
       padding: const EdgeInsets.all(5.0),
       width: double.infinity,
       decoration: const BoxDecoration(
-        color: Colors.deepOrange,
-        borderRadius: BorderRadius.all(Radius.circular(10)),
+        color: Color(0xffe0274a),
+        borderRadius: BorderRadius.all(Radius.circular(20)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black38,
-            blurRadius: 5.0, // soften the shadow
+            color: Colors.grey,
+            blurRadius: 1.0, // soften the shadow
             //spreadRadius: 5.0, //extend the shadow
             offset: Offset(
-              5.0, // Move to right 10  horizontally
-              5.0, // Move to bottom 10 Vertically
+              1.0, // Move to right 10  horizontally
+              1.0, // Move to bottom 10 Vertically
             ),
           )
         ],
       ),
       child: Text(
-      title,
-      style: const TextStyle(
-          fontSize: 18.0,
-          decoration: TextDecoration.none,
-          fontWeight: FontWeight.normal,
-          color: Colors.black,
-          fontFamily: 'Roboto'),
-      textScaleFactor: 2,
-      textAlign: TextAlign.center,
-    ),
-
+        title,
+        style: const TextStyle(
+            fontSize: 16.0,
+            decoration: TextDecoration.none,
+            fontWeight: FontWeight.normal,
+            color: Colors.white,
+            fontFamily: 'Dosis'),
+        textScaleFactor: 2,
+        textAlign: TextAlign.center,
+      ),
     );
-
   }
 
-  Widget createList(List<DocumentSnapshot> data, String title, String num_missing) {
+  Widget createList(
+      List<DocumentSnapshot> data, String title, String num_missing) {
     bool _expanded = false;
     Widget toReturn = Column(children: [
       !widget.mySaved ? createHeader(title) : Container(),
@@ -356,7 +443,10 @@ class _RecipeFinderState extends State<RecipeFinder> {
                 },
                 child: Container(
                     margin: const EdgeInsets.fromLTRB(
-                      10, 0, 10, 25,
+                      0,
+                      5,
+                      0,
+                      5,
                     ),
                     decoration: const BoxDecoration(
                       color: Color(0xffff9b9b),
@@ -364,11 +454,11 @@ class _RecipeFinderState extends State<RecipeFinder> {
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black38,
-                          blurRadius: 5.0, // soften the shadow
+                          blurRadius: 2.0, // soften the shadow
                           //spreadRadius: 5.0, //extend the shadow
                           offset: Offset(
-                            5.0, // Move to right 10  horizontally
-                            5.0, // Move to bottom 10 Vertically
+                            1.0, // Move to right 10  horizontally
+                            1.0, // Move to bottom 10 Vertically
                           ),
                         )
                       ],
@@ -392,7 +482,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                   decoration: TextDecoration.none,
                                   fontWeight: FontWeight.normal,
                                   color: Colors.black,
-                                  fontFamily: 'Roboto'),
+                                  fontFamily: 'Dosis'),
                               textAlign: TextAlign.left,
                             ),
                             trailing: StatefulBuilder(builder:
@@ -402,8 +492,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                     ? const Icon(Icons.bookmark)
                                     : const Icon(Icons.bookmark_border),
                                 iconSize: 40,
-                                color:
-                                    alreadySaved ? Colors.yellowAccent : null,
+                                color: alreadySaved ? Colors.white : null,
                                 onPressed: () {
                                   setState(() {
                                     if (alreadySaved) {
@@ -415,12 +504,18 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                         'savedRecipes': FieldValue.arrayRemove(
                                             [data[i].reference])
                                       });
-                                      String recipeDocName = data[i].reference.toString().split("/")[1];
-                                      recipeDocName = recipeDocName.substring(0, recipeDocName.length -1);
+                                      String recipeDocName = data[i]
+                                          .reference
+                                          .toString()
+                                          .split("/")[1];
+                                      recipeDocName = recipeDocName.substring(
+                                          0, recipeDocName.length - 1);
                                       FirebaseFirestore.instance
                                           .collection('recipes')
                                           .doc(recipeDocName)
-                                          .update({"likes": FieldValue.increment(-1)});
+                                          .update({
+                                        "likes": FieldValue.increment(-1)
+                                      });
                                     } else {
                                       alreadySaved = true;
                                       FirebaseFirestore.instance
@@ -430,12 +525,18 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                         'savedRecipes': FieldValue.arrayUnion(
                                             [data[i].reference])
                                       });
-                                      String recipeDocName = data[i].reference.toString().split("/")[1];
-                                      recipeDocName = recipeDocName.substring(0, recipeDocName.length -1);
+                                      String recipeDocName = data[i]
+                                          .reference
+                                          .toString()
+                                          .split("/")[1];
+                                      recipeDocName = recipeDocName.substring(
+                                          0, recipeDocName.length - 1);
                                       FirebaseFirestore.instance
                                           .collection('recipes')
                                           .doc(recipeDocName)
-                                          .update({"likes": FieldValue.increment(1)});
+                                          .update({
+                                        "likes": FieldValue.increment(1)
+                                      });
                                     }
                                   });
                                 },
@@ -448,10 +549,10 @@ class _RecipeFinderState extends State<RecipeFinder> {
     return toReturn;
   }
 }
+
 class MyHomePage extends StatefulWidget {
   @override
-  _MyHomePageState createState()
-  {
+  _MyHomePageState createState() {
     return _MyHomePageState();
   }
 }
@@ -462,37 +563,35 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-          children: [
-            Container(
-              margin: EdgeInsets.all(10),
-              color: Colors.green,
-              child: ExpansionPanelList(
-                animationDuration: Duration(milliseconds: 500),
-                children: [
-                  ExpansionPanel(
-                    headerBuilder: (context, isExpanded) {
-                      return ListTile(
-                        title: Text('Click To Expand', style: TextStyle(color: Colors.black),),
-                      );
-                    },
-                    body: Text("hello!"),
-                    isExpanded: _expanded,
-                    canTapOnHeader: true,
-                  ),
-                ],
-                dividerColor: Colors.grey,
-                expansionCallback: (panelIndex, isExpanded) {
-                  _expanded = !_expanded;
-                  setState(() {
-
-                  });
+      body: Column(children: [
+        Container(
+          margin: EdgeInsets.all(10),
+          color: Colors.green,
+          child: ExpansionPanelList(
+            animationDuration: Duration(milliseconds: 500),
+            children: [
+              ExpansionPanel(
+                headerBuilder: (context, isExpanded) {
+                  return ListTile(
+                    title: Text(
+                      'Click To Expand',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  );
                 },
-
+                body: Text("hello!"),
+                isExpanded: _expanded,
+                canTapOnHeader: true,
               ),
-            ),
-          ]
-      ),
+            ],
+            dividerColor: Colors.grey,
+            expansionCallback: (panelIndex, isExpanded) {
+              _expanded = !_expanded;
+              setState(() {});
+            },
+          ),
+        ),
+      ]),
     );
   }
 }
