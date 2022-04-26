@@ -407,7 +407,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                     child: Column(
                       children: <Widget>[
                         Hero(
-                          tag: 'recipe' + i.toString(),
+                          tag: recipeName,
                           child: ClipRRect(
                             borderRadius: const BorderRadius.only(
                                 topRight: Radius.circular(20),

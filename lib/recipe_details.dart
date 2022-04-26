@@ -155,13 +155,13 @@ class _viewRecipeState extends State<viewRecipe> {
                   fontSize: 28.0,
                   fontWeight: FontWeight.bold,
                   decoration: TextDecoration.none,
-                  color: Colors.black54,
+                  color: Colors.black,
                   fontFamily: 'Dosis'),
               textAlign: TextAlign.center,
             ),
           ),
           Hero(
-            tag: 'recipe' + widget.number.toString(),
+            tag: widget.recipe['title'],
             child: Container(
               margin: const EdgeInsets.only(
                 left: 30,
