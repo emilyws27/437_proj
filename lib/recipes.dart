@@ -237,8 +237,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
   Widget createLists(
       List<List<DocumentSnapshot>> data, List<String> sectionTitles) {
     Widget toReturn = Column(children: [
-      Filters(),
-      Divider(thickness: 1),
+      !widget.mySaved ? Filters() : createHeader("Your Saved Recipes"),
+      !widget.mySaved ? Divider(thickness: 1) : Container(),
       data[0].length > 0
           ? createList(data[0], sectionTitles[0], "0")
           : Container(),
@@ -305,8 +305,6 @@ class _RecipeFinderState extends State<RecipeFinder> {
         )
       ],
     );
-
-    // return Column(children: [
   }
 
   Widget createHeader(String title) {
