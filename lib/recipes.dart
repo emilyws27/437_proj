@@ -41,9 +41,9 @@ class _RecipeFinderState extends State<RecipeFinder> {
   ];
   bool shouldTruncateByMaxResults = true;
   int maxRecipesToReturn = 20;
-  bool shouldFilterByServings = false;
+  bool shouldFilterByServings = true;
   double minServings = 1;
-  bool shouldFilterByCalories = false;
+  bool shouldFilterByCalories = true;
   double maxCalories = 500;
 
   Future<List<List<DocumentSnapshot>>> getSavedRecipes(
