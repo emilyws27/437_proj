@@ -176,12 +176,12 @@ class _RecipeFinderState extends State<RecipeFinder> {
         allRecipes = await getAllRecipes(user, maxRecipesToReturn);
         toReturn = allRecipes;
 
-        if (shouldFilterByServings) {
+        // if (shouldFilterByServings) {
           toReturn = filterRecipesByServings(toReturn);
-        }
-        if (shouldFilterByCalories) {
+        // }
+        // if (shouldFilterByCalories) {
           toReturn = filterRecipesByCalories(toReturn);
-        }
+        // }
         toReturn.add([]);
         toReturn[4] = await getPopularRecipes();
         //truncate to max results should always be last
