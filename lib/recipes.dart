@@ -36,7 +36,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
     "Missing 3 Ingredients",
     "Popular Recipes"
   ];
-  bool shouldFilterByDishType = true;
+  bool shouldFilterByDishType = false;
   String dishType = "Main Course";
   final dishTypes = [
     "Appetizer",
@@ -50,9 +50,9 @@ class _RecipeFinderState extends State<RecipeFinder> {
   ];
   bool shouldTruncateByMaxResults = true;
   int maxRecipesToReturn = 20;
-  bool shouldFilterByServings = true;
+  bool shouldFilterByServings = false;
   double minServings = 1;
-  bool shouldFilterByCalories = true;
+  bool shouldFilterByCalories = false;
   double maxCalories = 500;
 
   // bool isCaloriesFilterApplied = false;
@@ -81,21 +81,22 @@ class _RecipeFinderState extends State<RecipeFinder> {
       toReturn.add(mySavedRecipes);
       return toReturn;
     });
+    print("got saved Recipes");
     return savedRecipes;
   }
 
-  List<List<DocumentSnapshot>> filterRecipesByDishType(
-      List<List<DocumentSnapshot>> recipes) {
-    List<List<DocumentSnapshot>> toReturn = List.generate(4, (index) => []);
-    for (int i = 0; i < recipes.length; ++i) {
-      for (int j = 0; j < recipes[i].length; ++j) {
-        if (recipes[i][j].get("dishType") == dishType) {
-          toReturn[i].add(recipes[i][j]);
-        }
-      }
-    }
-    return toReturn;
-  }
+  // List<List<DocumentSnapshot>> filterRecipesByDishType(
+  //     List<List<DocumentSnapshot>> recipes) {
+  //   List<List<DocumentSnapshot>> toReturn = List.generate(4, (index) => []);
+  //   for (int i = 0; i < recipes.length; ++i) {
+  //     for (int j = 0; j < recipes[i].length; ++j) {
+  //       if (recipes[i][j].get("dishType") == dishType) {
+  //         toReturn[i].add(recipes[i][j]);
+  //       }
+  //     }
+  //   }
+  //   return toReturn;
+  // }
 
   List<List<DocumentSnapshot>> truncateRecipesByMaxResults(
       List<List<DocumentSnapshot>> recipes) {
@@ -219,10 +220,10 @@ class _RecipeFinderState extends State<RecipeFinder> {
       } else {
         allRecipes = await getAllRecipes(user, maxRecipesToReturn);
         toReturn = allRecipes;
-      }
-      if (shouldFilterByDishType) {
-        toReturn = filterRecipesByDishType(toReturn);
-      }
+
+      // if (shouldFilterByDishType) {
+      //   toReturn = filterRecipesByDishType(toReturn);
+      // }
       if (shouldFilterByServings) {
         toReturn = filterRecipesByServings(toReturn);
       }
@@ -230,14 +231,17 @@ class _RecipeFinderState extends State<RecipeFinder> {
         toReturn = filterRecipesByCalories(toReturn);
       }
 
-      if (!widget.mySaved) {
+
+        print("before adding blank");
         toReturn.add([]);
         toReturn[4] = await getPopularRecipes();
+        print("post adding popular");
+        //truncate to max results should always be last
+        if (shouldTruncateByMaxResults) {
+          toReturn = truncateRecipesByMaxResults(toReturn);
+        }
       }
-      //truncate to max results should always be last
-      if (shouldTruncateByMaxResults) {
-        toReturn = truncateRecipesByMaxResults(toReturn);
-      }
+      print("about to return from widget build");
       return toReturn;
     }
 
@@ -329,17 +333,17 @@ class _RecipeFinderState extends State<RecipeFinder> {
               title: Text('Add a Filter'),
               //collapsedBackgroundColor: Colors.white,
               children: <Widget>[
-                Text("Dish Type"),
-                Checkbox(
-                  checkColor: Colors.white,
-                  //fillColor: MaterialStateProperty.resolveWith(getColor),
-                  value: shouldFilterByDishType,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      shouldFilterByDishType = value!;
-                    });
-                  },
-                ),
+                // Text("Dish Type"),
+                // Checkbox(
+                //   checkColor: Colors.white,
+                //   //fillColor: MaterialStateProperty.resolveWith(getColor),
+                //   value: shouldFilterByDishType,
+                //   onChanged: (bool? value) {
+                //     setState(() {
+                //       shouldFilterByDishType = value!;
+                //     });
+                //   },
+                // ),
                 Text("Max Calories Per Serving: " + maxCalories.toInt().toString()),
                 Slider(
                   value: maxCalories,
@@ -437,7 +441,8 @@ class _RecipeFinderState extends State<RecipeFinder> {
                           currentUser: widget.currentUser,
                           recipe: data[i],
                           number: i,
-                          num_missing_ingr: num_missing),
+                          num_missing_ingr: num_missing,
+                          myIngredients: _myIngredients),
                       transitionsBuilder: (BuildContext context,
                           Animation<double> animation,
                           Animation<double> secondaryAnimation,
@@ -501,7 +506,7 @@ class _RecipeFinderState extends State<RecipeFinder> {
                                     ? const Icon(Icons.bookmark)
                                     : const Icon(Icons.bookmark_border),
                                 iconSize: 40,
-                                color: alreadySaved ? Colors.white : null,
+                                color: alreadySaved ? Color(0xffe0274a) : null,
                                 onPressed: () {
                                   setState(() {
                                     if (alreadySaved) {
